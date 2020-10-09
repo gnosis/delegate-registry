@@ -5,7 +5,7 @@ const abi = require('ethereumjs-abi')
 
 const DelegateRegistry = artifacts.require("./DelegateRegistry.sol")
 
-contract('DelegateRegistry', (accounts) => {
+contract('DelegateRegistry - Error Cases', (accounts) => {
 
     const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
     const TEST_DELEGATE_1 = "0x0000000000000000000000000000000000baDDAd"
@@ -16,7 +16,7 @@ contract('DelegateRegistry', (accounts) => {
     let registry
 
     beforeEach(async () => {
-        // Deploy Libraries
+        // Deploy Registry
         registry = await DelegateRegistry.new()
     })
 
