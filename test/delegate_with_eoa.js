@@ -57,7 +57,6 @@ contract('DelegateRegistry - With EOA', (accounts) => {
         assert.equal(overwriteEvent.args.delegate, TEST_DELEGATE_2)
         assert.equal(overwriteEvent.args.previousDelegate, TEST_DELEGATE_1)
 
-        // TODO: check event
         assert.equal(await registry.delegation(accounts[0], TEST_ID_1), TEST_DELEGATE_2)
     })
 
