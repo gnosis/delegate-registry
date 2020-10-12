@@ -25,7 +25,7 @@ contract('DelegateRegistry - With EOA', (accounts) => {
         assert.equal(setEvent.args.delegator, formatAddress(accounts[0]))
         assert.equal(setEvent.args.id, "0x" + TEST_ID_1.toString("hex"))
         assert.equal(setEvent.args.delegate, TEST_DELEGATE_1)
-        assert.equal(setEvent.args.previousDelegate, ZERO_ADDRESS)
+        checkTxEvent(setTx, 'ClearDelegate', registry.address, false)
 
         assert.equal(await registry.delegation(accounts[0], TEST_ID_1), TEST_DELEGATE_1)
 
@@ -34,7 +34,8 @@ contract('DelegateRegistry - With EOA', (accounts) => {
         const clearEvent = checkTxEvent(clearTx, 'ClearDelegate', registry.address, true, "Clear Delegate")
         assert.equal(clearEvent.args.delegator, formatAddress(accounts[0]))
         assert.equal(clearEvent.args.id, "0x" + TEST_ID_1.toString("hex"))
-        assert.equal(clearEvent.args.previousDelegate, TEST_DELEGATE_1)
+        assert.equal(clearEvent.args.delegate, TEST_DELEGATE_1)
+        checkTxEvent(clearTx, 'SetDelegate', registry.address, false)
 
         assert.equal(await registry.delegation(accounts[0], TEST_ID_1), ZERO_ADDRESS)
     })
@@ -45,7 +46,7 @@ contract('DelegateRegistry - With EOA', (accounts) => {
         assert.equal(setEvent.args.delegator, formatAddress(accounts[0]))
         assert.equal(setEvent.args.id, "0x" + TEST_ID_1.toString("hex"))
         assert.equal(setEvent.args.delegate, TEST_DELEGATE_1)
-        assert.equal(setEvent.args.previousDelegate, ZERO_ADDRESS)
+        checkTxEvent(setTx, 'ClearDelegate', registry.address, false)
 
         assert.equal(await registry.delegation(accounts[0], TEST_ID_1), TEST_DELEGATE_1)
 
@@ -55,7 +56,10 @@ contract('DelegateRegistry - With EOA', (accounts) => {
         assert.equal(overwriteEvent.args.delegator, formatAddress(accounts[0]))
         assert.equal(overwriteEvent.args.id, "0x" + TEST_ID_1.toString("hex"))
         assert.equal(overwriteEvent.args.delegate, TEST_DELEGATE_2)
-        assert.equal(overwriteEvent.args.previousDelegate, TEST_DELEGATE_1)
+        const clearEvent = checkTxEvent(overwriteTx, 'ClearDelegate', registry.address, true)
+        assert.equal(clearEvent.args.delegator, formatAddress(accounts[0]))
+        assert.equal(clearEvent.args.id, "0x" + TEST_ID_1.toString("hex"))
+        assert.equal(clearEvent.args.delegate, TEST_DELEGATE_1)
 
         assert.equal(await registry.delegation(accounts[0], TEST_ID_1), TEST_DELEGATE_2)
     })
@@ -67,7 +71,7 @@ contract('DelegateRegistry - With EOA', (accounts) => {
         assert.equal(setEvent.args.delegator, formatAddress(accounts[0]))
         assert.equal(setEvent.args.id, TEST_ID_0)
         assert.equal(setEvent.args.delegate, TEST_DELEGATE_1)
-        assert.equal(setEvent.args.previousDelegate, ZERO_ADDRESS)
+        checkTxEvent(setTx, 'ClearDelegate', registry.address, false)
 
         assert.equal(await registry.delegation(accounts[0], TEST_ID_0), TEST_DELEGATE_1)
 
@@ -76,7 +80,8 @@ contract('DelegateRegistry - With EOA', (accounts) => {
         const clearEvent = checkTxEvent(clearTx, 'ClearDelegate', registry.address, true, "Clear Delegate")
         assert.equal(clearEvent.args.delegator, formatAddress(accounts[0]))
         assert.equal(clearEvent.args.id, TEST_ID_0)
-        assert.equal(clearEvent.args.previousDelegate, TEST_DELEGATE_1)
+        assert.equal(clearEvent.args.delegate, TEST_DELEGATE_1)
+        checkTxEvent(clearTx, 'SetDelegate', registry.address, false)
 
         assert.equal(await registry.delegation(accounts[0], TEST_ID_0), ZERO_ADDRESS)
     })
@@ -87,14 +92,14 @@ contract('DelegateRegistry - With EOA', (accounts) => {
         assert.equal(setEvent1.args.delegator, formatAddress(accounts[0]))
         assert.equal(setEvent1.args.id, "0x" + TEST_ID_1.toString("hex"))
         assert.equal(setEvent1.args.delegate, TEST_DELEGATE_1)
-        assert.equal(setEvent1.args.previousDelegate, ZERO_ADDRESS)
+        checkTxEvent(setTx1, 'ClearDelegate', registry.address, false)
 
         const setTx2 = await registry.setDelegate(TEST_ID_2, TEST_DELEGATE_2, { from: accounts[0] })
         const setEvent2 = checkTxEvent(setTx2, 'SetDelegate', registry.address, true, "Set Delegate 2")
         assert.equal(setEvent2.args.delegator, formatAddress(accounts[0]))
         assert.equal(setEvent2.args.id, "0x" + TEST_ID_2.toString("hex"))
         assert.equal(setEvent2.args.delegate, TEST_DELEGATE_2)
-        assert.equal(setEvent2.args.previousDelegate, ZERO_ADDRESS)
+        checkTxEvent(setTx2, 'ClearDelegate', registry.address, false)
 
         assert.equal(await registry.delegation(accounts[0], TEST_ID_1), TEST_DELEGATE_1)
         assert.equal(await registry.delegation(accounts[0], TEST_ID_2), TEST_DELEGATE_2)
@@ -104,7 +109,8 @@ contract('DelegateRegistry - With EOA', (accounts) => {
         const clearEvent1 = checkTxEvent(clearTx1, 'ClearDelegate', registry.address, true, "Clear Delegate 1")
         assert.equal(clearEvent1.args.delegator, formatAddress(accounts[0]))
         assert.equal(clearEvent1.args.id, "0x" + TEST_ID_1.toString("hex"))
-        assert.equal(clearEvent1.args.previousDelegate, TEST_DELEGATE_1)
+        assert.equal(clearEvent1.args.delegate, TEST_DELEGATE_1)
+        checkTxEvent(clearTx1, 'SetDelegate', registry.address, false)
 
         assert.equal(await registry.delegation(accounts[0], TEST_ID_1), ZERO_ADDRESS)
         assert.equal(await registry.delegation(accounts[0], TEST_ID_2), TEST_DELEGATE_2)
@@ -114,7 +120,8 @@ contract('DelegateRegistry - With EOA', (accounts) => {
         const clearEvent2 = checkTxEvent(clearTx2, 'ClearDelegate', registry.address, true, "Clear Delegate 2")
         assert.equal(clearEvent2.args.delegator, formatAddress(accounts[0]))
         assert.equal(clearEvent2.args.id, "0x" + TEST_ID_2.toString("hex"))
-        assert.equal(clearEvent2.args.previousDelegate, TEST_DELEGATE_2)
+        assert.equal(clearEvent2.args.delegate, TEST_DELEGATE_2)
+        checkTxEvent(clearTx2, 'SetDelegate', registry.address, false)
 
         assert.equal(await registry.delegation(accounts[0], TEST_ID_1), ZERO_ADDRESS)
         assert.equal(await registry.delegation(accounts[0], TEST_ID_2), ZERO_ADDRESS)

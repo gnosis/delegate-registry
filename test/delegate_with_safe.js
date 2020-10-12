@@ -92,7 +92,7 @@ contract('DelegateRegistry - With Safe', (accounts) => {
         assert.equal(await registry.delegation(gnosisSafe.address, TEST_ID_1), TEST_DELEGATE_2)
     })
 
-    it('set and clear delegate, 0x id', async () => {
+    it('set and clear delegate, 0 id', async () => {
         const TEST_ID_0 = "0x0000000000000000000000000000000000000000000000000000000000000000"
         await execTransaction(
             registry.address,
