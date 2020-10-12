@@ -42,7 +42,7 @@ contract('DelegateRegistry - With Safe', (accounts) => {
         await gnosisSafe.setup([lw.accounts[0], lw.accounts[1], accounts[1]], 2, ZERO_ADDRESS, "0x", ZERO_ADDRESS, ZERO_ADDRESS, 0, ZERO_ADDRESS, { from: accounts[0] })
     })
 
-    let execTransaction = async function(to, data, message) {
+    let execTransaction = async function (to, data, message) {
         let nonce = await gnosisSafe.nonce()
         let transactionHash = await gnosisSafe.getTransactionHash(to, 0, data, 0, 0, 0, 0, ZERO_ADDRESS, ZERO_ADDRESS, nonce)
         let sigs = safeUtils.signTransaction(lw, [lw.accounts[0], lw.accounts[1]], transactionHash)
@@ -62,7 +62,7 @@ contract('DelegateRegistry - With Safe', (accounts) => {
         )
 
         assert.equal(await registry.delegation(gnosisSafe.address, TEST_ID_1), TEST_DELEGATE_1)
-        
+
         // Reset delegate
         await execTransaction(
             registry.address,
@@ -81,7 +81,7 @@ contract('DelegateRegistry - With Safe', (accounts) => {
         )
 
         assert.equal(await registry.delegation(gnosisSafe.address, TEST_ID_1), TEST_DELEGATE_1)
-        
+
         // Overwrite delegate
         await execTransaction(
             registry.address,
@@ -90,6 +90,26 @@ contract('DelegateRegistry - With Safe', (accounts) => {
         )
 
         assert.equal(await registry.delegation(gnosisSafe.address, TEST_ID_1), TEST_DELEGATE_2)
+    })
+
+    it('set and clear delegate, 0x id', async () => {
+        const TEST_ID_0 = "0x0000000000000000000000000000000000000000000000000000000000000000"
+        await execTransaction(
+            registry.address,
+            await registry.contract.methods.setDelegate(TEST_ID_0, TEST_DELEGATE_1).encodeABI(),
+            "Set Delegate"
+        )
+
+        assert.equal(await registry.delegation(gnosisSafe.address, TEST_ID_0), TEST_DELEGATE_1)
+
+        // Reset delegate
+        await execTransaction(
+            registry.address,
+            await registry.contract.methods.clearDelegate(TEST_ID_0).encodeABI(),
+            "Set Delegate"
+        )
+
+        assert.equal(await registry.delegation(gnosisSafe.address, TEST_ID_0), ZERO_ADDRESS)
     })
 
     it('set and clear delegates, multiple ids', async () => {
@@ -106,7 +126,7 @@ contract('DelegateRegistry - With Safe', (accounts) => {
 
         assert.equal(await registry.delegation(gnosisSafe.address, TEST_ID_1), TEST_DELEGATE_1)
         assert.equal(await registry.delegation(gnosisSafe.address, TEST_ID_2), TEST_DELEGATE_2)
-        
+
         // Reset delegate for first id
         // Reset delegate
         await execTransaction(
@@ -117,7 +137,7 @@ contract('DelegateRegistry - With Safe', (accounts) => {
 
         assert.equal(await registry.delegation(gnosisSafe.address, TEST_ID_1), ZERO_ADDRESS)
         assert.equal(await registry.delegation(gnosisSafe.address, TEST_ID_2), TEST_DELEGATE_2)
-        
+
         // Reset delegate for second id
         // Reset delegate
         await execTransaction(
@@ -138,11 +158,11 @@ contract('DelegateRegistry - With Safe', (accounts) => {
         )
         safeUtils.logGasUsage(
             'Set Delegate with TEST_ID_1 and TEST_DELEGATE_2',
-            await registry.setDelegate(TEST_ID_1, TEST_DELEGATE_2, { from: accounts[8]})
+            await registry.setDelegate(TEST_ID_1, TEST_DELEGATE_2, { from: accounts[8] })
         )
         safeUtils.logGasUsage(
             'Set Delegate with TEST_ID_2 and TEST_DELEGATE_2',
-            await registry.setDelegate(TEST_ID_2, TEST_DELEGATE_2, { from: accounts[8]})
+            await registry.setDelegate(TEST_ID_2, TEST_DELEGATE_2, { from: accounts[8] })
         )
 
         assert.equal(await registry.delegation(gnosisSafe.address, TEST_ID_1), TEST_DELEGATE_1)
