@@ -63,7 +63,7 @@
     "random-buffer": "*",
     "run-with-testrpc": "^0.3.0",
     "solidity-coverage": "^0.7.11",
-    "truffle": "^5.1.21",
+    "truffle": "^5.1.42",
     "web3": "^1.2.6"
   },
   "dependencies": {
