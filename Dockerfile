@@ -3,10 +3,7 @@ FROM node:12
 ENV USER=root
 WORKDIR "/"
 
-COPY package.json ./
-COPY yarn.lock ./
-COPY truffle-config.js ./
-COPY networks.json ./
+COPY package.json yarn.lock truffle-config.js networks.json ./
 
 RUN yarn
 
