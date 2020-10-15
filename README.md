@@ -49,20 +49,19 @@ Docker is used to ensure that always the same bytecode is generated.
 
 Preparation:
 - Set `INFURA_TOKEN` in `.env`
-- Set `NETWORK` in `.env`
+- Set `MNEMONIC` in `.env`
 
 Deploying with docker (should always result in the same registry address):
 
 ```bash
-docker build -t delegate-registry .
-docker run delegate-registry yarn deploy
+./deploy <network>
 ```
 
 If you want to run it without docker (might result in different registry address):
 
 ```bash
 yarn compile
-yarn deploy
+yarn deploy <network>
 ```
 
 ### Verify contract
