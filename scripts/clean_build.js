@@ -20,7 +20,11 @@ async function process() {
         const contractFile = path.join(contractDir, contract)
         if (supportedContracts.indexOf(contract.slice(0, -5)) < 0) {
             console.log(`Delete ${contractFile}`)
-            fs.unlinkSync(contractFile)
+            try {
+                fs.unlinkSync(contractFile)
+            } catch(e) {
+                console.log(`Could not delete ${contractFile}`)
+            }
         } else {
             const contractJson = JSON.parse(fs.readFileSync(contractFile))
             const networks = contractJson.networks
@@ -34,7 +38,11 @@ async function process() {
                 }
                 extractedNetworks[contractJson.contractName][network] = networkData
             }
-            await writeFile(contractFile, JSON.stringify(contractJson, null, 2))
+            try {
+                await writeFile(contractFile, JSON.stringify(contractJson, null, 2))
+            } catch(e) {
+                console.log(`Could not write clean ${contractFile}`)
+            }
         }
     }
     await writeFile(networksFile, JSON.stringify(extractedNetworks, null, 2))
