@@ -30,7 +30,7 @@
     "coverage": "run(){ truffle run coverage $@; }; run",
     "deploy": "run(){ truffle deploy --network=$@; }; run",
     "do": "run(){ truffle exec --network=$@; }; run",
-    "prepare": "yarn truffle compile && yarn tnt iN",
+    "prepare": "yarn tnt iN",
     "preversion": "node scripts/clean_build.js && yarn tnt cB"
   },
   "repository": {
