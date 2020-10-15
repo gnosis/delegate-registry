@@ -9,11 +9,11 @@ cache:
 
 before_script: 
 - cp .env.sample .env
-- docker-compose up build
+- docker build -t delegate-registry .
 
 jobs:
   include:
     - script:
-      - docker-compose up test
+      - docker run delegate-registry yarn test
     - script:
-      - docker-compose up coverage
+      - docker run delegate-registry yarn coverage

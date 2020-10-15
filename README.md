@@ -9,29 +9,48 @@ Install
 
 ```bash
 yarn
+// Setup env
+cp .env.sample .env
 ```
 
 ### Run all tests (requires Node version >=7 for `async/await`):
 
+Running the tests with docker:
+
 ```bash
-yarn truffle compile
+docker build -t delegate-registry .
+docker run delegate-registry yarn test
+```
+
+If you want to run it without docker:
+
+```bash
+yarn compile
 yarn test
 ```
 
-`yarn test` will start a ganache-cli with the correct configuration. If you want to run `yarn truffle test` you need to start a [ganache-cli](https://github.com/trufflesuite/ganache-cli) instance.
+In this case it is expected that the deployment check test fails.
 
 ### Deploy
+
+Docker is used to ensure that always the same bytecode is generated.
 
 Preparation:
 - Set `INFURA_TOKEN` in `.env`
 - Set `NETWORK` in `.env`
-- Run `yarn truffle compile`
 
-Truffle:
-- Set `MNEMONIC` in `.env`
+Deploying with docker (should always result in the same registry address):
 
 ```bash
-yarn truffle deploy
+docker build -t delegate-registry .
+docker run delegate-registry yarn deploy
+```
+
+If you want to run it without docker (might result in different registry address):
+
+```bash
+yarn compile
+yarn deploy
 ```
 
 ### Verify contract
