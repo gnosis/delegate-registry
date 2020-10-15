@@ -13,6 +13,18 @@ yarn
 cp .env.sample .env
 ```
 
+### Build contracts
+
+With docker:
+```bash
+docker-compose up
+```
+
+Without docker:
+```bash
+yarn compile
+```
+
 ### Run all tests (requires Node version >=7 for `async/await`):
 
 Running the tests with docker:
@@ -55,7 +67,10 @@ yarn deploy
 
 ### Verify contract
 
-Note: To completely replicate the bytecode that has been deployed it is required that the project path is `/delegate-registry` this can be archived using `sudo mkdir /delegate-registry && sudo mount -B <your_repo_path> /delegate-registry`. Make sure the run `yarn` again if the path has been changed after the initial `yarn install`. If you use a different path you will only get partial matches.
+Note: To completely replicate the bytecode that has been deployed it is required that the project path is always the same. For this use the provided Dockerfile and map the the build folder into your local build folder. For this a docker-compose file is provided which can be used with:
+```bash
+docker-compose up
+```
 
 You can locally verify contract using the scripts `generate_meta.js` and `verify_deployment.js`.
 
