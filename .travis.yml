@@ -11,6 +11,7 @@ cache:
     - node_modules
 
 before_script: 
+- cp .env.sample .env
 - docker-compose up build
 
 jobs:
