@@ -1,0 +1,29 @@
+version: "3.5"
+
+services:
+  build:
+    image: delegate-registry/contracts
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - ./build:/build:rw
+    command: yarn compile
+
+  test:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    env_file:
+      - .env
+    command: yarn test
+
+  coverage:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    env_file:
+      - .env
+    command: yarn coverage && cat ./coverage/lcov.info | coveralls

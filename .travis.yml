@@ -1,17 +1,21 @@
 language: node_js
+
 node_js:
-- '10'
+- '12'
+
+services:
+  - docker
+
 cache:
   directories:
     - node_modules
+
 before_script: 
-- 
+- docker-compose up build
+
 jobs:
   include:
     - script:
-      - yarn compile
-      - yarn test
+      - docker-compose up test
     - script:
-      - yarn compile
-      - yarn coverage
-      - cat ./coverage/lcov.info | coveralls
+      - docker-compose up coverage
