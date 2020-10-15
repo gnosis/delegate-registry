@@ -10,4 +10,4 @@ services:
       - .env
     volumes:
       - ./build:/build:rw
-    command: yarn compile
+    command: "yarn compile"

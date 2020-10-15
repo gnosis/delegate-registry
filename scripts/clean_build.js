@@ -29,6 +29,9 @@ async function process() {
                 const networkData = networks[network]
                 if (!networkData) continue
                 contractJson.networks[network] = networkData
+                if (!extractedNetworks[contractJson.contractName]) {
+                    extractedNetworks[contractJson.contractName] = {}
+                }
                 extractedNetworks[contractJson.contractName][network] = networkData
             }
             await writeFile(contractFile, JSON.stringify(contractJson, null, 2))
