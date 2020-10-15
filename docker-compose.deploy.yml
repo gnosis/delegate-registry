@@ -1,0 +1,7 @@
+version: "3.5"
+
+services:
+  build:
+    env_file:
+      - .env.deploy
+    command: "yarn deploy ${NETWORK}"

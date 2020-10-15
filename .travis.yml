@@ -1,17 +1,19 @@
-language: node_js
-node_js:
-- '10'
+language: minimal
+
+services:
+  - docker
+
 cache:
   directories:
     - node_modules
+
 before_script: 
-- 
+- cp .env.sample .env
+- docker build -t delegate-registry .
+
 jobs:
   include:
     - script:
-      - yarn compile
-      - yarn test
+      - docker run delegate-registry yarn test
     - script:
-      - yarn compile
-      - yarn coverage
-      - cat ./coverage/lcov.info | coveralls
+      - docker run delegate-registry yarn coverage

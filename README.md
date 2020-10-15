@@ -9,34 +9,67 @@ Install
 
 ```bash
 yarn
+// Setup env
+cp .env.sample .env
+```
+
+### Build contracts
+
+With docker:
+```bash
+docker-compose up
+```
+
+Without docker:
+```bash
+yarn compile
 ```
 
 ### Run all tests (requires Node version >=7 for `async/await`):
 
+Running the tests with docker:
+
 ```bash
-yarn truffle compile
+docker build -t delegate-registry .
+docker run delegate-registry yarn test
+```
+
+If you want to run it without docker:
+
+```bash
+yarn compile
 yarn test
 ```
 
-`yarn test` will start a ganache-cli with the correct configuration. If you want to run `yarn truffle test` you need to start a [ganache-cli](https://github.com/trufflesuite/ganache-cli) instance.
+In this case it is expected that the deployment check test fails.
 
 ### Deploy
 
+Docker is used to ensure that always the same bytecode is generated.
+
 Preparation:
 - Set `INFURA_TOKEN` in `.env`
-- Set `NETWORK` in `.env`
-- Run `yarn truffle compile`
-
-Truffle:
 - Set `MNEMONIC` in `.env`
 
+Deploying with docker (should always result in the same registry address):
+
 ```bash
-yarn truffle deploy
+./deploy.sh <network>
+```
+
+If you want to run it without docker (might result in different registry address):
+
+```bash
+yarn compile
+yarn deploy <network>
 ```
 
 ### Verify contract
 
-Note: To completely replicate the bytecode that has been deployed it is required that the project path is `/delegate-registry` this can be archived using `sudo mkdir /delegate-registry && sudo mount -B <your_repo_path> /delegate-registry`. Make sure the run `yarn` again if the path has been changed after the initial `yarn install`. If you use a different path you will only get partial matches.
+Note: To completely replicate the bytecode that has been deployed it is required that the project path is always the same. For this use the provided Dockerfile and map the the build folder into your local build folder. For this a docker-compose file is provided which can be used with:
+```bash
+docker-compose up
+```
 
 You can locally verify contract using the scripts `generate_meta.js` and `verify_deployment.js`.
 

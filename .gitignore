@@ -5,6 +5,7 @@ node_modules/
 .openzeppelin/.session
 env/
 .env
+.env.deploy
 bin/
 solc
 coverage.json
