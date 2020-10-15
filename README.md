@@ -54,7 +54,7 @@ Preparation:
 Deploying with docker (should always result in the same registry address):
 
 ```bash
-./deploy <network>
+./deploy.sh <network>
 ```
 
 If you want to run it without docker (might result in different registry address):
