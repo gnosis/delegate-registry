@@ -1,5 +1,3 @@
-const truffleContract = require("@truffle/contract")
-
 const { toConfirmationPromise } = require('./promise_utils');
 const { buildCreate2Address } = require('./address_utils');
 
@@ -57,28 +55,42 @@ const ensureFactory = async (web3) => {
     } else {
         console.log(`EIP 2470 SingletonFactory already deployed at ${SINGLETON_FACTORY}`);
     }
-    const factoryContract = truffleContract({ abi: SINGLETON_FACTORY_ABI })
-    factoryContract.setProvider(web3.currentProvider)
-    const singletonFactory = await factoryContract.at(SINGLETON_FACTORY)
+    const singletonFactory = new web3.eth.Contract(SINGLETON_FACTORY_ABI);
+    singletonFactory.options.address = SINGLETON_FACTORY;
     return singletonFactory;
 }
 
-const deployContract = async (web3, bytecode, salt) => {
+const estimateDeploymentCost = async(factory, bytecode, salt, expectedAddress) => {
+    let estimate = await factory.methods.deploy(bytecode, salt).estimateGas();
+    let tries = 0;
+    let address = 0;
+    while (address != expectedAddress && tries < 10) {
+        tries++;
+        address = await factory.methods.deploy(bytecode, salt).call({ gasLimit: estimate });
+        estimate = Math.ceil(estimate * 1.2);
+    }
+    return estimate;
+}
+
+const deployContract = async (web3, bytecode, options) => {
+    const opts = options || {};
+    const deploymentSalt = opts.salt || '0x';
     const [deployer] = await web3.eth.getAccounts();
-    const contractAddress = buildCreate2Address(SINGLETON_FACTORY, salt, bytecode);
+    const contractAddress = buildCreate2Address(SINGLETON_FACTORY, deploymentSalt, bytecode);
     const requireDeployment = (await web3.eth.getCode(contractAddress)) === '0x';
     if (!requireDeployment) {
         return { txHash: null, newContract: false, contractAddress };
     }
     const factory = await ensureFactory(web3);
-    const { tx } = await factory.deploy(bytecode, salt, { from: deployer });
-    return { txHash: tx, newContract: true, contractAddress };
+    const gasLimit = opts.gasLimit || (await estimateDeploymentCost(factory, bytecode, deploymentSalt, contractAddress));
+    const { transactionHash } = await factory.methods.deploy(bytecode, deploymentSalt).send({ from: deployer, gas: gasLimit });
+    if((await web3.eth.getCode(contractAddress)) === '0x') throw Error("Contract not deployed");
+    return { txHash: transactionHash, newContract: true, contractAddress };
 }
 
-const deployTruffleContract = async (web3, artifact, salt) => {
+const deployTruffleContract = async (web3, artifact, options) => {
     const artifactName = artifact.contractName || "Artifact"
-    const deploymentSalt = salt || '0x';
-    const { contractAddress, txHash, newContract } = await deployContract(web3, artifact.bytecode, deploymentSalt);
+    const { contractAddress, txHash, newContract } = await deployContract(web3, artifact.bytecode, options);
     if (newContract) {
         console.log(`Deployed ${artifactName} at ${contractAddress}`);
 
