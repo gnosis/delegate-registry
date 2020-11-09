@@ -1,5 +1,62 @@
 {
   "DelegateRegistry": {
+    "1": {
+      "events": {
+        "0x9c4f00c4291262731946e308dc2979a56bd22cce8f95906b975065e96cd5a064": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "delegator",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "id",
+              "type": "bytes32"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "delegate",
+              "type": "address"
+            }
+          ],
+          "name": "ClearDelegate",
+          "type": "event"
+        },
+        "0xa9a7fd460f56bddb880a465a9c3e9730389c70bc53108148f16d55a87a6c468e": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "delegator",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "bytes32",
+              "name": "id",
+              "type": "bytes32"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "delegate",
+              "type": "address"
+            }
+          ],
+          "name": "SetDelegate",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0x469788fE6E9E9681C6ebF3bF78e7Fd26Fc015446",
+      "transactionHash": "0x91f839083a51356711099f740b5fc4bb6cb547deaa411694a92fd49aec2fcb54"
+    },
     "4": {
       "events": {
         "0x9c4f00c4291262731946e308dc2979a56bd22cce8f95906b975065e96cd5a064": {
