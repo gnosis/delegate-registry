@@ -73,7 +73,7 @@ docker-compose up
 
 You can locally verify contract using the scripts `generate_meta.js` and `verify_deployment.js`.
 
-With `node scripts/generate_meta.js` a `meta` folder is created in the `build` folder that contains all files required to verify the source code on https://verification.komputing.org/ and https://etherscan.io/
+With `node scripts/generate_meta.js` a `meta` folder is created in the `build` folder that contains all files required to verify the source code on https://sourcify.dev and https://etherscan.io/
 
 For Etherscan only the `DelegateRegistryEtherscan.json` file is required. For sourcify the `DelegateRegistryMeta.json` and all the `.sol` files are required.
 
