@@ -1,12 +1,13 @@
-build/
-node_modules/
-.DS_Store
-.zos.session
-.openzeppelin/.session
-env/
+node_modules
 .env
-.env.deploy
-bin/
-solc
+coverage
 coverage.json
-/coverage
+typechain
+typechain-types
+
+# Hardhat files
+cache
+artifacts
+
+# logs
+yarn-error.log
