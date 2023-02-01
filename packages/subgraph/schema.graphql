@@ -1,0 +1,19 @@
+type To @entity(immutable: true) {
+  id: ID! # address
+  address: Bytes!
+  delegations: [Delegation!]! @derivedFrom(field: "to")
+}
+
+type From @entity(immutable: true) {
+  id: ID! # address
+  address: Bytes!
+  delegations: [Delegation!]! @derivedFrom(field: "from")
+}
+
+type Delegation @entity(immutable: true) {
+  id: ID! # hash(fromAddress + toAddress)
+  from: From!
+  to: To!
+  ratio: BigInt!
+  updatedOn: BigInt!
+}

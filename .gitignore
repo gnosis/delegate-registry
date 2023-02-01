@@ -11,3 +11,7 @@ artifacts
 
 # logs
 yarn-error.log
+
+# subgraph
+generated
+build

@@ -1,0 +1,25 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: DelegateRegistry
+    network: goerli
+    source:
+      address: "0xBa82B50Ab9A590cC15Ef725A80277FBAA1d932c5"
+      abi: DelegateRegistry
+      startBlock: 6627917
+
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - SetDelegate
+      abis:
+        - name: DelegateRegistry
+          file: ./abis/DelegateRegistry.json
+      eventHandlers:
+        - event: SetDelegate(indexed address,indexed string,(bytes32,uint256)[],uint256)
+          handler: handleDelegation
+      file: ./src/mapping.ts
