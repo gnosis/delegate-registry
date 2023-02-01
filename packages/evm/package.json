@@ -1,5 +1,6 @@
 {
-  "name": "hardhat-project",
+  "name": "delegate-registry-contracts",
+  "license": "LGPL-3.0+",
   "scripts": {
     "build": "hardhat compile",
     "hardhat": "hardhat"

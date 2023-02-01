@@ -1,6 +1,7 @@
 {
-  "name": "delegate-registry-api",
+  "name": "delegate-registry-backend",
   "version": "1.0.0",
+  "license": "LGPL-3.0+",
   "description": "For computing vote weight for voters in Snapshot proposals",
   "repository": "https://github.com/gnosis/delegate-registry",
   "scripts": {
