@@ -12,6 +12,10 @@ artifacts
 # logs
 yarn-error.log
 
+# backend
+.graphclient
+.vercel
+
 # subgraph
 generated
 build
