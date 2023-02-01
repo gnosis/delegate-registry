@@ -1,0 +1,18 @@
+{
+  "name": "delegate-registry-api",
+  "version": "1.0.0",
+  "description": "For computing vote weight for voters in Snapshot proposals",
+  "repository": "https://github.com/gnosis/delegate-registry",
+  "scripts": {
+    "start": "vercel dev",
+    "deploy": "vercel deploy",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\""
+  },
+  "dependencies": {
+    "@vercel/node": "^2.5.21",
+    "ramda": "^0.28.0"
+  },
+  "devDependencies": {
+    "@types/ramda": "^0.28.22"
+  }
+}
