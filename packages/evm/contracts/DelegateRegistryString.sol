@@ -6,7 +6,7 @@ struct Delegation {
     uint64 term;
 }
 
-contract DelegateRegistry {
+contract DelegateRegistryString {
     // The first key is the delegator and the second key a id.
     // The value is the delegation information.
     mapping(address => mapping(string => Delegation)) public delegation;
@@ -51,8 +51,4 @@ contract DelegateRegistry {
 
         emit SetDelegation(msg.sender, id, delegation[msg.sender][id]);
     }
-}
-
-contract Hmm {
-    uint public variable;
 }
