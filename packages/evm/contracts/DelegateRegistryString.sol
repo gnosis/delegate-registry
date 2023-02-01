@@ -52,3 +52,7 @@ contract DelegateRegistry {
         emit SetDelegation(msg.sender, id, delegation[msg.sender][id]);
     }
 }
+
+contract Hmm {
+    uint public variable;
+}
