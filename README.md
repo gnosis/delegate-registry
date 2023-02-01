@@ -1,3 +1,3 @@
 # Delegate Registry
 
-A general purpose delegate registry contract.
+A general purpose delegate registry.
