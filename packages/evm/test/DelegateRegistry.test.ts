@@ -121,6 +121,14 @@ describe("Delegate Registry", function () {
         delegateRegistry.setDelegation("id", multipleDelegation, 42)
       ).to.be.revertedWithCustomError(delegateRegistry, "InvalidDelegateID")
     })
+    it("Reverts with DuplicateDelegate() if delegate 0x0 is provided", async () => {
+      const { delegateRegistry, multipleDelegation, wallet } = await setup()
+      multipleDelegation[1].id =
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      expect(
+        delegateRegistry.setDelegation("id", multipleDelegation, 42)
+      ).to.be.revertedWithCustomError(delegateRegistry, "InvalidDelegateID")
+    })
   })
 
   describe("clearDelegation()", function () {
