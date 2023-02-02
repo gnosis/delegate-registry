@@ -24,6 +24,8 @@ contract DelegateRegistry {
     error DuplicateDelegation(address emitter, Delegation[] delegation);
     /// @dev Duplicate expiration timestamp.
     error DuplicateTimestamp(address emitter, uint256 expirationTimestamp);
+    /// @dev Given delegate ID is 0 or a duplicate.
+    error InvalidDelegateID(address emiter, bytes32 delegateId);
 
     /// @dev Sets a delegate for the msg.sender and a specific id.
     /// @param id Id for which the delegate should be set.
@@ -48,14 +50,29 @@ contract DelegateRegistry {
         delete delegations[msg.sender][id];
 
         // Update delegation mapping
+        bytes32 previous;
         for (uint i = 0; i < delegation.length; i++) {
+            if (delegation[i].id <= previous)
+                revert InvalidDelegateID(address(this), delegation[i].id);
             delegations[msg.sender][id].push(delegation[i]);
+            previous = delegation[i].id;
         }
 
         // set delegation expiration
         expirationTimestamps[msg.sender][id] = expirationTimestamp;
 
         emit DelegationUpdated(msg.sender, id, delegation, expirationTimestamp);
+    }
+
+    function clearDelegation(string memory id) public {
+        delete delegations[msg.sender][id];
+        delete expirationTimestamps[msg.sender][id];
+        emit DelegationUpdated(
+            msg.sender,
+            id,
+            delegations[msg.sender][id],
+            expirationTimestamps[msg.sender][id]
+        );
     }
 
     function setExpiration(

@@ -113,7 +113,32 @@ describe("Delegate Registry", function () {
         delegateRegistry.setDelegation("id", singleDelegation, 42)
       ).to.be.revertedWithCustomError(delegateRegistry, "DuplicateDelegation")
     })
-    it("Reverts with DuplicateDelegate() if duplicate delegates are provided")
+    it("Reverts with DuplicateDelegate() if duplicate delegates are provided", async () => {
+      const { delegateRegistry, multipleDelegation, wallet } = await setup()
+      multipleDelegation[1].id =
+        "0x0000000000000000000000000000000000000000000000000000000000000001"
+      expect(
+        delegateRegistry.setDelegation("id", multipleDelegation, 42)
+      ).to.be.revertedWithCustomError(delegateRegistry, "InvalidDelegateID")
+    })
+  })
+
+  describe("clearDelegation()", function () {
+    it("Clears delegation in a given context", async () => {
+      const { delegateRegistry, singleDelegation, wallet } = await setup()
+      await delegateRegistry.setDelegation("id", singleDelegation, 42)
+      let delegation = await delegateRegistry.getDelegation(
+        "id",
+        wallet.address
+      )
+      expect(delegation.delegation[0].id).to.equal(singleDelegation[0].id)
+      expect(delegation.delegation[0].ratio).to.equal(singleDelegation[0].ratio)
+      expect(delegation.expirationTimestamp).to.equal(42)
+      await delegateRegistry.clearDelegation("id")
+      delegation = await delegateRegistry.getDelegation("id", wallet.address)
+      expect(delegation.delegation.length).to.equal(0)
+      expect(delegation.expirationTimestamp).to.equal(0)
+    })
   })
 
   describe("setExpiration()", function () {
