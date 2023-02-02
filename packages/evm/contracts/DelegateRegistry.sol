@@ -28,9 +28,9 @@ contract DelegateRegistry {
     error InvalidDelegateID(address emiter, bytes32 delegateId);
 
     /// @dev Sets a delegate for the msg.sender and a specific id.
-    /// @param id Id for which the delegate should be set.
+    /// @param id  ID of the context in which delegation should be set.
     /// @param delegation Array of delegations.
-    /// @param expirationTimestamp 64-bit Unix timestamp for the date at which this expiration should expire.
+    /// @param expirationTimestamp Unix timestamp for at which this delegation should expire.
     function setDelegation(
         string memory id,
         Delegation[] memory delegation,
@@ -64,6 +64,8 @@ contract DelegateRegistry {
         emit DelegationUpdated(msg.sender, id, delegation, expirationTimestamp);
     }
 
+    /// @dev Clears msg.sender's delegation in a given context.
+    /// @param id ID of the context in which delegation should be cleared.
     function clearDelegation(string memory id) public {
         delete delegations[msg.sender][id];
         delete expirationTimestamps[msg.sender][id];
@@ -75,6 +77,9 @@ contract DelegateRegistry {
         );
     }
 
+    /// @dev Sets msg.senders expiration timestamp for a given context.
+    /// @param id ID of the context in which the timestamp should be set.
+    /// @param expirationTimestamp Unix timestamp at which the delegations in this context should expire.
     function setExpiration(
         string memory id,
         uint256 expirationTimestamp
@@ -85,6 +90,11 @@ contract DelegateRegistry {
         emit ExpirationUpdated(id, expirationTimestamp);
     }
 
+    /// @dev Returns the delegation details for a given delegator in a given context.
+    /// @param id ID of the context to query.
+    /// @param delegator Address of the delegator to query.
+    /// @return delegation Array of delegations.
+    /// @return expirationTimestamp Unix timestamp at which this delegation will expire.
     function getDelegation(
         string memory id,
         address delegator
