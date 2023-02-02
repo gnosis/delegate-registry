@@ -15,11 +15,11 @@ dataSources:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - SetDelegate
+        - DelegationUpdated
       abis:
         - name: DelegateRegistry
-          file: ./abis/DelegateRegistry.json
+          file: ../evm/artifacts/contracts/DelegateRegistry.sol/DelegateRegistry.json
       eventHandlers:
-        - event: SetDelegate(indexed address,indexed string,(bytes32,uint256)[],uint256)
+        - event: DelegationUpdated(indexed address,string,(bytes32,uint256)[],uint256)
           handler: handleDelegation
       file: ./src/mapping.ts

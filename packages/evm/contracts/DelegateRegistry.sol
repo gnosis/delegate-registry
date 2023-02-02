@@ -15,7 +15,7 @@ contract DelegateRegistry {
     event ExpirationUpdated(string id, uint256 expirationTimestamp);
     event DelegationUpdated(
         address indexed delegator,
-        string indexed id,
+        string id,
         Delegation[] delegation,
         uint256 expiration
     );

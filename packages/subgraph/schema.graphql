@@ -1,19 +1,23 @@
 type To @entity(immutable: true) {
-  id: ID! # address
-  address: Bytes!
+  id: ID! # bytes32 identifier, probably an address but with room for chain-specific addresses if wanted.
   delegations: [Delegation!]! @derivedFrom(field: "to")
 }
 
 type From @entity(immutable: true) {
   id: ID! # address
-  address: Bytes!
   delegations: [Delegation!]! @derivedFrom(field: "from")
 }
 
+type Context @entity(immutable: true) {
+  id: ID! # string to identify context
+  delegations: [Delegation!]! @derivedFrom(field: "context")
+}
+
 type Delegation @entity(immutable: true) {
-  id: ID! # hash(fromAddress + toAddress)
+  id: ID! # concat(fromAddress, "-", context)
+  context: Context!
   from: From!
   to: To!
   ratio: BigInt!
-  updatedOn: BigInt!
+  expiration: BigInt!
 }
