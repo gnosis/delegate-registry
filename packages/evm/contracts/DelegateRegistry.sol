@@ -12,9 +12,8 @@ contract DelegateRegistry {
     // Mapping from delegator address => context ID => user-defined delegation expiration dates.
     mapping(address => mapping(string => uint256)) private expirationTimestamps;
 
-    // Using these events it is possible to process the events to build up reverse lookups.
-    // The indeces allow it to be very partial about how to build this lookup (e.g. only for a specific delegate).
-    event SetDelegate(
+    event ExpirationUpdated(string id, uint256 expirationTimestamp);
+    event DelegationUpdated(
         address indexed delegator,
         string indexed id,
         Delegation[] delegation,
@@ -22,14 +21,15 @@ contract DelegateRegistry {
     );
 
     /// @dev Delegation is already set to this value.
-    error DuplicateDelegation();
+    error DuplicateDelegation(address emitter, Delegation[] delegation);
+    /// @dev Duplicate expiration timestamp.
+    error DuplicateTimestamp(address emitter, uint256 expirationTimestamp);
 
     /// @dev Sets a delegate for the msg.sender and a specific id.
-    ///      The combination of msg.sender and the id can be seen as a unique key.
     /// @param id Id for which the delegate should be set.
     /// @param delegation Array of delegations.
     /// @param expirationTimestamp 64-bit Unix timestamp for the date at which this expiration should expire.
-    function setDelegate(
+    function setDelegation(
         string memory id,
         Delegation[] memory delegation,
         uint256 expirationTimestamp
@@ -43,18 +43,40 @@ contract DelegateRegistry {
         if (
             currentDelegationHash == delegationHash &&
             expirationTimestamps[msg.sender][id] == expirationTimestamp
-        ) revert DuplicateDelegation();
+        ) revert DuplicateDelegation(address(this), delegation);
 
         delete delegations[msg.sender][id];
 
         // Update delegation mapping
         for (uint i = 0; i < delegation.length; i++) {
-            delegations[msg.sender][id][i] = delegation[i];
+            delegations[msg.sender][id].push(delegation[i]);
         }
 
         // set delegation expiration
         expirationTimestamps[msg.sender][id] = expirationTimestamp;
 
-        emit SetDelegate(msg.sender, id, delegation, expirationTimestamp);
+        emit DelegationUpdated(msg.sender, id, delegation, expirationTimestamp);
+    }
+
+    function setExpiration(
+        string memory id,
+        uint256 expirationTimestamp
+    ) public {
+        if (expirationTimestamps[msg.sender][id] == expirationTimestamp)
+            revert DuplicateTimestamp(address(this), expirationTimestamp);
+        expirationTimestamps[msg.sender][id] = expirationTimestamp;
+        emit ExpirationUpdated(id, expirationTimestamp);
+    }
+
+    function getDelegation(
+        string memory id,
+        address delegator
+    )
+        public
+        view
+        returns (Delegation[] memory delegation, uint256 expirationTimestamp)
+    {
+        delegation = delegations[delegator][id];
+        expirationTimestamp = expirationTimestamps[delegator][id];
     }
 }
