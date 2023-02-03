@@ -8,20 +8,65 @@ import {
   dataSource,
 } from "@graphprotocol/graph-ts"
 import {
+  DelegationCleared,
   DelegationUpdated,
   DelegationUpdatedDelegationStruct,
+  DelegationClearedDelegatesClearedStruct,
+  ExpirationUpdated,
 } from "../generated/DelegateRegistry/DelegateRegistry"
 import { To, From, Context, Delegation } from "../generated/schema"
 
 export function handleDelegation(event: DelegationUpdated): void {
   const from: From = loadOrCreateFrom(event.params.delegator)
   const context: Context = loadOrCreateContext(event.params.id)
-  const expiration: BigInt = event.params.expiration
+  const expiration: BigInt = event.params.expirationTimestamp
   const delegations: DelegationUpdatedDelegationStruct[] =
     event.params.delegation
 
-  for (let index = 0; index < delegations.length; index++) {
-    const element = array[index]
+  for (let i = 0; i < delegations.length; i++) {
+    const delegation: DelegationUpdatedDelegationStruct = delegations[i]
+    loadOrCreateDelegation(
+      context,
+      from,
+      loadOrCreateTo(delegation.id),
+      delegation.ratio,
+      expiration,
+    )
+  }
+}
+
+export function handleClear(event: DelegationCleared): void {
+  const from: string = event.params.delegator.toHexString()
+  const delegations: DelegationClearedDelegatesClearedStruct[] =
+    event.params.delegatesCleared
+  for (let i = 0; i < delegations.length; i++) {
+    // const delegationId = event.para
+    const delegationId: string = delegations[i].id
+      .toHexString()
+      .concat("-")
+      .concat(from)
+    store.remove("Delegation", delegationId)
+  }
+}
+
+export function handleExpirationUpdate(event: ExpirationUpdated): void {
+  const from: From = loadOrCreateFrom(event.params.delegator)
+  const context: Context = loadOrCreateContext(event.params.id)
+  const expiration: BigInt = event.params.expirationTimestamp
+  const delegations: DelegationUpdatedDelegationStruct[] =
+    event.params.delegation
+  for (let i = 0; i < delegations.length; i++) {
+    // const delegationId = event.para
+    const to: To = loadOrCreateTo(delegations[i].id)
+    const delegation: Delegation = loadOrCreateDelegation(
+      context,
+      from,
+      to,
+      delegations[i].ratio,
+      expiration,
+    )
+    delegation.expiration = expiration
+    delegation.save
   }
 }
 
@@ -30,6 +75,7 @@ export function loadOrCreateTo(id: Bytes): To {
   if (entry == null) {
     entry = new To(id.toHexString())
   }
+  entry.save()
   return entry
 }
 
@@ -38,6 +84,7 @@ export function loadOrCreateFrom(id: Address): From {
   if (entry == null) {
     entry = new From(id.toHexString())
   }
+  entry.save()
   return entry
 }
 
@@ -46,25 +93,27 @@ export function loadOrCreateContext(id: string): Context {
   if (entry == null) {
     entry = new Context(id)
   }
+  entry.save()
   return entry
 }
 
 export function loadOrCreateDelegation(
-  context: string,
+  context: Context,
   from: From,
   to: To,
   ratio: BigInt,
   expiration: BigInt,
 ): Delegation {
-  const id: string = context.concat(from.id)
+  const id: string = context.id.concat(from.id)
   let entry: Delegation | null = Delegation.load(id)
   if (entry == null) {
     entry = new Delegation(id)
-    entry.context = context
+    entry.context = context.id
     entry.from = from.id
-    entry.to = To.id
+    entry.to = to.id
     entry.ratio = ratio
     entry.expiration = expiration
   }
+  entry.save()
   return entry
 }

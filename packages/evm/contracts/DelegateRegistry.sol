@@ -12,12 +12,22 @@ contract DelegateRegistry {
     // Mapping from delegator address => context ID => user-defined delegation expiration dates.
     mapping(address => mapping(string => uint256)) private expirationTimestamps;
 
-    event ExpirationUpdated(string id, uint256 expirationTimestamp);
+    event ExpirationUpdated(
+        address indexed delegator,
+        string id,
+        Delegation[] delegation,
+        uint256 expirationTimestamp
+    );
     event DelegationUpdated(
         address indexed delegator,
         string id,
         Delegation[] delegation,
-        uint256 expiration
+        uint256 expirationTimestamp
+    );
+    event DelegationCleared(
+        address indexed delegator,
+        string id,
+        Delegation[] delegatesCleared
     );
 
     /// @dev Delegation is already set to this value.
@@ -67,14 +77,9 @@ contract DelegateRegistry {
     /// @dev Clears msg.sender's delegation in a given context.
     /// @param id ID of the context in which delegation should be cleared.
     function clearDelegation(string memory id) public {
+        emit DelegationCleared(msg.sender, id, delegations[msg.sender][id]);
         delete delegations[msg.sender][id];
         delete expirationTimestamps[msg.sender][id];
-        emit DelegationUpdated(
-            msg.sender,
-            id,
-            delegations[msg.sender][id],
-            expirationTimestamps[msg.sender][id]
-        );
     }
 
     /// @dev Sets msg.senders expiration timestamp for a given context.
@@ -87,7 +92,12 @@ contract DelegateRegistry {
         if (expirationTimestamps[msg.sender][id] == expirationTimestamp)
             revert DuplicateTimestamp(address(this), expirationTimestamp);
         expirationTimestamps[msg.sender][id] = expirationTimestamp;
-        emit ExpirationUpdated(id, expirationTimestamp);
+        emit ExpirationUpdated(
+            msg.sender,
+            id,
+            delegations[msg.sender][id],
+            expirationTimestamp
+        );
     }
 
     /// @dev Returns the delegation details for a given delegator in a given context.
