@@ -1,12 +1,4 @@
-import {
-  BigInt,
-  log,
-  BigDecimal,
-  Address,
-  store,
-  Bytes,
-  dataSource,
-} from "@graphprotocol/graph-ts"
+import { BigInt, Address, store, Bytes } from "@graphprotocol/graph-ts"
 import {
   DelegationCleared,
   DelegationUpdated,
@@ -35,7 +27,7 @@ export function handleDelegation(event: DelegationUpdated): void {
   }
 }
 
-export function handleClear(event: DelegationCleared): void {
+export function handleDelegationCleared(event: DelegationCleared): void {
   const from: string = event.params.delegator.toHexString()
   const delegations: DelegationClearedDelegatesClearedStruct[] =
     event.params.delegatesCleared

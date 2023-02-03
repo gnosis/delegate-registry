@@ -23,7 +23,7 @@ dataSources:
         - event: DelegationUpdated(indexed address,string,(bytes32,uint256)[],uint256)
           handler: handleDelegation
         - event: DelegationCleared(indexed address,string,(bytes32,uint256)[])
-          handler: handleClear
+          handler: handleDelegationCleared
         - event: ExpirationUpdated(indexed address,string,(bytes32,uint256)[],uint256)
           handler: handleExpirationUpdate
       file: ./src/mapping.ts
