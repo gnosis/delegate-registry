@@ -2,9 +2,9 @@ import { BigInt, Address, store, Bytes } from "@graphprotocol/graph-ts"
 import {
   DelegationCleared,
   DelegationUpdated,
+  ExpirationUpdated,
   DelegationUpdatedDelegationStruct,
   DelegationClearedDelegatesClearedStruct,
-  ExpirationUpdated,
 } from "../generated/DelegateRegistry/DelegateRegistry"
 import { To, From, Context, Delegation } from "../generated/schema"
 
@@ -17,7 +17,7 @@ export function handleDelegation(event: DelegationUpdated): void {
 
   for (let i = 0; i < delegations.length; i++) {
     const delegation: DelegationUpdatedDelegationStruct = delegations[i]
-    loadOrCreateDelegation(
+    createOrUpdateDelegation(
       context,
       from,
       loadOrCreateTo(delegation.id),
@@ -50,15 +50,13 @@ export function handleExpirationUpdate(event: ExpirationUpdated): void {
   for (let i = 0; i < delegations.length; i++) {
     // const delegationId = event.para
     const to: To = loadOrCreateTo(delegations[i].id)
-    const delegation: Delegation = loadOrCreateDelegation(
+    const delegation: Delegation = createOrUpdateDelegation(
       context,
       from,
       to,
       delegations[i].ratio,
       expiration,
     )
-    delegation.expiration = expiration
-    delegation.save
   }
 }
 
@@ -89,7 +87,7 @@ export function loadOrCreateContext(id: string): Context {
   return entry
 }
 
-export function loadOrCreateDelegation(
+export function createOrUpdateDelegation(
   context: Context,
   from: From,
   to: To,
@@ -100,12 +98,12 @@ export function loadOrCreateDelegation(
   let entry: Delegation | null = Delegation.load(id)
   if (entry == null) {
     entry = new Delegation(id)
-    entry.context = context.id
-    entry.from = from.id
-    entry.to = to.id
-    entry.ratio = ratio
-    entry.expiration = expiration
   }
+  entry.context = context.id
+  entry.from = from.id
+  entry.to = to.id
+  entry.ratio = ratio
+  entry.expiration = expiration
   entry.save()
   return entry
 }
