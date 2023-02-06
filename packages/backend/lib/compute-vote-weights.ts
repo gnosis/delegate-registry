@@ -1,6 +1,6 @@
 /**
  * The vote weight delegated to a delegatee.
- * To get total vote weight for the delegatee, add the vote weight for the delegatee them self.
+ * To get total vote weight for a delegatee, add the vote weight for the delegatee them self.
  * This is just what is delegated to them.
  *
  * @param delegationRatios
