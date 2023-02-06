@@ -4,12 +4,12 @@
  * This is just what is delegated to them.
  *
  * @param delegationRatios
- * @param votes
+ * @param voteWeights
  * @returns
  */
 export const computeDelegatedVoteWeights = (
   delegationRatios: { [to: string]: { [from: string]: number } },
-  votes: { [address: string]: number },
+  voteWeights: { [address: string]: number },
 ) => {
   const computeDelegatedVoteWeight = (
     to: string,
@@ -22,7 +22,7 @@ export const computeDelegatedVoteWeights = (
     return Object.keys(delegationRatios[to]).reduce((acc, from) => {
       // for each address delegated from to this delegate (`to`)
       const ration = delegationRatios[to][from]
-      const delegatorVotes = votes[from] * ration
+      const delegatorVoteWeight = voteWeights[from] * ration
 
       // add votes delegated to the delegator
       if (delegationRatios[from] != null) {
@@ -31,17 +31,20 @@ export const computeDelegatedVoteWeights = (
       }
 
       // add delegator's votes + any delegated votes to the delegator
-      acc[to] = (acc[to] ?? 0) + delegatorVotes + (acc[from] ?? 0) * ration
+      const delegatedVoteWeightToDelegator = (acc[from] ?? 0) * ration
+
+      acc[to] =
+        (acc[to] ?? 0) + delegatorVoteWeight + delegatedVoteWeightToDelegator
       return acc
     }, accumulatedVoteWeights)
   }
 
-  const voteDelegatedTo: { [address: string]: number } = Object.keys(
+  const voteWeightDelegatedTo: { [address: string]: number } = Object.keys(
     delegationRatios,
   ).reduce(
     // for each address delegated to
     (acc, to) => computeDelegatedVoteWeight(to, acc),
     {} as { [address: string]: number },
   )
-  return voteDelegatedTo
+  return voteWeightDelegatedTo
 }
