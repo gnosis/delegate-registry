@@ -19,5 +19,5 @@ yarn-error.log
 # subgraph
 generated
 build
-packages/subgraph/tests/.latest.json
+.latest.json
 .bin
