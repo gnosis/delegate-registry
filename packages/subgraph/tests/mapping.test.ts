@@ -26,19 +26,12 @@ export const USER4_ADDRESS = Address.fromString(
 export const CONTEXT1 = "context1"
 export const CONTEXT2 = "context2"
 
-export const DELEGATION1: DelegationUpdatedDelegationStruct = new DelegationUpdatedDelegationStruct()
-DELEGATION1.push(
-  // id
-  ethereum.Value.fromBytes(Bytes.fromHexString(USER1_ADDRESS.toHex())),
-)
-DELEGATION1.push(ethereum.Value.fromI32(1)) // ratio
-
 export const DELEGATION2: DelegationUpdatedDelegationStruct = new DelegationUpdatedDelegationStruct()
 DELEGATION2.push(
   // id
   ethereum.Value.fromBytes(Bytes.fromHexString(USER2_ADDRESS.toHex())),
 )
-DELEGATION2.push(ethereum.Value.fromI32(1))
+DELEGATION2.push(ethereum.Value.fromI32(1)) // ratio
 
 export const DELEGATION3: DelegationUpdatedDelegationStruct = new DelegationUpdatedDelegationStruct()
 DELEGATION3.push(
@@ -47,29 +40,23 @@ DELEGATION3.push(
 )
 DELEGATION3.push(ethereum.Value.fromI32(1))
 
-log.info("DELEGATION1 id: {}, ratio: {}", [
-  DELEGATION1.id.toHex(),
-  DELEGATION1.ratio.toString(),
-])
-log.info("DELEGATION2 id: {}, ratio: {}", [
-  DELEGATION2.id.toHex(),
-  DELEGATION2.ratio.toString(),
-])
-log.info("DELEGATION3 id: {}, ratio: {}", [
-  DELEGATION3.id.toHex(),
-  DELEGATION3.ratio.toString(),
-])
+export const DELEGATION4: DelegationUpdatedDelegationStruct = new DelegationUpdatedDelegationStruct()
+DELEGATION4.push(
+  // id
+  ethereum.Value.fromBytes(Bytes.fromHexString(USER4_ADDRESS.toHex())),
+)
+DELEGATION4.push(ethereum.Value.fromI32(1))
 
 export const DELEGATION: DelegationUpdatedDelegationStruct[] = [
-  DELEGATION1,
   DELEGATION2,
   DELEGATION3,
+  DELEGATION4,
 ]
 
 export const DELEGATION_ETHEREUM_VALUE = [
-  ethereum.Value.fromTuple(DELEGATION1),
   ethereum.Value.fromTuple(DELEGATION2),
   ethereum.Value.fromTuple(DELEGATION3),
+  ethereum.Value.fromTuple(DELEGATION4),
 ]
 export const EXPIRATION = BigInt.fromU32(100)
 
@@ -121,13 +108,84 @@ test("DelegationUpdated() event adds delegations", () => {
     EXPIRATION,
   )
 
-  // mint 1337 to user 1
   handleDelegation(transferEvent)
+  // check DELEGATION2
   assert.fieldEquals(
     "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.id.toHex()}`,
+    "from",
+    USER1_ADDRESS.toHex(),
+  )
+  assert.fieldEquals(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.id.toHex()}`,
+    "to",
+    DELEGATION2.id.toHex(),
+  )
+  assert.fieldEquals(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.id.toHex()}`,
+    "ratio",
+    DELEGATION2.ratio.toString(),
+  )
+  assert.fieldEquals(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.id.toHex()}`,
     "expiration",
     EXPIRATION.toString(),
   )
+
+  // check DELEGATION3
+  assert.fieldEquals(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION3.id.toHex()}`,
+    "from",
+    USER1_ADDRESS.toHex(),
+  )
+  assert.fieldEquals(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION3.id.toHex()}`,
+    "to",
+    DELEGATION3.id.toHex(),
+  )
+  assert.fieldEquals(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION3.id.toHex()}`,
+    "ratio",
+    DELEGATION3.ratio.toString(),
+  )
+  assert.fieldEquals(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION3.id.toHex()}`,
+    "expiration",
+    EXPIRATION.toString(),
+  )
+
+  // check DELEGATION4
+  assert.fieldEquals(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION4.id.toHex()}`,
+    "from",
+    USER1_ADDRESS.toHex(),
+  )
+  assert.fieldEquals(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION4.id.toHex()}`,
+    "to",
+    DELEGATION4.id.toHex(),
+  )
+  assert.fieldEquals(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION4.id.toHex()}`,
+    "ratio",
+    DELEGATION4.ratio.toString(),
+  )
+  assert.fieldEquals(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION4.id.toHex()}`,
+    "expiration",
+    EXPIRATION.toString(),
+  )
+
   clearStore()
 })

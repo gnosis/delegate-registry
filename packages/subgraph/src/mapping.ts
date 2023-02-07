@@ -94,7 +94,7 @@ export function createOrUpdateDelegation(
   ratio: BigInt,
   expiration: BigInt,
 ): Delegation {
-  const id = `${context.id}-${from.id}`
+  const id = `${context.id}-${from.id}-${to.id}`
 
   let entry: Delegation | null = Delegation.load(id)
   if (entry == null) {
