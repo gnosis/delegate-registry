@@ -33,7 +33,6 @@ export const DELEGATION2: DelegationUpdatedDelegationStruct = new DelegationUpda
 export const DELEGATION3: DelegationUpdatedDelegationStruct = new DelegationUpdatedDelegationStruct(
   3,
 )
-console.log(DELEGATION1.toString())
 
 export const DELEGATION: DelegationUpdatedDelegationStruct[] = [
   DELEGATION1,
