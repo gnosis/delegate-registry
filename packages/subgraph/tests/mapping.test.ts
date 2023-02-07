@@ -5,34 +5,60 @@ import {
   DelegationUpdated,
   DelegationUpdatedDelegationStruct,
 } from "../generated/DelegateRegistry/DelegateRegistry"
-import { assert, clearStore, newMockEvent, test } from "matchstick-as"
+import { assert, clearStore, log, newMockEvent, test } from "matchstick-as"
 
-export const ADDRESS_ZERO = ethereum.Value.fromAddress(
-  Address.fromString("0x0000000000000000000000000000000000000000"),
+export const ADDRESS_ZERO = Address.fromString(
+  "0x0000000000000000000000000000000000000000",
 )
-export const USER1_ADDRESS = ethereum.Value.fromAddress(
-  Address.fromString("0x0000000000000000000000000000000000000001"),
+
+export const USER1_ADDRESS = Address.fromString(
+  "0x0000000000000000000000000000000000000001",
 )
-export const USER2_ADDRESS = ethereum.Value.fromAddress(
-  Address.fromString("0x0000000000000000000000000000000000000002"),
+export const USER2_ADDRESS = Address.fromString(
+  "0x0000000000000000000000000000000000000002",
 )
-export const USER3_ADDRESS = ethereum.Value.fromAddress(
-  Address.fromString("0x0000000000000000000000000000000000000003"),
+export const USER3_ADDRESS = Address.fromString(
+  "0x0000000000000000000000000000000000000003",
 )
-export const USER4_ADDRESS = ethereum.Value.fromAddress(
-  Address.fromString("0x0000000000000000000000000000000000000004"),
+export const USER4_ADDRESS = Address.fromString(
+  "0x0000000000000000000000000000000000000004",
 )
-export const CONTEXT1 = ethereum.Value.fromString("context1")
-export const CONTEXT2 = ethereum.Value.fromString("context2")
-export const DELEGATION1: DelegationUpdatedDelegationStruct = new DelegationUpdatedDelegationStruct(
-  1,
+export const CONTEXT1 = "context1"
+export const CONTEXT2 = "context2"
+
+export const DELEGATION1: DelegationUpdatedDelegationStruct = new DelegationUpdatedDelegationStruct()
+DELEGATION1.push(
+  // id
+  ethereum.Value.fromBytes(Bytes.fromHexString(USER1_ADDRESS.toHex()) as Bytes),
 )
-export const DELEGATION2: DelegationUpdatedDelegationStruct = new DelegationUpdatedDelegationStruct(
-  2,
+DELEGATION1.push(ethereum.Value.fromI32(1)) // ratio
+
+export const DELEGATION2: DelegationUpdatedDelegationStruct = new DelegationUpdatedDelegationStruct()
+DELEGATION2.push(
+  // id
+  ethereum.Value.fromBytes(Bytes.fromHexString(USER2_ADDRESS.toHex()) as Bytes),
 )
-export const DELEGATION3: DelegationUpdatedDelegationStruct = new DelegationUpdatedDelegationStruct(
-  3,
+DELEGATION2.push(ethereum.Value.fromI32(1))
+
+export const DELEGATION3: DelegationUpdatedDelegationStruct = new DelegationUpdatedDelegationStruct()
+DELEGATION3.push(
+  // id
+  ethereum.Value.fromBytes(Bytes.fromHexString(USER3_ADDRESS.toHex()) as Bytes),
 )
+DELEGATION3.push(ethereum.Value.fromI32(1))
+
+log.info("DELEGATION1 id: {}, ratio: {}", [
+  DELEGATION1.id.toHex(),
+  DELEGATION1.ratio.toString(),
+])
+log.info("DELEGATION2 id: {}, ratio: {}", [
+  DELEGATION2.id.toHex(),
+  DELEGATION2.ratio.toString(),
+])
+log.info("DELEGATION3 id: {}, ratio: {}", [
+  DELEGATION3.id.toHex(),
+  DELEGATION3.ratio.toString(),
+])
 
 export const DELEGATION: DelegationUpdatedDelegationStruct[] = [
   DELEGATION1,
@@ -48,7 +74,7 @@ export const DELEGATION_ETHEREUM_VALUE = [
 export const EXPIRATION = BigInt.fromU32(100)
 
 function createDelegationUpdatedEvent(
-  from: string,
+  from: Address,
   context: string,
   delegation: ethereum.Value[],
   expirationTimestamp: BigInt,
@@ -58,10 +84,7 @@ function createDelegationUpdatedEvent(
   mockEvent.parameters = new Array()
 
   mockEvent.parameters.push(
-    new ethereum.EventParam(
-      "from",
-      ethereum.Value.fromAddress(Address.fromString(from)),
-    ),
+    new ethereum.EventParam("from", ethereum.Value.fromAddress(from)),
   )
   mockEvent.parameters.push(
     new ethereum.EventParam("context", ethereum.Value.fromString(context)),
@@ -92,8 +115,8 @@ function createDelegationUpdatedEvent(
 
 test("DelegationUpdated() event adds delegations", () => {
   let transferEvent = createDelegationUpdatedEvent(
-    USER1_ADDRESS.toString(),
-    CONTEXT1.toString(),
+    USER1_ADDRESS,
+    CONTEXT1,
     DELEGATION_ETHEREUM_VALUE,
     EXPIRATION,
   )
@@ -102,9 +125,7 @@ test("DelegationUpdated() event adds delegations", () => {
   handleDelegation(transferEvent)
   assert.fieldEquals(
     "Delegation",
-    CONTEXT1.toString()
-      .concat("-")
-      .concat(USER1_ADDRESS.toString()),
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
     "expiration",
     EXPIRATION.toString(),
   )
