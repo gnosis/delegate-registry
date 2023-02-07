@@ -29,21 +29,21 @@ export const CONTEXT2 = "context2"
 export const DELEGATION1: DelegationUpdatedDelegationStruct = new DelegationUpdatedDelegationStruct()
 DELEGATION1.push(
   // id
-  ethereum.Value.fromBytes(Bytes.fromHexString(USER1_ADDRESS.toHex()) as Bytes),
+  ethereum.Value.fromBytes(Bytes.fromHexString(USER1_ADDRESS.toHex())),
 )
 DELEGATION1.push(ethereum.Value.fromI32(1)) // ratio
 
 export const DELEGATION2: DelegationUpdatedDelegationStruct = new DelegationUpdatedDelegationStruct()
 DELEGATION2.push(
   // id
-  ethereum.Value.fromBytes(Bytes.fromHexString(USER2_ADDRESS.toHex()) as Bytes),
+  ethereum.Value.fromBytes(Bytes.fromHexString(USER2_ADDRESS.toHex())),
 )
 DELEGATION2.push(ethereum.Value.fromI32(1))
 
 export const DELEGATION3: DelegationUpdatedDelegationStruct = new DelegationUpdatedDelegationStruct()
 DELEGATION3.push(
   // id
-  ethereum.Value.fromBytes(Bytes.fromHexString(USER3_ADDRESS.toHex()) as Bytes),
+  ethereum.Value.fromBytes(Bytes.fromHexString(USER3_ADDRESS.toHex())),
 )
 DELEGATION3.push(ethereum.Value.fromI32(1))
 
