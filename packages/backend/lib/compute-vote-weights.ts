@@ -19,6 +19,7 @@ export const computeDelegatedVoteWeights = (
       // Already computed vote weight for this delegatee
       return accumulatedVoteWeights
     }
+    // Depth first
     return Object.keys(delegationRatios[to]).reduce((acc, from) => {
       // for each address delegated from to this delegate (`to`)
       const ration = delegationRatios[to][from]
@@ -44,7 +45,7 @@ export const computeDelegatedVoteWeights = (
   ).reduce(
     // for each address delegated to
     (acc, to) => computeDelegatedVoteWeight(to, acc),
-    {} as { [address: string]: number },
+    {},
   )
   return voteWeightDelegatedTo
 }
