@@ -53,7 +53,7 @@ export function handleDelegationCleared(event: DelegationCleared): void {
   const delegations: DelegationClearedDelegatesClearedStruct[] =
     event.params.delegatesCleared
   for (let i = 0; i < delegations.length; i++) {
-    const id = `${context}-${from}-${delegations[i].id}`
+    const id = `${context}-${from}-${delegations[i].id.toHexString()}`
     store.remove("Delegation", id)
   }
 }

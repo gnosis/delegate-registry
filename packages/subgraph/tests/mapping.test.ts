@@ -1,9 +1,15 @@
 import { Address, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts"
-import { handleDelegation } from "../src/mapping"
+import {
+  handleDelegation,
+  handleExpirationUpdate,
+  handleDelegationCleared,
+} from "../src/mapping"
 import { Delegation } from "../generated/schema"
 import {
   DelegationUpdated,
   DelegationUpdatedDelegationStruct,
+  DelegationCleared,
+  ExpirationUpdated,
 } from "../generated/DelegateRegistry/DelegateRegistry"
 import { assert, clearStore, log, newMockEvent, test } from "matchstick-as"
 
@@ -107,6 +113,83 @@ function createDelegationUpdatedEvent(
   return newDelegationUpdatedEvent
 }
 
+function createExpirationUpdatedEvent(
+  from: Address,
+  context: string,
+  delegation: ethereum.Value[],
+  expirationTimestamp: BigInt,
+): ExpirationUpdated {
+  let mockEvent = newMockEvent()
+
+  mockEvent.parameters = new Array()
+
+  mockEvent.parameters.push(
+    new ethereum.EventParam("from", ethereum.Value.fromAddress(from)),
+  )
+  mockEvent.parameters.push(
+    new ethereum.EventParam("context", ethereum.Value.fromString(context)),
+  )
+  mockEvent.parameters.push(
+    new ethereum.EventParam("delegation", ethereum.Value.fromArray(delegation)),
+  )
+  mockEvent.parameters.push(
+    new ethereum.EventParam(
+      "expirationTimestamp",
+      ethereum.Value.fromUnsignedBigInt(expirationTimestamp),
+    ),
+  )
+
+  let newExpirationUpdatedEvent = new ExpirationUpdated(
+    mockEvent.address,
+    mockEvent.logIndex,
+    mockEvent.transactionLogIndex,
+    mockEvent.logType,
+    mockEvent.block,
+    mockEvent.transaction,
+    mockEvent.parameters,
+    mockEvent.receipt,
+  )
+
+  return newExpirationUpdatedEvent
+}
+
+function createDelegationClearedEvent(
+  from: Address,
+  context: string,
+  delegation: ethereum.Value[],
+): DelegationCleared {
+  let mockEvent = newMockEvent()
+
+  mockEvent.parameters = new Array()
+
+  mockEvent.parameters.push(
+    new ethereum.EventParam("from", ethereum.Value.fromAddress(from)),
+  )
+  mockEvent.parameters.push(
+    new ethereum.EventParam("context", ethereum.Value.fromString(context)),
+  )
+  mockEvent.parameters.push(
+    new ethereum.EventParam("delegation", ethereum.Value.fromArray(delegation)),
+  )
+
+  let newExpirationUpdatedEvent = new DelegationCleared(
+    mockEvent.address,
+    mockEvent.logIndex,
+    mockEvent.transactionLogIndex,
+    mockEvent.logType,
+    mockEvent.block,
+    mockEvent.transaction,
+    mockEvent.parameters,
+    mockEvent.receipt,
+  )
+
+  return newExpirationUpdatedEvent
+}
+
+///////////
+/* TESTS */
+///////////
+
 test("DelegationUpdated() event adds delegations", () => {
   let delegationEvent = createDelegationUpdatedEvent(
     USER1_ADDRESS,
@@ -198,7 +281,7 @@ test("DelegationUpdated() event adds delegations", () => {
   clearStore()
 })
 
-test("DelegationUpdated() removes previous delegations", () => {
+test("DelegationUpdated() event removes previous delegations", () => {
   let delegationEvent1 = createDelegationUpdatedEvent(
     USER1_ADDRESS,
     CONTEXT1,
@@ -210,7 +293,6 @@ test("DelegationUpdated() removes previous delegations", () => {
   const newDelegation: ethereum.Value[] = [
     ethereum.Value.fromTuple(DELEGATION2),
   ]
-  // log.info("newDelegation: {}", [newDelegation[0].data])
 
   const delegationEvent2 = createDelegationUpdatedEvent(
     USER1_ADDRESS,
@@ -261,4 +343,94 @@ test("DelegationUpdated() removes previous delegations", () => {
     `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION4.id.toHex()}`,
   )
   clearStore()
+})
+
+test("ExpirationUpdated() event updates expirations", () => {
+  const delegationEvent = createDelegationUpdatedEvent(
+    USER1_ADDRESS,
+    CONTEXT1,
+    PREVIOUS_DELEGATION,
+    DELEGATION_ETHEREUM_VALUE,
+    EXPIRATION,
+  )
+  const newExpiration: BigInt = BigInt.fromU32(500)
+  const expirationUpdateEvent = createExpirationUpdatedEvent(
+    USER1_ADDRESS,
+    CONTEXT1,
+    DELEGATION_ETHEREUM_VALUE,
+    newExpiration,
+  )
+  handleDelegation(delegationEvent)
+  assert.fieldEquals(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.id.toHex()}`,
+    "expiration",
+    EXPIRATION.toString(),
+  )
+  handleExpirationUpdate(expirationUpdateEvent)
+  assert.fieldEquals(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.id.toHex()}`,
+    "expiration",
+    newExpiration.toString(),
+  )
+  assert.fieldEquals(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION3.id.toHex()}`,
+    "expiration",
+    newExpiration.toString(),
+  )
+  assert.fieldEquals(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION4.id.toHex()}`,
+    "expiration",
+    newExpiration.toString(),
+  )
+})
+
+test("DelegationCleared() event clears delegations", () => {
+  const delegationEvent = createDelegationUpdatedEvent(
+    USER1_ADDRESS,
+    CONTEXT1,
+    PREVIOUS_DELEGATION,
+    DELEGATION_ETHEREUM_VALUE,
+    EXPIRATION,
+  )
+  const delegationCleared = createDelegationClearedEvent(
+    USER1_ADDRESS,
+    CONTEXT1,
+    DELEGATION_ETHEREUM_VALUE,
+  )
+  handleDelegation(delegationEvent)
+  assert.fieldEquals(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.id.toHex()}`,
+    "expiration",
+    EXPIRATION.toString(),
+  )
+  assert.fieldEquals(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION3.id.toHex()}`,
+    "expiration",
+    EXPIRATION.toString(),
+  )
+  assert.fieldEquals(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION4.id.toHex()}`,
+    "expiration",
+    EXPIRATION.toString(),
+  )
+  handleDelegationCleared(delegationCleared)
+  assert.notInStore(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.id.toHex()}`,
+  )
+  assert.notInStore(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION3.id.toHex()}`,
+  )
+  assert.notInStore(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION4.id.toHex()}`,
+  )
 })
