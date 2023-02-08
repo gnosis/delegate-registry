@@ -20,7 +20,7 @@ dataSources:
         - name: DelegateRegistry
           file: ../evm/artifacts/contracts/DelegateRegistry.sol/DelegateRegistry.json
       eventHandlers:
-        - event: DelegationUpdated(indexed address,string,(bytes32,uint256)[],uint256)
+        - event: DelegationUpdated(indexed address,string,(bytes32,uint256)[],(bytes32,uint256)[],uint256)
           handler: handleDelegation
         - event: DelegationCleared(indexed address,string,(bytes32,uint256)[])
           handler: handleDelegationCleared

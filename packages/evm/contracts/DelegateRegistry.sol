@@ -21,6 +21,7 @@ contract DelegateRegistry {
     event DelegationUpdated(
         address indexed delegator,
         string id,
+        Delegation[] previousDelegation,
         Delegation[] delegation,
         uint256 expirationTimestamp
     );
@@ -57,6 +58,14 @@ contract DelegateRegistry {
             expirationTimestamps[msg.sender][id] == expirationTimestamp
         ) revert DuplicateDelegation(address(this), delegation);
 
+        emit DelegationUpdated(
+            msg.sender,
+            id,
+            delegations[msg.sender][id],
+            delegation,
+            expirationTimestamp
+        );
+
         delete delegations[msg.sender][id];
 
         // Update delegation mapping
@@ -70,8 +79,6 @@ contract DelegateRegistry {
 
         // set delegation expiration
         expirationTimestamps[msg.sender][id] = expirationTimestamp;
-
-        emit DelegationUpdated(msg.sender, id, delegation, expirationTimestamp);
     }
 
     /// @dev Clears msg.sender's delegation in a given context.

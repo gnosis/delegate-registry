@@ -4,7 +4,7 @@ type To @entity(immutable: true) {
 }
 
 type From @entity(immutable: true) {
-  id: ID! # address
+  id: ID! # address to identify from
   delegations: [Delegation!]! @derivedFrom(field: "from")
 }
 
@@ -14,7 +14,7 @@ type Context @entity(immutable: true) {
 }
 
 type Delegation @entity(immutable: true) {
-  id: ID! # concat(fromAddress, "-", context)
+  id: ID! # `${context.id}-${from.id}-${to.id}`
   context: Context!
   from: From!
   to: To!

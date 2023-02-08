@@ -52,8 +52,8 @@ export const DELEGATION: DelegationUpdatedDelegationStruct[] = [
   DELEGATION3,
   DELEGATION4,
 ]
-
-export const DELEGATION_ETHEREUM_VALUE = [
+export const PREVIOUS_DELEGATION: ethereum.Value[] = []
+export const DELEGATION_ETHEREUM_VALUE: ethereum.Value[] = [
   ethereum.Value.fromTuple(DELEGATION2),
   ethereum.Value.fromTuple(DELEGATION3),
   ethereum.Value.fromTuple(DELEGATION4),
@@ -63,6 +63,7 @@ export const EXPIRATION = BigInt.fromU32(100)
 function createDelegationUpdatedEvent(
   from: Address,
   context: string,
+  previousDelegation: ethereum.Value[],
   delegation: ethereum.Value[],
   expirationTimestamp: BigInt,
 ): DelegationUpdated {
@@ -75,6 +76,12 @@ function createDelegationUpdatedEvent(
   )
   mockEvent.parameters.push(
     new ethereum.EventParam("context", ethereum.Value.fromString(context)),
+  )
+  mockEvent.parameters.push(
+    new ethereum.EventParam(
+      "previousDelegation",
+      ethereum.Value.fromArray(previousDelegation),
+    ),
   )
   mockEvent.parameters.push(
     new ethereum.EventParam("delegation", ethereum.Value.fromArray(delegation)),
@@ -101,14 +108,15 @@ function createDelegationUpdatedEvent(
 }
 
 test("DelegationUpdated() event adds delegations", () => {
-  let transferEvent = createDelegationUpdatedEvent(
+  let delegationEvent = createDelegationUpdatedEvent(
     USER1_ADDRESS,
     CONTEXT1,
+    PREVIOUS_DELEGATION,
     DELEGATION_ETHEREUM_VALUE,
     EXPIRATION,
   )
 
-  handleDelegation(transferEvent)
+  handleDelegation(delegationEvent)
   // check DELEGATION2
   assert.fieldEquals(
     "Delegation",
@@ -187,5 +195,70 @@ test("DelegationUpdated() event adds delegations", () => {
     EXPIRATION.toString(),
   )
 
+  clearStore()
+})
+
+test("DelegationUpdated() removes previous delegations", () => {
+  let delegationEvent1 = createDelegationUpdatedEvent(
+    USER1_ADDRESS,
+    CONTEXT1,
+    PREVIOUS_DELEGATION,
+    DELEGATION_ETHEREUM_VALUE,
+    EXPIRATION,
+  )
+
+  const newDelegation: ethereum.Value[] = [
+    ethereum.Value.fromTuple(DELEGATION2),
+  ]
+  // log.info("newDelegation: {}", [newDelegation[0].data])
+
+  const delegationEvent2 = createDelegationUpdatedEvent(
+    USER1_ADDRESS,
+    CONTEXT1,
+    DELEGATION_ETHEREUM_VALUE,
+    newDelegation,
+    EXPIRATION,
+  )
+  handleDelegation(delegationEvent1)
+
+  handleDelegation(delegationEvent2)
+
+  // check DELEGATION2
+  assert.fieldEquals(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.id.toHex()}`,
+    "from",
+    USER1_ADDRESS.toHex(),
+  )
+  assert.fieldEquals(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.id.toHex()}`,
+    "to",
+    DELEGATION2.id.toHex(),
+  )
+  assert.fieldEquals(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.id.toHex()}`,
+    "ratio",
+    DELEGATION2.ratio.toString(),
+  )
+  assert.fieldEquals(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.id.toHex()}`,
+    "expiration",
+    EXPIRATION.toString(),
+  )
+
+  // check DELEGATION3 has been removed from store
+  assert.notInStore(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION3.id.toHex()}`,
+  )
+
+  // check DELEGATION4
+  assert.notInStore(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION4.id.toHex()}`,
+  )
   clearStore()
 })
