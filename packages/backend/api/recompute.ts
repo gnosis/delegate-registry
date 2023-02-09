@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node"
 import { computeDelegatedVoteWeights } from "../lib/compute-vote-weights"
 import { getVoteWeights } from "../lib/services/snapshot-api"
+import * as storage from "../lib/services/storage"
 
 /**
  * Recomputes the vote weights for all delegations, and stores the results.
@@ -53,8 +54,10 @@ export default async function getDelegations(
     voteWeights,
   )
 
-  console.log("4. store vote weights")
+  console.log("4. Store vote weights")
+  await storage.storeNewSetOfDelegatedVoteWeight(delegatedVoteWeight)
 
+  console.log("Done!")
   response.status(200).json({
     body: "ok",
   })
