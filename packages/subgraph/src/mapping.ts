@@ -22,7 +22,7 @@ import { To, From, Context, Delegation, Optout } from "../generated/schema"
 
 export function handleDelegation(event: DelegationUpdated): void {
   const from: From = loadOrCreateFrom(event.params.delegator)
-  const context: Context = loadOrCreateContext(event.params.id)
+  const context: Context = loadOrCreateContext(event.params.context)
   const currentDelegations: DelegationUpdatedPreviousDelegationStruct[] =
     event.params.previousDelegation
   const delegations: DelegationUpdatedDelegationStruct[] =
@@ -32,36 +32,38 @@ export function handleDelegation(event: DelegationUpdated): void {
     for (let i = 0; i < currentDelegations.length; i++) {
       store.remove(
         "Delegation",
-        `${context.id}-${from.id}-${currentDelegations[i].id.toHexString()}`,
+        `${context.id}-${from.id}-${currentDelegations[
+          i
+        ].context.toHexString()}`,
       )
     }
   }
   for (let i = 0; i < delegations.length; i++) {
     const delegation: DelegationUpdatedDelegationStruct = delegations[i]
-    const to: To = loadOrCreateTo(delegation.id)
+    const to: To = loadOrCreateTo(delegation.context)
     createOrUpdateDelegation(context, from, to, delegation.ratio, expiration)
   }
 }
 
 export function handleDelegationCleared(event: DelegationCleared): void {
   const from: string = event.params.delegator.toHexString()
-  const context: string = event.params.id.toString()
+  const context: string = event.params.context.toString()
   const delegations: DelegationClearedDelegatesClearedStruct[] =
     event.params.delegatesCleared
   for (let i = 0; i < delegations.length; i++) {
-    const id = `${context}-${from}-${delegations[i].id.toHexString()}`
+    const id = `${context}-${from}-${delegations[i].context.toHexString()}`
     store.remove("Delegation", id)
   }
 }
 
 export function handleExpirationUpdate(event: ExpirationUpdated): void {
   const from: From = loadOrCreateFrom(event.params.delegator)
-  const context: Context = loadOrCreateContext(event.params.id)
+  const context: Context = loadOrCreateContext(event.params.context)
   const expiration: BigInt = event.params.expirationTimestamp
   const delegations: ExpirationUpdatedDelegationStruct[] =
     event.params.delegation
   for (let i = 0; i < delegations.length; i++) {
-    const to: To = loadOrCreateTo(delegations[i].id)
+    const to: To = loadOrCreateTo(delegations[i].context)
     const delegation: Delegation = createOrUpdateDelegation(
       context,
       from,
@@ -75,7 +77,7 @@ export function handleExpirationUpdate(event: ExpirationUpdated): void {
 
 export function handleOptout(event: OptOutStatusSet): void {
   const delegate: From = loadOrCreateFrom(event.params.delegate)
-  const context: Context = loadOrCreateContext(event.params.id)
+  const context: Context = loadOrCreateContext(event.params.context)
   const status: boolean = event.params.optout
   if (status) {
     const optout = loadOrCreateOptout(delegate, context)
