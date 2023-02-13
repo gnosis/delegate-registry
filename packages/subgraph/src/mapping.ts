@@ -34,11 +34,11 @@ export function handleDelegation(event: DelegationUpdated): void {
         "Delegation",
         `${context.id}-${from.id}-${currentDelegations[
           i
-        ].context.toHexString()}`,
+        ].delegate.toHexString()}`,
       )
       const delegationId = `${context.id}-${from.id}-${currentDelegations[
         i
-      ].context.toHexString()}`
+      ].delegate.toHexString()}`
 
       const delegation: Delegation | null = Delegation.load(delegationId)
       if (delegation != null) {
@@ -48,7 +48,7 @@ export function handleDelegation(event: DelegationUpdated): void {
   }
   for (let i = 0; i < delegations.length; i++) {
     const delegation: DelegationUpdatedDelegationStruct = delegations[i]
-    const to: To = loadOrCreateTo(delegation.context)
+    const to: To = loadOrCreateTo(delegation.delegate)
     createOrUpdateDelegation(context, from, to, delegation.ratio, expiration)
   }
 }
@@ -61,7 +61,7 @@ export function handleDelegationCleared(event: DelegationCleared): void {
   for (let i = 0; i < delegations.length; i++) {
     const delegationId = `${context}-${from}-${delegations[
       i
-    ].context.toHexString()}`
+    ].delegate.toHexString()}`
     const delegation: Delegation | null = Delegation.load(delegationId)
     if (delegation != null) {
       store.remove("Delegation", delegationId)
@@ -76,7 +76,7 @@ export function handleExpirationUpdate(event: ExpirationUpdated): void {
   const delegations: ExpirationUpdatedDelegationStruct[] =
     event.params.delegation
   for (let i = 0; i < delegations.length; i++) {
-    const to: To = loadOrCreateTo(delegations[i].context)
+    const to: To = loadOrCreateTo(delegations[i].delegate)
     const delegation: Delegation = createOrUpdateDelegation(
       context,
       from,

@@ -18,7 +18,7 @@
 pragma solidity ^0.8.17;
 
 struct Delegation {
-    bytes32 context;
+    bytes32 delegate;
     uint256 ratio;
 }
 
@@ -96,10 +96,10 @@ contract DelegateRegistry {
         // Update delegation mapping
         bytes32 previous;
         for (uint i = 0; i < delegation.length; i++) {
-            if (delegation[i].context <= previous)
-                revert InvalidDelegateID(address(this), delegation[i].context);
+            if (delegation[i].delegate <= previous)
+                revert InvalidDelegateID(address(this), delegation[i].delegate);
             delegations[msg.sender][context].push(delegation[i]);
-            previous = delegation[i].context;
+            previous = delegation[i].delegate;
         }
 
         // set delegation expiration

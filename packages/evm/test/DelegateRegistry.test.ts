@@ -9,19 +9,19 @@ const setup = async () => {
   const delegateRegistry = await DelegateRegistry.deploy()
   const singleDelegation = [
     {
-      context:
+      delegate:
         "0x0000000000000000000000000000000000000000000000000000000000000001",
       ratio: 6,
     },
   ]
   const multipleDelegation = [
     {
-      context:
+      delegate:
         "0x0000000000000000000000000000000000000000000000000000000000000001",
       ratio: 16,
     },
     {
-      context:
+      delegate:
         "0x0000000000000000000000000000000000000000000000000000000000000002",
       ratio: 9,
     },
@@ -51,8 +51,8 @@ describe("Delegate Registry", function () {
         "id",
         wallet.address
       )
-      expect(delegation.delegation[0].context).to.equal(
-        singleDelegation[0].context
+      expect(delegation.delegation[0].delegate).to.equal(
+        singleDelegation[0].delegate
       )
       expect(delegation.delegation[0].ratio).to.equal(singleDelegation[0].ratio)
       expect(delegation.expirationTimestamp).to.equal(42)
@@ -64,14 +64,14 @@ describe("Delegate Registry", function () {
         "id",
         wallet.address
       )
-      expect(delegation.delegation[0].context).to.equal(
-        multipleDelegation[0].context
+      expect(delegation.delegation[0].delegate).to.equal(
+        multipleDelegation[0].delegate
       )
       expect(delegation.delegation[0].ratio).to.equal(
         multipleDelegation[0].ratio
       )
-      expect(delegation.delegation[1].context).to.equal(
-        multipleDelegation[1].context
+      expect(delegation.delegation[1].delegate).to.equal(
+        multipleDelegation[1].delegate
       )
       expect(delegation.delegation[1].ratio).to.equal(
         multipleDelegation[1].ratio
@@ -86,29 +86,29 @@ describe("Delegate Registry", function () {
         "id",
         wallet.address
       )
-      expect(delegation.delegation[0].context).to.equal(
-        multipleDelegation[0].context
+      expect(delegation.delegation[0].delegate).to.equal(
+        multipleDelegation[0].delegate
       )
       expect(delegation.delegation[0].ratio).to.equal(
         multipleDelegation[0].ratio
       )
-      expect(delegation.delegation[1].context).to.equal(
-        multipleDelegation[1].context
+      expect(delegation.delegation[1].delegate).to.equal(
+        multipleDelegation[1].delegate
       )
       expect(delegation.delegation[1].ratio).to.equal(
         multipleDelegation[1].ratio
       )
       expect(delegation.expirationTimestamp).to.equal(42)
 
-      singleDelegation[0].context =
+      singleDelegation[0].delegate =
         "0x0000000000000000000000000000000000000000000000000000000000000003"
       await delegateRegistry.setDelegation("id", singleDelegation, 42)
       const secondDelegation = await delegateRegistry.getDelegation(
         "id",
         wallet.address
       )
-      expect(secondDelegation.delegation[0].context).to.equal(
-        singleDelegation[0].context
+      expect(secondDelegation.delegation[0].delegate).to.equal(
+        singleDelegation[0].delegate
       )
       expect(secondDelegation.delegation[0].ratio).to.equal(
         singleDelegation[0].ratio
@@ -130,7 +130,7 @@ describe("Delegate Registry", function () {
     })
     it("Reverts with DuplicateDelegate() if duplicate delegates are provided", async () => {
       const { delegateRegistry, multipleDelegation, wallet } = await setup()
-      multipleDelegation[1].context =
+      multipleDelegation[1].delegate =
         "0x0000000000000000000000000000000000000000000000000000000000000001"
       expect(
         delegateRegistry.setDelegation("id", multipleDelegation, 42)
@@ -138,7 +138,7 @@ describe("Delegate Registry", function () {
     })
     it("Reverts with DuplicateDelegate() if delegate 0x0 is provided", async () => {
       const { delegateRegistry, multipleDelegation, wallet } = await setup()
-      multipleDelegation[1].context =
+      multipleDelegation[1].delegate =
         "0x0000000000000000000000000000000000000000000000000000000000000000"
       expect(
         delegateRegistry.setDelegation("id", multipleDelegation, 42)
@@ -154,8 +154,8 @@ describe("Delegate Registry", function () {
         "id",
         wallet.address
       )
-      expect(delegation.delegation[0].context).to.equal(
-        singleDelegation[0].context
+      expect(delegation.delegation[0].delegate).to.equal(
+        singleDelegation[0].delegate
       )
       expect(delegation.delegation[0].ratio).to.equal(singleDelegation[0].ratio)
       expect(delegation.expirationTimestamp).to.equal(42)
@@ -175,8 +175,8 @@ describe("Delegate Registry", function () {
         "id",
         wallet.address
       )
-      expect(delegation.delegation[0].context).to.equal(
-        singleDelegation[0].context
+      expect(delegation.delegation[0].delegate).to.equal(
+        singleDelegation[0].delegate
       )
       expect(delegation.delegation[0].ratio).to.equal(singleDelegation[0].ratio)
       expect(delegation.expirationTimestamp).to.equal(420)
@@ -203,13 +203,13 @@ describe("Delegate Registry", function () {
         "id2",
         wallet.address
       )
-      expect(delegation.delegation[0].context).to.equal(
-        singleDelegation[0].context
+      expect(delegation.delegation[0].delegate).to.equal(
+        singleDelegation[0].delegate
       )
       expect(delegation.delegation[0].ratio).to.equal(singleDelegation[0].ratio)
       expect(delegation.expirationTimestamp).to.equal(42)
-      expect(secondDelegation.delegation[0].context).to.equal(
-        singleDelegation[0].context
+      expect(secondDelegation.delegation[0].delegate).to.equal(
+        singleDelegation[0].delegate
       )
       expect(secondDelegation.delegation[0].ratio).to.equal(
         singleDelegation[0].ratio

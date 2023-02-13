@@ -6,7 +6,7 @@ dataSources:
     name: DelegateRegistry
     network: goerli
     source:
-      address: "0xde1e8a7e1b13f05acc753f7c11367a12a318883d"
+      address: "0xde1e8a7e059509257f57d1680d78025a61ad7abf"
       abi: DelegateRegistry
       startBlock: 8482414
 
