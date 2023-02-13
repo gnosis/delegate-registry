@@ -505,3 +505,20 @@ test("OptOutStatusSet() with false optout status removes entity from store", () 
   handleOptout(optin)
   assert.notInStore("Optout", `${CONTEXT1}-${USER1_ADDRESS.toHexString()}`)
 })
+
+test("DelegationCleared() for non existing delegation is ignored", () => {
+  const delegationCleared = createDelegationClearedEvent(
+    USER1_ADDRESS,
+    CONTEXT1,
+    DELEGATION_ETHEREUM_VALUE,
+  )
+  assert.notInStore(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.context.toHex()}`,
+  )
+  handleDelegationCleared(delegationCleared)
+  assert.notInStore(
+    "Delegation",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.context.toHex()}`,
+  )
+})

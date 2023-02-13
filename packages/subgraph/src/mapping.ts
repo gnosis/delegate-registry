@@ -36,6 +36,14 @@ export function handleDelegation(event: DelegationUpdated): void {
           i
         ].context.toHexString()}`,
       )
+      const delegationId = `${context.id}-${from.id}-${currentDelegations[
+        i
+      ].context.toHexString()}`
+
+      const delegation: Delegation | null = Delegation.load(delegationId)
+      if (delegation != null) {
+        store.remove("Delegation", delegationId)
+      }
     }
   }
   for (let i = 0; i < delegations.length; i++) {
@@ -51,8 +59,13 @@ export function handleDelegationCleared(event: DelegationCleared): void {
   const delegations: DelegationClearedDelegatesClearedStruct[] =
     event.params.delegatesCleared
   for (let i = 0; i < delegations.length; i++) {
-    const id = `${context}-${from}-${delegations[i].context.toHexString()}`
-    store.remove("Delegation", id)
+    const delegationId = `${context}-${from}-${delegations[
+      i
+    ].context.toHexString()}`
+    const delegation: Delegation | null = Delegation.load(delegationId)
+    if (delegation != null) {
+      store.remove("Delegation", delegationId)
+    }
   }
 }
 
@@ -83,8 +96,11 @@ export function handleOptout(event: OptOutStatusSet): void {
     const optout = loadOrCreateOptout(delegate, context)
     optout.save()
   } else {
-    const id = `${context.id}-${delegate.id}`
-    store.remove("Optout", id)
+    const optoutId = `${context.id}-${delegate.id}`
+    const optout: Optout | null = Optout.load(optoutId)
+    if (optout != null) {
+      store.remove("Optout", optoutId)
+    }
   }
 }
 
