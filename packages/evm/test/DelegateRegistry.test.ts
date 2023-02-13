@@ -194,4 +194,31 @@ describe("Delegate Registry", function () {
       expect(secondDelegation.expirationTimestamp).to.equal(1337)
     })
   })
+
+  describe("optout()", function () {
+    it("Allows a delegate to set their opt-out status", async () => {
+      const { delegateRegistry, wallet } = await setup()
+      await delegateRegistry.optout("id", true)
+      expect(await delegateRegistry.optouts(wallet.address, "id")).to.equal(
+        true
+      )
+      await delegateRegistry.optout("id", false)
+      expect(await delegateRegistry.optouts(wallet.address, "id")).to.equal(
+        false
+      )
+    })
+    it("Reverts if status equals currents status", async () => {
+      const { delegateRegistry, wallet } = await setup()
+      await delegateRegistry.optout("id", true)
+      expect(await delegateRegistry.optouts(wallet.address, "id")).to.equal(
+        true
+      )
+      await expect(delegateRegistry.optout("id", true))
+        .to.be.revertedWithCustomError(
+          delegateRegistry,
+          "DuplicateOptoutStatus"
+        )
+        .withArgs(delegateRegistry.address, "id", true)
+    })
+  })
 })

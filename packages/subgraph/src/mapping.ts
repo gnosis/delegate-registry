@@ -14,8 +14,11 @@ import {
   DelegationUpdatedPreviousDelegationStruct,
   DelegationUpdatedDelegationStruct,
   DelegationClearedDelegatesClearedStruct,
+  OptOutStatusSet,
+  DelegateRegistry,
+  OptOutStatusSet__Params,
 } from "../generated/DelegateRegistry/DelegateRegistry"
-import { To, From, Context, Delegation } from "../generated/schema"
+import { To, From, Context, Delegation, Optout } from "../generated/schema"
 
 export function handleDelegation(event: DelegationUpdated): void {
   const from: From = loadOrCreateFrom(event.params.delegator)
@@ -27,11 +30,9 @@ export function handleDelegation(event: DelegationUpdated): void {
   const expiration: BigInt = event.params.expirationTimestamp
   if (currentDelegations.length > 0) {
     for (let i = 0; i < currentDelegations.length; i++) {
-      const currentDelegation: DelegationUpdatedPreviousDelegationStruct =
-        currentDelegations[i]
       store.remove(
         "Delegation",
-        `${context.id}-${from.id}-${currentDelegation.id.toHexString()}`,
+        `${context.id}-${from.id}-${currentDelegations[i].id.toHexString()}`,
       )
     }
   }
@@ -77,12 +78,24 @@ export function handleExpirationUpdate(event: ExpirationUpdated): void {
   }
 }
 
+export function handleOptout(event: OptOutStatusSet): void {
+  const delegate: Address = event.params.delegate
+  const context: Context = loadOrCreateContext(event.params.id)
+  const status: boolean = event.params.optout
+  if (status) {
+    const optout = loadOrCreateOptout(delegate, context)
+    optout.save()
+  } else {
+    const id = `${context.id}-${delegate.toHexString()}`
+    store.remove("Optout", id)
+  }
+}
+
 export function loadOrCreateTo(id: Bytes): To {
   let entry: To | null = To.load(id.toHexString())
   if (entry == null) {
     entry = new To(id.toHexString())
   }
-  entry.save()
   return entry
 }
 
@@ -90,8 +103,8 @@ export function loadOrCreateFrom(id: Address): From {
   let entry: From | null = From.load(id.toHexString())
   if (entry == null) {
     entry = new From(id.toHexString())
+    entry.save()
   }
-  entry.save()
   return entry
 }
 
@@ -99,7 +112,22 @@ export function loadOrCreateContext(id: string): Context {
   let entry: Context | null = Context.load(id)
   if (entry == null) {
     entry = new Context(id)
+    entry.save()
   }
+  return entry
+}
+
+export function loadOrCreateOptout(
+  delegate: Address,
+  context: Context,
+): Optout {
+  const id = `${context.id}-${delegate.toHexString()}`
+  let entry: Optout | null = Optout.load(id)
+  if (entry == null) {
+    entry = new Optout(id)
+  }
+  entry.delegate = delegate
+  entry.context = context.id
   entry.save()
   return entry
 }
@@ -112,7 +140,6 @@ export function createOrUpdateDelegation(
   expiration: BigInt,
 ): Delegation {
   const id = `${context.id}-${from.id}-${to.id}`
-
   let entry: Delegation | null = Delegation.load(id)
   if (entry == null) {
     entry = new Delegation(id)

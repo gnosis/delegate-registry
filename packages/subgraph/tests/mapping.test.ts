@@ -3,13 +3,15 @@ import {
   handleDelegation,
   handleExpirationUpdate,
   handleDelegationCleared,
+  handleOptout,
 } from "../src/mapping"
-import { Delegation } from "../generated/schema"
+import { Delegation, Optout } from "../generated/schema"
 import {
   DelegationUpdated,
   DelegationUpdatedDelegationStruct,
   DelegationCleared,
   ExpirationUpdated,
+  OptOutStatusSet,
 } from "../generated/DelegateRegistry/DelegateRegistry"
 import { assert, clearStore, log, newMockEvent, test } from "matchstick-as"
 
@@ -184,6 +186,39 @@ function createDelegationClearedEvent(
   )
 
   return newExpirationUpdatedEvent
+}
+
+function createOptoutEvent(
+  delegate: Address,
+  context: string,
+  optout: boolean,
+): OptOutStatusSet {
+  let mockEvent = newMockEvent()
+
+  mockEvent.parameters = new Array()
+
+  mockEvent.parameters.push(
+    new ethereum.EventParam("delegation", ethereum.Value.fromAddress(delegate)),
+  )
+  mockEvent.parameters.push(
+    new ethereum.EventParam("context", ethereum.Value.fromString(context)),
+  )
+  mockEvent.parameters.push(
+    new ethereum.EventParam("optout", ethereum.Value.fromBoolean(optout)),
+  )
+
+  let newOptoutEvent = new OptOutStatusSet(
+    mockEvent.address,
+    mockEvent.logIndex,
+    mockEvent.transactionLogIndex,
+    mockEvent.logType,
+    mockEvent.block,
+    mockEvent.transaction,
+    mockEvent.parameters,
+    mockEvent.receipt,
+  )
+
+  return newOptoutEvent
 }
 
 ///////////
@@ -433,4 +468,40 @@ test("DelegationCleared() event clears delegations", () => {
     "Delegation",
     `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION4.id.toHex()}`,
   )
+})
+
+test("OptOutStatusSet() adds optout to store", () => {
+  const optout = createOptoutEvent(USER1_ADDRESS, CONTEXT1, true)
+  handleOptout(optout)
+  assert.fieldEquals(
+    "Optout",
+    `${CONTEXT1}-${USER1_ADDRESS.toHexString()}`,
+    "delegate",
+    USER1_ADDRESS.toHexString(),
+  )
+  assert.fieldEquals(
+    "Optout",
+    `${CONTEXT1}-${USER1_ADDRESS.toHexString()}`,
+    "context",
+    CONTEXT1,
+  )
+})
+test("OptOutStatusSet() with false optout status removes entity from store", () => {
+  const optout = createOptoutEvent(USER1_ADDRESS, CONTEXT1, true)
+  const optin = createOptoutEvent(USER1_ADDRESS, CONTEXT1, false)
+  handleOptout(optout)
+  assert.fieldEquals(
+    "Optout",
+    `${CONTEXT1}-${USER1_ADDRESS.toHexString()}`,
+    "delegate",
+    USER1_ADDRESS.toHexString(),
+  )
+  assert.fieldEquals(
+    "Optout",
+    `${CONTEXT1}-${USER1_ADDRESS.toHexString()}`,
+    "context",
+    CONTEXT1,
+  )
+  handleOptout(optin)
+  assert.notInStore("Optout", `${CONTEXT1}-${USER1_ADDRESS.toHexString()}`)
 })

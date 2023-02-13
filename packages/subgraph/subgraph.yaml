@@ -6,9 +6,9 @@ dataSources:
     name: DelegateRegistry
     network: goerli
     source:
-      address: "0xBa82B50Ab9A590cC15Ef725A80277FBAA1d932c5"
+      address: "0x02dE1E8A7E801E0BCf79d4E71Cdb2f5D64E90DC7"
       abi: DelegateRegistry
-      startBlock: 6627917
+      startBlock: 8458571
 
     mapping:
       kind: ethereum/events
@@ -26,4 +26,6 @@ dataSources:
           handler: handleDelegationCleared
         - event: ExpirationUpdated(indexed address,string,(bytes32,uint256)[],uint256)
           handler: handleExpirationUpdate
+        - event: OptOutStatusSet(indexed address,string,bool)
+          handler: handlOptout
       file: ./src/mapping.ts
