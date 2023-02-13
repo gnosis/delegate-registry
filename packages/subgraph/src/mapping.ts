@@ -38,13 +38,8 @@ export function handleDelegation(event: DelegationUpdated): void {
   }
   for (let i = 0; i < delegations.length; i++) {
     const delegation: DelegationUpdatedDelegationStruct = delegations[i]
-    createOrUpdateDelegation(
-      context,
-      from,
-      loadOrCreateTo(delegation.id),
-      delegation.ratio,
-      expiration,
-    )
+    const to: To = loadOrCreateTo(delegation.id)
+    createOrUpdateDelegation(context, from, to, delegation.ratio, expiration)
   }
 }
 
@@ -96,6 +91,7 @@ export function loadOrCreateTo(id: Bytes): To {
   if (entry == null) {
     entry = new To(id.toHexString())
   }
+  entry.save()
   return entry
 }
 
@@ -103,8 +99,8 @@ export function loadOrCreateFrom(id: Address): From {
   let entry: From | null = From.load(id.toHexString())
   if (entry == null) {
     entry = new From(id.toHexString())
-    entry.save()
   }
+  entry.save()
   return entry
 }
 
