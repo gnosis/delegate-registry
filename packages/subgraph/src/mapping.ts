@@ -79,14 +79,14 @@ export function handleExpirationUpdate(event: ExpirationUpdated): void {
 }
 
 export function handleOptout(event: OptOutStatusSet): void {
-  const delegate: Address = event.params.delegate
+  const delegate: From = loadOrCreateFrom(event.params.delegate)
   const context: Context = loadOrCreateContext(event.params.id)
   const status: boolean = event.params.optout
   if (status) {
     const optout = loadOrCreateOptout(delegate, context)
     optout.save()
   } else {
-    const id = `${context.id}-${delegate.toHexString()}`
+    const id = `${context.id}-${delegate.id}`
     store.remove("Optout", id)
   }
 }
@@ -117,16 +117,13 @@ export function loadOrCreateContext(id: string): Context {
   return entry
 }
 
-export function loadOrCreateOptout(
-  delegate: Address,
-  context: Context,
-): Optout {
-  const id = `${context.id}-${delegate.toHexString()}`
+export function loadOrCreateOptout(from: From, context: Context): Optout {
+  const id = `${context.id}-${from.id}`
   let entry: Optout | null = Optout.load(id)
   if (entry == null) {
     entry = new Optout(id)
   }
-  entry.delegate = delegate
+  entry.from = from.id
   entry.context = context.id
   entry.save()
   return entry

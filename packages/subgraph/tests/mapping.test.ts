@@ -476,7 +476,7 @@ test("OptOutStatusSet() adds optout to store", () => {
   assert.fieldEquals(
     "Optout",
     `${CONTEXT1}-${USER1_ADDRESS.toHexString()}`,
-    "delegate",
+    "from",
     USER1_ADDRESS.toHexString(),
   )
   assert.fieldEquals(
@@ -493,7 +493,7 @@ test("OptOutStatusSet() with false optout status removes entity from store", () 
   assert.fieldEquals(
     "Optout",
     `${CONTEXT1}-${USER1_ADDRESS.toHexString()}`,
-    "delegate",
+    "from",
     USER1_ADDRESS.toHexString(),
   )
   assert.fieldEquals(

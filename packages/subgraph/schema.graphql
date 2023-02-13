@@ -6,6 +6,7 @@ type To @entity(immutable: true) {
 type From @entity(immutable: true) {
   id: ID! # address to identify from
   delegations: [Delegation!]! @derivedFrom(field: "from")
+  optouts: [Optout!]! @derivedFrom(field: "from")
 }
 
 type Context @entity(immutable: true) {
@@ -16,7 +17,7 @@ type Context @entity(immutable: true) {
 
 type Optout @entity(immutable: true) {
   id: ID! # `${context.id}-${delegate}`
-  delegate: Bytes
+  from: From!
   context: Context!
 }
 
