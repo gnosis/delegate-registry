@@ -9,35 +9,40 @@
  */
 export const computeDelegatedVoteWeights = (
   delegationRatios: { [representative: string]: { [member: string]: number } },
-  voteWeights: { [address: string]: number },
+  voteWeights: { [member: string]: number },
 ) => {
   const computeDelegatedVoteWeight = (
-    to: string,
-    accumulatedVoteWeights: { [address: string]: number },
+    representative: string,
+    accumulatedVoteWeights: { [representative: string]: number },
   ): { [address: string]: number } => {
-    if (accumulatedVoteWeights[to] != null) {
+    if (accumulatedVoteWeights[representative] != null) {
       // Already computed vote weight for this delegatee
       return accumulatedVoteWeights
     }
     // Depth first
-    return Object.keys(delegationRatios[to]).reduce((acc, from) => {
-      // for each address delegated from to this delegate (`to`)
-      const ration = delegationRatios[to][from]
-      const delegatorVoteWeight = (voteWeights[from] ?? 0) * ration
+    return Object.keys(delegationRatios[representative]).reduce(
+      (acc, member) => {
+        // for each address delegated from to this delegate (`to`)
+        const ration = delegationRatios[representative][member] // TODO: this must be updated when the subgraph is
+        const delegatorVoteWeight = (voteWeights[member] ?? 0) * ration
 
-      // add votes delegated to the delegator
-      if (delegationRatios[from] != null) {
-        // if the delegator has delegated votes
-        acc = computeDelegatedVoteWeight(from, acc)
-      }
+        // add votes delegated to the delegator
+        if (delegationRatios[member] != null) {
+          // if the delegator has delegated votes
+          acc = computeDelegatedVoteWeight(member, acc)
+        }
 
-      // add delegator's votes + any delegated votes to the delegator
-      const delegatedVoteWeightToDelegator = (acc[from] ?? 0) * ration
+        // add delegator's votes + any delegated votes to the delegator
+        const delegatedVoteWeightToDelegator = (acc[member] ?? 0) * ration
 
-      acc[to] =
-        (acc[to] ?? 0) + delegatorVoteWeight + delegatedVoteWeightToDelegator
-      return acc
-    }, accumulatedVoteWeights)
+        acc[representative] =
+          (acc[representative] ?? 0) +
+          delegatorVoteWeight +
+          delegatedVoteWeightToDelegator
+        return acc
+      },
+      accumulatedVoteWeights,
+    )
   }
 
   const voteWeightDelegatedTo: { [address: string]: number } = Object.keys(

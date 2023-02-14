@@ -3,6 +3,9 @@ query GetTos {
     id
     delegations {
       id
+      from {
+        id
+      }
       ratio
     }
   }

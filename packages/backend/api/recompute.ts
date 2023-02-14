@@ -3,6 +3,9 @@ import { computeDelegatedVoteWeights } from "../lib/compute-vote-weights"
 import { getVoteWeights } from "../lib/services/snapshot-api"
 import * as storage from "../lib/services/storage"
 import { getAllDelegationsTo as getAllRepresentatives } from "../lib/services/the-graph"
+import { utils } from "ethers"
+
+const { getAddress } = utils
 
 /**
  * Recomputes the vote weights for all delegations, and stores the results.
@@ -20,9 +23,9 @@ export default async function getDelegations(
 
   const delegations = representatives.data?.tos.reduce(
     (acc, { id: representative, delegations }) => {
-      acc[representative] = delegations.reduce(
-        (acc, { id: delegator, ratio }) => {
-          acc[delegator] = ratio
+      acc[getAddress(representative.slice(-40))] = delegations.reduce(
+        (acc, { from: { id: delegator }, ratio }) => {
+          acc[getAddress(delegator)] = ratio
           return acc
         },
         {} as Record<string, number>,
@@ -31,7 +34,6 @@ export default async function getDelegations(
     },
     {} as Record<string, Record<string, number>>,
   )
-
   if (delegations == null) {
     console.log("Done: no delegations found")
     return response.status(200).json({
@@ -47,6 +49,7 @@ export default async function getDelegations(
     ],
     [] as string[],
   )
+
   const voteWeights = await getVoteWeights(delegators)
 
   console.log("3. Compute vote weights for all delegations")
