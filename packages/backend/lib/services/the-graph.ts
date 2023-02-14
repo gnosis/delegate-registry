@@ -12,10 +12,10 @@ export type Ratio = {
   denominator: number
 }
 
-export const getAllDelegationsTo = async () => {
+export const getAllDelegationsTo = async (snapshotSpace: string) => {
   const responds: ExecutionResult<GetDelegatesQuery> = await execute(
     GetDelegatesDocument,
-    {},
+    { snapshotSpace },
   )
 
   return responds.data?.delegates.reduce(

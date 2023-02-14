@@ -5,6 +5,12 @@ import { getVoteWeights } from "../lib/services/snapshot-api"
 import * as storage from "../lib/services/storage"
 import { getAllDelegationsTo as getAllDelegates } from "../lib/services/the-graph"
 
+// TODO: make more generic
+const SNAPSHOT_SPACE = process.env.SNAPSHOT_SPACE!
+if (SNAPSHOT_SPACE == null) {
+  throw Error("SNAPSHOT_SPACE is not defined")
+}
+
 /**
  * Recomputes the vote weights for all delegations, and stores the results.
  *
@@ -17,7 +23,7 @@ export default async function getDelegations(
   console.log("1. Fetch and merge all delegations across all chains")
 
   // 1.1. - get all to delegations
-  const delegations = await getAllDelegates()
+  const delegations = await getAllDelegates(SNAPSHOT_SPACE)
   console.log("delegations:", delegations)
   if (delegations == null) {
     console.log("Done: no delegations found")
@@ -32,7 +38,7 @@ export default async function getDelegations(
     R.flatten(Object.values(delegations).map((member) => Object.keys(member))),
   )
   console.log("delegatingAccounts:", delegatingAccounts)
-  const voteWeights = await getVoteWeights(delegatingAccounts)
+  const voteWeights = await getVoteWeights(SNAPSHOT_SPACE, delegatingAccounts)
   console.log("voteWeights:", voteWeights)
 
   console.log("3. Compute vote weights for all delegations")

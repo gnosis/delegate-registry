@@ -13,7 +13,9 @@
   },
   "dependencies": {
     "@snapshot-labs/snapshot.js": "^0.4.61",
+    "@vercel/edge-config": "^0.1.1",
     "@vercel/node": "^2.5.21",
+    "node-fetch": "2",
     "ramda": "^0.28.0"
   },
   "devDependencies": {
