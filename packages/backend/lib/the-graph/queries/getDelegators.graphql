@@ -1,12 +1,13 @@
-query GetTos {
-  tos(first: 3) {
+query GetDelegates {
+  delegates(first: 3) {
     id
     delegations {
       id
-      from {
+      account {
         id
       }
-      ratio
+      numerator
+      denominator
     }
   }
 }

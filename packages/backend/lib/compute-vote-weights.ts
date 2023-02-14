@@ -1,3 +1,5 @@
+import { Ratio } from "./services/the-graph"
+
 /**
  * The vote weight delegated to a delegatee.
  * To get total vote weight for a delegatee, add the vote weight for the delegatee them self.
@@ -8,7 +10,7 @@
  * @returns
  */
 export const computeDelegatedVoteWeights = (
-  delegationRatios: { [representative: string]: { [member: string]: number } },
+  delegationRatios: { [representative: string]: { [member: string]: Ratio } },
   voteWeights: { [member: string]: number },
 ) => {
   const computeDelegatedVoteWeight = (
@@ -23,8 +25,10 @@ export const computeDelegatedVoteWeights = (
     return Object.keys(delegationRatios[representative]).reduce(
       (acc, member) => {
         // for each address delegated from to this delegate (`to`)
-        const ration = delegationRatios[representative][member] // TODO: this must be updated when the subgraph is
-        const delegatorVoteWeight = (voteWeights[member] ?? 0) * ration
+        const { numerator, denominator } =
+          delegationRatios[representative][member]
+        const ratio = numerator / denominator
+        const delegatorVoteWeight = (voteWeights[member] ?? 0) * ratio
 
         // add votes delegated to the delegator
         if (delegationRatios[member] != null) {
@@ -33,7 +37,7 @@ export const computeDelegatedVoteWeights = (
         }
 
         // add delegator's votes + any delegated votes to the delegator
-        const delegatedVoteWeightToDelegator = (acc[member] ?? 0) * ration
+        const delegatedVoteWeightToDelegator = (acc[member] ?? 0) * ratio
 
         acc[representative] =
           (acc[representative] ?? 0) +

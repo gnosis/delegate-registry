@@ -3,7 +3,7 @@ import R from "ramda"
 import { computeDelegatedVoteWeights } from "../lib/compute-vote-weights"
 import { getVoteWeights } from "../lib/services/snapshot-api"
 import * as storage from "../lib/services/storage"
-import { getAllDelegationsTo as getAllRepresentatives } from "../lib/services/the-graph"
+import { getAllDelegationsTo as getAllDelegates } from "../lib/services/the-graph"
 
 /**
  * Recomputes the vote weights for all delegations, and stores the results.
@@ -17,8 +17,8 @@ export default async function getDelegations(
   console.log("1. Fetch and merge all delegations across all chains")
 
   // 1.1. - get all to delegations
-  const delegations = await getAllRepresentatives()
-
+  const delegations = await getAllDelegates()
+  console.log("delegations:", delegations)
   if (delegations == null) {
     console.log("Done: no delegations found")
     return response.status(200).json({
@@ -27,16 +27,13 @@ export default async function getDelegations(
   }
 
   console.log("2. Get vote weights for all delegators")
-  const delegators = R.uniq(
-    Object.keys(delegations).reduce(
-      (representatives, representative) => [
-        ...representatives,
-        ...Object.keys(delegations[representative]),
-      ],
-      [] as string[],
-    ),
+
+  const delegatingAccounts = R.uniq(
+    R.flatten(Object.values(delegations).map((member) => Object.keys(member))),
   )
-  const voteWeights = await getVoteWeights(delegators)
+  console.log("delegatingAccounts:", delegatingAccounts)
+  const voteWeights = await getVoteWeights(delegatingAccounts)
+  console.log("voteWeights:", voteWeights)
 
   console.log("3. Compute vote weights for all delegations")
   const delegatedVoteWeight = computeDelegatedVoteWeights(

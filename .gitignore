@@ -21,3 +21,4 @@ generated
 build
 .latest.json
 .bin
+.vscode
