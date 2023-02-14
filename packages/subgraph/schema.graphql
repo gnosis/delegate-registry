@@ -1,31 +1,32 @@
-type To @entity(immutable: true) {
+type Delegate @entity {
   id: ID! # bytes32 identifier, probably an address but with room for chain-specific addresses if wanted.
-  delegations: [Delegation!]! @derivedFrom(field: "to")
+  delegations: [Delegation!]! @derivedFrom(field: "delegate")
+  optouts: [Optout!]! @derivedFrom(field: "delegate")
 }
 
-type From @entity(immutable: true) {
-  id: ID! # address to identify from
-  delegations: [Delegation!]! @derivedFrom(field: "from")
-  optouts: [Optout!]! @derivedFrom(field: "from")
+type Account @entity {
+  id: ID! # address to identify account
+  delegations: [Delegation!]! @derivedFrom(field: "account")
 }
 
-type Context @entity(immutable: true) {
+type Context @entity {
   id: ID! # string to identify context
   delegations: [Delegation!]! @derivedFrom(field: "context")
   optouts: [Optout!]! @derivedFrom(field: "context")
 }
 
-type Optout @entity(immutable: true) {
-  id: ID! # `${context.id}-${delegate}`
-  from: From!
+type Optout @entity {
+  id: ID! # `${context.id}-${delegate.id}`
+  delegate: Delegate!
   context: Context!
 }
 
-type Delegation @entity(immutable: true) {
-  id: ID! # `${context.id}-${from.id}-${to.id}`
+type Delegation @entity {
+  id: ID! # `${context.id}-${account.id}-${delegate.id}`
   context: Context!
-  from: From!
-  to: To!
-  ratio: BigInt!
+  account: Account!
+  delegate: Delegate!
+  numerator: BigInt!
+  denominator: BigInt!
   expiration: BigInt!
 }

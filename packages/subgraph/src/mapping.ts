@@ -18,10 +18,18 @@ import {
   DelegateRegistry,
   OptOutStatusSet__Params,
 } from "../generated/DelegateRegistry/DelegateRegistry"
-import { To, From, Context, Delegation, Optout } from "../generated/schema"
+import {
+  Delegate,
+  Account,
+  Context,
+  Delegation,
+  Optout,
+} from "../generated/schema"
+
+const padding: Bytes = Bytes.fromHexString("0x000000000000000000000000")
 
 export function handleDelegation(event: DelegationUpdated): void {
-  const from: From = loadOrCreateFrom(event.params.delegator)
+  const account: Account = loadOrCreateAccount(event.params.account)
   const context: Context = loadOrCreateContext(event.params.context)
   const currentDelegations: DelegationUpdatedPreviousDelegationStruct[] =
     event.params.previousDelegation
@@ -32,11 +40,11 @@ export function handleDelegation(event: DelegationUpdated): void {
     for (let i = 0; i < currentDelegations.length; i++) {
       store.remove(
         "Delegation",
-        `${context.id}-${from.id}-${currentDelegations[
+        `${context.id}-${account.id}-${currentDelegations[
           i
         ].delegate.toHexString()}`,
       )
-      const delegationId = `${context.id}-${from.id}-${currentDelegations[
+      const delegationId = `${context.id}-${account.id}-${currentDelegations[
         i
       ].delegate.toHexString()}`
 
@@ -46,15 +54,27 @@ export function handleDelegation(event: DelegationUpdated): void {
       }
     }
   }
+  let denominator: BigInt = BigInt.fromU32(0)
+  for (let i = 0; i < delegations.length; i++) {
+    const delegation = delegations[i]
+    denominator = denominator.plus(delegation.ratio)
+  }
   for (let i = 0; i < delegations.length; i++) {
     const delegation: DelegationUpdatedDelegationStruct = delegations[i]
-    const to: To = loadOrCreateTo(delegation.delegate)
-    createOrUpdateDelegation(context, from, to, delegation.ratio, expiration)
+    const delegate: Delegate = loadOrCreateDelegate(delegation.delegate)
+    createOrUpdateDelegation(
+      context,
+      account,
+      delegate,
+      delegation.ratio,
+      denominator,
+      expiration,
+    )
   }
 }
 
 export function handleDelegationCleared(event: DelegationCleared): void {
-  const from: string = event.params.delegator.toHexString()
+  const from: string = event.params.account.toHexString()
   const context: string = event.params.context.toString()
   const delegations: DelegationClearedDelegatesClearedStruct[] =
     event.params.delegatesCleared
@@ -70,18 +90,24 @@ export function handleDelegationCleared(event: DelegationCleared): void {
 }
 
 export function handleExpirationUpdate(event: ExpirationUpdated): void {
-  const from: From = loadOrCreateFrom(event.params.delegator)
+  const account: Account = loadOrCreateAccount(event.params.account)
   const context: Context = loadOrCreateContext(event.params.context)
   const expiration: BigInt = event.params.expirationTimestamp
   const delegations: ExpirationUpdatedDelegationStruct[] =
     event.params.delegation
+  let denominator: BigInt = BigInt.fromU32(0)
   for (let i = 0; i < delegations.length; i++) {
-    const to: To = loadOrCreateTo(delegations[i].delegate)
+    const delegation = delegations[i]
+    denominator = denominator.plus(delegation.ratio)
+  }
+  for (let i = 0; i < delegations.length; i++) {
+    const delegate: Delegate = loadOrCreateDelegate(delegations[i].delegate)
     const delegation: Delegation = createOrUpdateDelegation(
       context,
-      from,
-      to,
+      account,
+      delegate,
       delegations[i].ratio,
+      denominator,
       expiration,
     )
     delegation.save()
@@ -89,7 +115,9 @@ export function handleExpirationUpdate(event: ExpirationUpdated): void {
 }
 
 export function handleOptout(event: OptOutStatusSet): void {
-  const delegate: From = loadOrCreateFrom(event.params.delegate)
+  const delegate: Delegate = loadOrCreateDelegate(
+    padding.concat(Bytes.fromHexString(event.params.delegate.toHexString())),
+  )
   const context: Context = loadOrCreateContext(event.params.context)
   const status: boolean = event.params.optout
   if (status) {
@@ -104,19 +132,19 @@ export function handleOptout(event: OptOutStatusSet): void {
   }
 }
 
-export function loadOrCreateTo(id: Bytes): To {
-  let entry: To | null = To.load(id.toHexString())
+export function loadOrCreateDelegate(id: Bytes): Delegate {
+  let entry: Delegate | null = Delegate.load(id.toHexString())
   if (entry == null) {
-    entry = new To(id.toHexString())
+    entry = new Delegate(id.toHexString())
   }
   entry.save()
   return entry
 }
 
-export function loadOrCreateFrom(id: Address): From {
-  let entry: From | null = From.load(id.toHexString())
+export function loadOrCreateAccount(id: Address): Account {
+  let entry: Account | null = Account.load(id.toHexString())
   if (entry == null) {
-    entry = new From(id.toHexString())
+    entry = new Account(id.toHexString())
   }
   entry.save()
   return entry
@@ -131,13 +159,16 @@ export function loadOrCreateContext(id: string): Context {
   return entry
 }
 
-export function loadOrCreateOptout(from: From, context: Context): Optout {
-  const id = `${context.id}-${from.id}`
+export function loadOrCreateOptout(
+  delegate: Delegate,
+  context: Context,
+): Optout {
+  const id = `${context.id}-${delegate.id}`
   let entry: Optout | null = Optout.load(id)
   if (entry == null) {
     entry = new Optout(id)
   }
-  entry.from = from.id
+  entry.delegate = delegate.id
   entry.context = context.id
   entry.save()
   return entry
@@ -145,20 +176,22 @@ export function loadOrCreateOptout(from: From, context: Context): Optout {
 
 export function createOrUpdateDelegation(
   context: Context,
-  from: From,
-  to: To,
-  ratio: BigInt,
+  account: Account,
+  delegate: Delegate,
+  numerator: BigInt,
+  denominator: BigInt,
   expiration: BigInt,
 ): Delegation {
-  const id = `${context.id}-${from.id}-${to.id}`
+  const id = `${context.id}-${account.id}-${delegate.id}`
   let entry: Delegation | null = Delegation.load(id)
   if (entry == null) {
     entry = new Delegation(id)
   }
   entry.context = context.id
-  entry.from = from.id
-  entry.to = to.id
-  entry.ratio = ratio
+  entry.account = account.id
+  entry.delegate = delegate.id
+  entry.numerator = numerator
+  entry.denominator = denominator
   entry.expiration = expiration
   entry.save()
   return entry

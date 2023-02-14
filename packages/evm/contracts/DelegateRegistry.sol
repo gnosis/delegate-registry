@@ -23,28 +23,28 @@ struct Delegation {
 }
 
 contract DelegateRegistry {
-    // Mapping from delegator address => context => array of user-defined delegations.
+    // Mapping from account address => context => array of user-defined delegations.
     mapping(address => mapping(string => Delegation[])) private delegations;
-    // Mapping from delegator address => context => user-defined delegation expiration dates.
+    // Mapping from account address => context => user-defined delegation expiration dates.
     mapping(address => mapping(string => uint256)) private expirationTimestamps;
     // Mapping from delegate address => context => opt-out status
     mapping(address => mapping(string => bool)) public optouts;
 
     event ExpirationUpdated(
-        address indexed delegator,
+        address indexed account,
         string context,
         Delegation[] delegation,
         uint256 expirationTimestamp
     );
     event DelegationUpdated(
-        address indexed delegator,
+        address indexed account,
         string context,
         Delegation[] previousDelegation,
         Delegation[] delegation,
         uint256 expirationTimestamp
     );
     event DelegationCleared(
-        address indexed delegator,
+        address indexed account,
         string context,
         Delegation[] delegatesCleared
     );
@@ -146,20 +146,20 @@ contract DelegateRegistry {
         emit OptOutStatusSet(msg.sender, context, _optout);
     }
 
-    /// @dev Returns the delegation details for a given delegator in a given context.
+    /// @dev Returns the delegation details for a given account in a given context.
     /// @param context ID of the context to query.
-    /// @param delegator Address of the delegator to query.
+    /// @param account Address of the account to query.
     /// @return delegation Array of delegations.
     /// @return expirationTimestamp Unix timestamp at which this delegation will expire.
     function getDelegation(
         string memory context,
-        address delegator
+        address account
     )
         public
         view
         returns (Delegation[] memory delegation, uint256 expirationTimestamp)
     {
-        delegation = delegations[delegator][context];
-        expirationTimestamp = expirationTimestamps[delegator][context];
+        delegation = delegations[account][context];
+        expirationTimestamp = expirationTimestamps[account][context];
     }
 }
