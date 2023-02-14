@@ -4,6 +4,7 @@ let storage: { [address: string]: number } = {}
 export const storeNewSetOfDelegatedVoteWeight = async (delegatedVoteWeight: {
   [address: string]: number
 }) => {
+  console.log(delegatedVoteWeight)
   storage = delegatedVoteWeight
 }
 

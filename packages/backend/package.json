@@ -7,7 +7,8 @@
   "scripts": {
     "start": "vercel dev",
     "deploy": "vercel deploy",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md,graphql}\"",
+    "codegen": "graphclient build",
     "test": "mocha --require ts-node/register lib/**/*.test.ts"
   },
   "dependencies": {
@@ -16,7 +17,7 @@
     "ramda": "^0.28.0"
   },
   "devDependencies": {
-    "@graphprotocol/client-cli": "^2.2.16",
+    "@graphprotocol/client-cli": "^2.2.18",
     "@types/chai": "^4.3.4",
     "@types/mocha": "^10.0.1",
     "@types/ramda": "^0.28.22",

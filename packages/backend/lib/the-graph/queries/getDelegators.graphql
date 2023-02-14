@@ -1,0 +1,9 @@
+query GetTos {
+  tos(first: 3) {
+    id
+    delegations {
+      id
+      ratio
+    }
+  }
+}

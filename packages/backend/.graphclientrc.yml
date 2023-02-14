@@ -2,4 +2,10 @@ sources:
   - name: delegateRegistry
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/manboy-eth/gnosisdao-delegate-registry
+        endpoint: https://api.thegraph.com/subgraphs/name/auryn-macmillan/delegate-registry-v2
+      transforms:
+      - autoPagination:
+          validateSchema: true
+
+documents:
+  - './lib/the-graph/queries/**/*.graphql'
