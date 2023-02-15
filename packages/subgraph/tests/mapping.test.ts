@@ -5,7 +5,6 @@ import {
   handleDelegationCleared,
   handleOptout,
 } from "../src/mapping"
-import { Delegation, Optout } from "../generated/schema"
 import {
   DelegationUpdated,
   DelegationUpdatedDelegationStruct,
@@ -13,7 +12,7 @@ import {
   ExpirationUpdated,
   OptOutStatusSet,
 } from "../generated/DelegateRegistry/DelegateRegistry"
-import { assert, clearStore, log, newMockEvent, test } from "matchstick-as"
+import { assert, clearStore, newMockEvent, test } from "matchstick-as"
 
 const padding: Bytes = Bytes.fromHexString("0x000000000000000000000000")
 
@@ -76,40 +75,30 @@ function createDelegationUpdatedEvent(
   delegation: ethereum.Value[],
   expirationTimestamp: BigInt,
 ): DelegationUpdated {
-  let mockEvent = newMockEvent()
+  const mockEvent = newMockEvent()
 
-  mockEvent.parameters = new Array()
-
-  mockEvent.parameters.push(
+  const mockParameters = [
     new ethereum.EventParam("account", ethereum.Value.fromAddress(account)),
-  )
-  mockEvent.parameters.push(
     new ethereum.EventParam("context", ethereum.Value.fromString(context)),
-  )
-  mockEvent.parameters.push(
     new ethereum.EventParam(
       "previousDelegation",
       ethereum.Value.fromArray(previousDelegation),
     ),
-  )
-  mockEvent.parameters.push(
     new ethereum.EventParam("delegation", ethereum.Value.fromArray(delegation)),
-  )
-  mockEvent.parameters.push(
     new ethereum.EventParam(
       "expirationTimestamp",
       ethereum.Value.fromUnsignedBigInt(expirationTimestamp),
     ),
-  )
+  ]
 
-  let newDelegationUpdatedEvent = new DelegationUpdated(
+  const newDelegationUpdatedEvent = new DelegationUpdated(
     mockEvent.address,
     mockEvent.logIndex,
     mockEvent.transactionLogIndex,
     mockEvent.logType,
     mockEvent.block,
     mockEvent.transaction,
-    mockEvent.parameters,
+    mockParameters,
     mockEvent.receipt,
   )
 
@@ -122,34 +111,26 @@ function createExpirationUpdatedEvent(
   delegation: ethereum.Value[],
   expirationTimestamp: BigInt,
 ): ExpirationUpdated {
-  let mockEvent = newMockEvent()
+  const mockEvent = newMockEvent()
 
-  mockEvent.parameters = new Array()
-
-  mockEvent.parameters.push(
+  const mockParameters = [
     new ethereum.EventParam("account", ethereum.Value.fromAddress(account)),
-  )
-  mockEvent.parameters.push(
     new ethereum.EventParam("context", ethereum.Value.fromString(context)),
-  )
-  mockEvent.parameters.push(
     new ethereum.EventParam("delegation", ethereum.Value.fromArray(delegation)),
-  )
-  mockEvent.parameters.push(
     new ethereum.EventParam(
       "expirationTimestamp",
       ethereum.Value.fromUnsignedBigInt(expirationTimestamp),
     ),
-  )
+  ]
 
-  let newExpirationUpdatedEvent = new ExpirationUpdated(
+  const newExpirationUpdatedEvent = new ExpirationUpdated(
     mockEvent.address,
     mockEvent.logIndex,
     mockEvent.transactionLogIndex,
     mockEvent.logType,
     mockEvent.block,
     mockEvent.transaction,
-    mockEvent.parameters,
+    mockParameters,
     mockEvent.receipt,
   )
 
@@ -161,28 +142,22 @@ function createDelegationClearedEvent(
   context: string,
   delegation: ethereum.Value[],
 ): DelegationCleared {
-  let mockEvent = newMockEvent()
+  const mockEvent = newMockEvent()
 
-  mockEvent.parameters = new Array()
-
-  mockEvent.parameters.push(
+  const mockParameters = [
     new ethereum.EventParam("account", ethereum.Value.fromAddress(account)),
-  )
-  mockEvent.parameters.push(
     new ethereum.EventParam("context", ethereum.Value.fromString(context)),
-  )
-  mockEvent.parameters.push(
     new ethereum.EventParam("delegation", ethereum.Value.fromArray(delegation)),
-  )
+  ]
 
-  let newExpirationUpdatedEvent = new DelegationCleared(
+  const newExpirationUpdatedEvent = new DelegationCleared(
     mockEvent.address,
     mockEvent.logIndex,
     mockEvent.transactionLogIndex,
     mockEvent.logType,
     mockEvent.block,
     mockEvent.transaction,
-    mockEvent.parameters,
+    mockParameters,
     mockEvent.receipt,
   )
 
@@ -194,28 +169,22 @@ function createOptoutEvent(
   context: string,
   optout: boolean,
 ): OptOutStatusSet {
-  let mockEvent = newMockEvent()
+  const mockEvent = newMockEvent()
 
-  mockEvent.parameters = new Array()
-
-  mockEvent.parameters.push(
+  const mockParameters = [
     new ethereum.EventParam("delegation", ethereum.Value.fromAddress(delegate)),
-  )
-  mockEvent.parameters.push(
     new ethereum.EventParam("context", ethereum.Value.fromString(context)),
-  )
-  mockEvent.parameters.push(
     new ethereum.EventParam("optout", ethereum.Value.fromBoolean(optout)),
-  )
+  ]
 
-  let newOptoutEvent = new OptOutStatusSet(
+  const newOptoutEvent = new OptOutStatusSet(
     mockEvent.address,
     mockEvent.logIndex,
     mockEvent.transactionLogIndex,
     mockEvent.logType,
     mockEvent.block,
     mockEvent.transaction,
-    mockEvent.parameters,
+    mockParameters,
     mockEvent.receipt,
   )
 
