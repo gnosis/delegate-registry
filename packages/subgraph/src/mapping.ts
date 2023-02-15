@@ -214,21 +214,3 @@ export function loadOrCreateContext(id: string): Context {
   }
   return entry
 }
-
-export function createDelegation(
-  context: Context,
-  account: Account,
-  delegate: Delegate,
-  delegationSetId: string,
-  numerator: BigInt,
-): Delegation {
-  const id = getDelegationId(context.id, account.id, delegate.id)
-  const entry = new Delegation(id)
-  entry.context = context.id
-  entry.account = account.id
-  entry.delegate = delegate.id
-  entry.delegationSet = delegationSetId
-  entry.numerator = numerator
-  entry.save()
-  return entry
-}
