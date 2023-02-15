@@ -1,16 +1,16 @@
-type Delegate @entity {
+type Delegate @entity(immutable: true) {
   id: ID! # bytes32 identifier, probably an address but with room for chain-specific addresses if wanted.
   delegations: [Delegation!]! @derivedFrom(field: "delegate")
   optouts: [Optout!]! @derivedFrom(field: "delegate")
 }
 
-type Account @entity {
+type Account @entity(immutable: true) {
   id: ID! # address to identify account
   delegationSets: [DelegationSet!]! @derivedFrom(field: "account")
   delegations: [Delegation!]! @derivedFrom(field: "account")
 }
 
-type Context @entity {
+type Context @entity(immutable: true) {
   id: ID! # string to identify context
   delegationSets: [DelegationSet!]! @derivedFrom(field: "context")
   delegations: [Delegation!]! @derivedFrom(field: "context")
