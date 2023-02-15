@@ -76,6 +76,7 @@ export function handleDelegation(event: DelegationUpdated): void {
     )
   }
 
+  // create new delegations and delegationSet
   let denominator: BigInt = BigInt.fromU32(0)
   for (let i = 0; i < newDelegationsFromEvent.length; i++) {
     const delegation = newDelegationsFromEvent[i]
@@ -112,13 +113,14 @@ export function handleDelegation(event: DelegationUpdated): void {
 export function handleDelegationCleared(event: DelegationCleared): void {
   const from: string = event.params.account.toHexString()
   const context: string = event.params.context.toString()
-  const delegations: DelegationClearedDelegatesClearedStruct[] =
+  const delegationsFromEvent: DelegationClearedDelegatesClearedStruct[] =
     event.params.delegatesCleared
-  for (let i = 0; i < delegations.length; i++) {
+  // remove delegations
+  for (let i = 0; i < delegationsFromEvent.length; i++) {
     const delegationId = getDelegationId(
       context,
       from,
-      delegations[i].delegate.toHexString(),
+      delegationsFromEvent[i].delegate.toHexString(),
     )
     const delegation = Delegation.load(delegationId)
     if (delegation == null) {
@@ -130,9 +132,16 @@ export function handleDelegationCleared(event: DelegationCleared): void {
       store.remove("Delegation", delegationId)
     }
   }
+  // update delegationSet
   const delegationSetId = getDelegationSetId(context, from)
   const delegationSet = DelegationSet.load(delegationSetId)
   if (delegationSet != null) {
+    if (delegationSet.delegations && delegationSet.delegations.length > 0) {
+      log.error(
+        "After removing all delegations from the events delegatesCleared array, the delegation set in the store sill has delegations. This should not be possible. DelegationSetId: {}",
+        [delegationSetId],
+      )
+    }
     delegationSet.denominator = BigInt.fromU32(0)
     delegationSet.expiration = BigInt.fromU32(0)
     delegationSet.delegationUpdated = event.block.timestamp
@@ -157,8 +166,8 @@ export function handleExpirationUpdate(event: ExpirationUpdated): void {
     delegationSet.save()
   } else {
     log.warning(
-      "Received expiration time update for an unknown delegation set. Account {} and context {}.",
-      [account.id, context.id],
+      "Received expiration time update for an unknown delegation set. delegationSetId: {}.",
+      [delegationSetId],
     )
   }
 }
