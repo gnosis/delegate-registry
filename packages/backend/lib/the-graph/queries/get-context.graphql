@@ -1,0 +1,29 @@
+query GetContext($contextId: ID!) {
+  context(id: $contextId) {
+    delegationsSets {
+      account {
+        id
+      }
+      delegations {
+        delegate {
+          id
+        }
+        account {
+          id
+        }
+        numerator
+      }
+      expiration
+      denominator
+      delegationUpdated
+      expirationUpdated
+    }
+    optouts {
+      delegate {
+        id
+      }
+      status
+      updated
+    }
+  }
+}
