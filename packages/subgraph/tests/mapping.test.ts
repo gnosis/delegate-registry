@@ -256,14 +256,14 @@ test("DelegationUpdated() event adds delegations", () => {
     DELEGATION2.ratio.toString(),
   )
   assert.fieldEquals(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.delegate.toHex()}`,
+    "DelegationSet",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
     "denominator",
     "3",
   )
   assert.fieldEquals(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.delegate.toHex()}`,
+    "DelegationSet",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
     "expiration",
     EXPIRATION.toString(),
   )
@@ -288,8 +288,8 @@ test("DelegationUpdated() event adds delegations", () => {
     DELEGATION3.ratio.toString(),
   )
   assert.fieldEquals(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION3.delegate.toHex()}`,
+    "DelegationSet",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
     "expiration",
     EXPIRATION.toString(),
   )
@@ -314,8 +314,8 @@ test("DelegationUpdated() event adds delegations", () => {
     DELEGATION4.ratio.toString(),
   )
   assert.fieldEquals(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION4.delegate.toHex()}`,
+    "DelegationSet",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
     "expiration",
     EXPIRATION.toString(),
   )
@@ -323,7 +323,7 @@ test("DelegationUpdated() event adds delegations", () => {
   clearStore()
 })
 
-test("DelegationUpdated() event removes previous delegations", () => {
+test("!!!!!!!!!!DelegationUpdated() event removes previous delegations", () => {
   let delegationEvent1 = createDelegationUpdatedEvent(
     USER1_ADDRESS,
     CONTEXT1,
@@ -345,7 +345,21 @@ test("DelegationUpdated() event removes previous delegations", () => {
   )
   handleDelegation(delegationEvent1)
 
+  assert.fieldEquals(
+    "DelegationSet",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
+    "denominator",
+    "3",
+  )
+
   handleDelegation(delegationEvent2)
+
+  assert.fieldEquals(
+    "DelegationSet",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
+    "denominator",
+    "1",
+  )
 
   // check DELEGATION2
   assert.fieldEquals(
@@ -367,8 +381,8 @@ test("DelegationUpdated() event removes previous delegations", () => {
     DELEGATION2.ratio.toString(),
   )
   assert.fieldEquals(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.delegate.toHex()}`,
+    "DelegationSet",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
     "expiration",
     EXPIRATION.toString(),
   )
@@ -404,27 +418,27 @@ test("ExpirationUpdated() event updates expirations", () => {
   )
   handleDelegation(delegationEvent)
   assert.fieldEquals(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.delegate.toHex()}`,
+    "DelegationSet",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
     "expiration",
     EXPIRATION.toString(),
   )
   handleExpirationUpdate(expirationUpdateEvent)
   assert.fieldEquals(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.delegate.toHex()}`,
+    "DelegationSet",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
     "expiration",
     newExpiration.toString(),
   )
   assert.fieldEquals(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION3.delegate.toHex()}`,
+    "DelegationSet",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
     "expiration",
     newExpiration.toString(),
   )
   assert.fieldEquals(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION4.delegate.toHex()}`,
+    "DelegationSet",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
     "expiration",
     newExpiration.toString(),
   )
@@ -445,20 +459,20 @@ test("DelegationCleared() event clears delegations", () => {
   )
   handleDelegation(delegationEvent)
   assert.fieldEquals(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.delegate.toHex()}`,
+    "DelegationSet",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
     "expiration",
     EXPIRATION.toString(),
   )
   assert.fieldEquals(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION3.delegate.toHex()}`,
+    "DelegationSet",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
     "expiration",
     EXPIRATION.toString(),
   )
   assert.fieldEquals(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION4.delegate.toHex()}`,
+    "DelegationSet",
+    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
     "expiration",
     EXPIRATION.toString(),
   )
