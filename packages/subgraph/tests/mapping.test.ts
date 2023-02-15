@@ -323,7 +323,7 @@ test("DelegationUpdated() event adds delegations", () => {
   clearStore()
 })
 
-test("!!!!!!!!!!DelegationUpdated() event removes previous delegations", () => {
+test("DelegationUpdated() event removes previous delegations", () => {
   let delegationEvent1 = createDelegationUpdatedEvent(
     USER1_ADDRESS,
     CONTEXT1,
@@ -442,6 +442,7 @@ test("ExpirationUpdated() event updates expirations", () => {
     "expiration",
     newExpiration.toString(),
   )
+  clearStore()
 })
 
 test("DelegationCleared() event clears delegations", () => {
@@ -489,6 +490,7 @@ test("DelegationCleared() event clears delegations", () => {
     "Delegation",
     `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION4.delegate.toHex()}`,
   )
+  clearStore()
 })
 
 test("OptOutStatusSet() adds optout to store", () => {
@@ -506,6 +508,7 @@ test("OptOutStatusSet() adds optout to store", () => {
     "context",
     CONTEXT1,
   )
+  clearStore()
 })
 test("OptOutStatusSet() with false optout status removes entity from store", () => {
   const optout = createOptoutEvent(USER1_ADDRESS, CONTEXT1, true)
@@ -528,6 +531,7 @@ test("OptOutStatusSet() with false optout status removes entity from store", () 
     "Optout",
     `${CONTEXT1}-${padding.concat(USER1_ADDRESS).toHexString()}`,
   )
+  clearStore()
 })
 
 test("DelegationCleared() for non existing delegation is ignored", () => {
@@ -545,4 +549,5 @@ test("DelegationCleared() for non existing delegation is ignored", () => {
     "Delegation",
     `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.delegate.toHex()}`,
   )
+  clearStore()
 })

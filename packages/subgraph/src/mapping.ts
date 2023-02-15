@@ -48,9 +48,9 @@ export function handleDelegation(event: DelegationUpdated): void {
     event.params.delegation
 
   const delegationSetId = getDelegationSetId(context.id, account.id)
-  const currentDelegationSet = DelegationSet.load(delegationSetId)
+  let currentDelegationSet = DelegationSet.load(delegationSetId)
 
-  // remove current delegations
+  // remove current delegations and delegationSet
   if (currentDelegationSet != null) {
     for (let i = 0; i < currentDelegationsFromEvent.length; i++) {
       const delegationId = getDelegationId(
@@ -66,6 +66,17 @@ export function handleDelegation(event: DelegationUpdated): void {
         )
       }
       store.remove("Delegation", delegationId)
+    }
+    currentDelegationSet = DelegationSet.load(delegationSetId)
+    if (
+      currentDelegationSet !== null &&
+      currentDelegationSet.delegations &&
+      currentDelegationSet.delegations.length > 0
+    ) {
+      log.error(
+        "The current delegationSet in the store and whats provided in the event do not match. This should not be possible. DelegationSetId: {}",
+        [delegationSetId],
+      )
     }
     store.remove("DelegationSet", delegationSetId)
   } else if (currentDelegationsFromEvent.length > 0) {
