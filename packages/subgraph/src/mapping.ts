@@ -1,22 +1,12 @@
-import {
-  BigInt,
-  Address,
-  store,
-  Bytes,
-  log,
-  ethereum,
-} from "@graphprotocol/graph-ts"
+import { BigInt, Address, store, Bytes, log } from "@graphprotocol/graph-ts"
 import {
   DelegationCleared,
   DelegationUpdated,
   ExpirationUpdated,
-  ExpirationUpdatedDelegationStruct,
   DelegationUpdatedPreviousDelegationStruct,
   DelegationUpdatedDelegationStruct,
   DelegationClearedDelegatesClearedStruct,
   OptOutStatusSet,
-  DelegateRegistry,
-  OptOutStatusSet__Params,
 } from "../generated/DelegateRegistry/DelegateRegistry"
 import {
   Delegate,
@@ -144,6 +134,7 @@ export function handleDelegationCleared(event: DelegationCleared): void {
   const delegationSet = DelegationSet.load(delegationSetId)
   if (delegationSet != null) {
     delegationSet.denominator = BigInt.fromU32(0)
+    delegationSet.expiration = BigInt.fromU32(0)
     delegationSet.delegationUpdated = event.block.timestamp
     delegationSet.save()
   } else {
@@ -179,13 +170,13 @@ export function handleOptout(event: OptOutStatusSet): void {
   const delegate: Delegate = loadOrCreateDelegate(delegateId)
   const context: Context = loadOrCreateContext(event.params.context)
   const status: boolean = event.params.optout
-  if (status) {
-    const optout = loadOrCreateOptout(delegate, context)
-    optout.save()
-  } else {
-    const optoutId = `${context.id}-${delegate.id}`
-    store.remove("Optout", optoutId)
-  }
+  const id = `${context.id}-${delegate.id}`
+  const optout = new Optout(id)
+  optout.delegate = delegate.id
+  optout.context = context.id
+  optout.status = status
+  optout.updated = event.block.timestamp
+  optout.save()
 }
 
 export function loadOrCreateDelegate(id: Bytes): Delegate {
@@ -212,21 +203,6 @@ export function loadOrCreateContext(id: string): Context {
     entry = new Context(id)
     entry.save()
   }
-  return entry
-}
-
-export function loadOrCreateOptout(
-  delegate: Delegate,
-  context: Context,
-): Optout {
-  const id = `${context.id}-${delegate.id}`
-  let entry: Optout | null = Optout.load(id)
-  if (entry == null) {
-    entry = new Optout(id)
-  }
-  entry.delegate = delegate.id
-  entry.context = context.id
-  entry.save()
   return entry
 }
 

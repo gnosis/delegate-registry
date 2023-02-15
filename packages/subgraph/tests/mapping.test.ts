@@ -508,9 +508,15 @@ test("OptOutStatusSet() adds optout to store", () => {
     "context",
     CONTEXT1,
   )
+  assert.fieldEquals(
+    "Optout",
+    `${CONTEXT1}-${padding.concat(USER1_ADDRESS).toHexString()}`,
+    "status",
+    "true",
+  )
   clearStore()
 })
-test("OptOutStatusSet() with false optout status removes entity from store", () => {
+test("OptOutStatusSet() with false should replace the old status", () => {
   const optout = createOptoutEvent(USER1_ADDRESS, CONTEXT1, true)
   const optin = createOptoutEvent(USER1_ADDRESS, CONTEXT1, false)
   handleOptout(optout)
@@ -526,10 +532,30 @@ test("OptOutStatusSet() with false optout status removes entity from store", () 
     "context",
     CONTEXT1,
   )
-  handleOptout(optin)
-  assert.notInStore(
+  assert.fieldEquals(
     "Optout",
     `${CONTEXT1}-${padding.concat(USER1_ADDRESS).toHexString()}`,
+    "status",
+    "true",
+  )
+  handleOptout(optin)
+  assert.fieldEquals(
+    "Optout",
+    `${CONTEXT1}-${padding.concat(USER1_ADDRESS).toHexString()}`,
+    "delegate",
+    padding.concat(USER1_ADDRESS).toHexString(),
+  )
+  assert.fieldEquals(
+    "Optout",
+    `${CONTEXT1}-${padding.concat(USER1_ADDRESS).toHexString()}`,
+    "context",
+    CONTEXT1,
+  )
+  assert.fieldEquals(
+    "Optout",
+    `${CONTEXT1}-${padding.concat(USER1_ADDRESS).toHexString()}`,
+    "status",
+    "false",
   )
   clearStore()
 })
