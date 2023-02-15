@@ -1,4 +1,4 @@
-import * as storage from "../lib/services/storage"
+import * as storage from "../lib/services/storage-read"
 /**
  * To be called by the "API POST strategy" snapshot strategy:
  * https://github.com/snapshot-labs/snapshot-strategies/tree/master/src/strategies/api-post
@@ -10,9 +10,10 @@ export const config = {
 export default async (req: Request) => {
   const body = await req.json()
   console.log("Request body: ", body)
-  const { addresses } = body
-  // TODO: fetch delegations from storage
-  const voteWeights = storage.getDelegatedVoteWeight(addresses)
+  const { addresses, snapshotSpace } = body
+
+  const voteWeights = await storage.getDelegatedVoteWeight(snapshotSpace)
+  console.log("greeting", voteWeights)
 
   return new Response(JSON.stringify({ score: voteWeights }))
 }

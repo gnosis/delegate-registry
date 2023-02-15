@@ -1,9 +1,9 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node"
 import R from "ramda"
 import { computeDelegatedVoteWeights } from "../lib/compute-vote-weights"
-import { getVoteWeights } from "../lib/services/snapshot-api"
-import * as storage from "../lib/services/storage"
-import { getAllDelegationsTo as getAllDelegates } from "../lib/services/the-graph"
+import { getVoteWeights } from "../lib/services/snapshot"
+import * as storage from "../lib/services/storage-write"
+import { getContext } from "../lib/services/the-graph"
 
 // TODO: make more generic
 const SNAPSHOT_SPACE = process.env.SNAPSHOT_SPACE!
@@ -23,7 +23,7 @@ export default async function getDelegations(
   console.log("1. Fetch and merge all delegations across all chains")
 
   // 1.1. - get all to delegations
-  const delegations = await getAllDelegates(SNAPSHOT_SPACE)
+  const delegations = await getContext(SNAPSHOT_SPACE)
   console.log("delegations:", delegations)
   if (delegations == null) {
     console.log("Done: no delegations found")
@@ -48,7 +48,10 @@ export default async function getDelegations(
   )
 
   console.log("4. Store delegated vote weights")
-  await storage.storeNewSetOfDelegatedVoteWeight(delegatedVoteWeight)
+  await storage.storeNewSetOfDelegatedVoteWeight(
+    SNAPSHOT_SPACE,
+    delegatedVoteWeight,
+  )
 
   console.log("Done!")
   response.status(200).json({
