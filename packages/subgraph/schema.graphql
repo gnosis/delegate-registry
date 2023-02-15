@@ -30,6 +30,8 @@ type DelegationSet @entity {
 
 type Optout @entity {
   id: ID! # `${context.id}-${delegate.id}`
+  updated: BigInt!
+  status: Boolean!
   delegate: Delegate!
   context: Context!
 }
