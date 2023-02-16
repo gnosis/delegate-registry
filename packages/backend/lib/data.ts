@@ -1,25 +1,47 @@
 import * as theGraph from "./services/the-graph"
+import {
+  mergeDelegationOptouts as mergeDelegatorOptouts,
+  mergeDelegationSets,
+} from "./cross-chain-merge"
+import { removeOptouts } from "./remove-optouts"
+import { GetCrossContextQuery } from "../.graphclient"
+import { computeDelegations } from "./compute-delegations"
+
+type Unpacked<T> = T extends (infer U)[] ? U : T
+export type Context = Unpacked<GetCrossContextQuery["crossContext"]>
+export type DelegationSet = Unpacked<Context["delegationSets"]>
+export type Optout = Unpacked<Context["optouts"]>
+export type Delegation = Unpacked<DelegationSet["delegations"]>
+
+export type Ratio = {
+  numerator: number
+  denominator: number
+}
 
 export const getAllDelegationsTo = async (snapshotSpace: string) => {
   // get context from all chains
-  const responds = await theGraph.getContext(snapshotSpace)
+  console.log("snapshotSpace", snapshotSpace)
+  const responds = await theGraph.getCrossContexts(snapshotSpace)
 
-  // merge all delegations by
-  // 1. keeping the delegationSets with the highest `updateDelegation` time for each account
+  // 1. merge delegationSets and optouts
+  const mergedDelegationSets = mergeDelegationSets(responds)
+  const mergedOptouts = mergeDelegatorOptouts(responds)
+
+  console.log("mergedOptouts:")
+  console.log(JSON.stringify(mergedOptouts))
+
+  console.log("mergedDelegationSets:")
+  console.log(JSON.stringify(mergedDelegationSets))
   // 2. remove optout delegators (and recompute dominators, across delegationSets)
-  return
+  const finalDelegationSets = removeOptouts(mergedOptouts, mergedDelegationSets)
 
-  // return responds.data?.delegates.reduce(
-  //   (acc, { id: delegate, delegations }) => {
-  //     acc[getAddress(delegate.slice(-40))] = delegations.reduce(
-  //       (acc, { account: { id: accountAddress }, numerator, denominator }) => {
-  //         acc[getAddress(accountAddress)] = { numerator, denominator }
-  //         return acc
-  //       },
-  //       {} as Record<string, Ratio>,
-  //     )
-  //     return acc
-  //   },
-  //   {} as Record<string, Record<string, Ratio>>,
-  // )
+  console.log("finalDelegationSets:")
+  console.log(JSON.stringify(finalDelegationSets))
+
+  const delegations = computeDelegations(finalDelegationSets)
+
+  console.log("delegations:")
+  console.log(JSON.stringify(delegations))
+
+  return delegations
 }

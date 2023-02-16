@@ -1,11 +1,19 @@
 sources:
-  - name: delegateRegistry
+  - name: DelegateRegistry
     handler:
       graphql:
-        endpoint: https://api.thegraph.com/subgraphs/name/auryn-macmillan/delegate-registry-v2
-      transforms:
-      - autoPagination:
-          validateSchema: true
+        endpoint: https://api.thegraph.com/subgraphs/name/manboy-eth/delegate-registry-v2-{context.chainName:goerli}
+
+additionalTypeDefs: |
+  extend type Context {
+    chainName: String
+  }
+  extend type Query {
+    crossContext(contextId: ID!, chainNames: [String!]!): [Context!]!
+  }
+
+additionalResolvers:
+  - ./lib/the-graph/resolvers.ts
 
 documents:
   - './lib/the-graph/queries/**/*.graphql'

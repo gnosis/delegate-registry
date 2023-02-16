@@ -1,16 +1,11 @@
-import { ExecutionResult } from "graphql"
-import {
-  execute,
-  GetContextDocument,
-  GetContextQuery,
-} from "../../.graphclient"
+import { getBuiltGraphSDK } from "../../.graphclient"
 
-export type Ratio = {
-  numerator: number
-  denominator: number
+export const getCrossContexts = async (snapshotSpace: string) => {
+  const sdk = getBuiltGraphSDK()
+  // Second parameter is the context value
+  const results = await sdk.GetCrossContext({
+    contextId: snapshotSpace,
+    chainNames: ["gnosis", "goerli"],
+  })
+  return results.crossContext
 }
-
-export const getContext = async (
-  snapshotSpace: string,
-): Promise<ExecutionResult<GetContextQuery>> =>
-  execute(GetContextDocument, { contextId: snapshotSpace })

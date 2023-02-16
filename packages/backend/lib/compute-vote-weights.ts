@@ -1,4 +1,4 @@
-import { Ratio } from "./services/the-graph"
+import { Ratio } from "./data"
 
 /**
  * The vote weight delegated to a delegatee.
@@ -13,6 +13,9 @@ export const computeDelegatedVoteWeights = (
   delegationRatios: { [representative: string]: { [member: string]: Ratio } },
   voteWeights: { [member: string]: number },
 ) => {
+  console.log("computeDelegatedVoteWeights")
+  console.log("delegationRatios:", delegationRatios)
+  console.log("voteWeights:", voteWeights)
   const computeDelegatedVoteWeight = (
     representative: string,
     accumulatedVoteWeights: { [representative: string]: number },
@@ -30,6 +33,9 @@ export const computeDelegatedVoteWeights = (
         const ratio = numerator / denominator
         const delegatorVoteWeight = (voteWeights[member] ?? 0) * ratio
 
+        console.log(ratio)
+        console.log(delegatorVoteWeight)
+
         // add votes delegated to the delegator
         if (delegationRatios[member] != null) {
           // if the delegator has delegated votes
@@ -38,6 +44,11 @@ export const computeDelegatedVoteWeights = (
 
         // add delegator's votes + any delegated votes to the delegator
         const delegatedVoteWeightToDelegator = (acc[member] ?? 0) * ratio
+
+        console.log(
+          "delegatedVoteWeightToDelegator:",
+          delegatedVoteWeightToDelegator,
+        )
 
         acc[representative] =
           (acc[representative] ?? 0) +

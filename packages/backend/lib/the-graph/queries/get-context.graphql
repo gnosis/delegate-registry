@@ -1,6 +1,7 @@
-query GetContext($contextId: ID!) {
-  context(id: $contextId) {
-    delegationsSets {
+query GetCrossContext($contextId: ID!, $chainNames: [String!]!) {
+  crossContext(contextId: $contextId, chainNames: $chainNames) {
+    chainName
+    delegationSets {
       account {
         id
       }
