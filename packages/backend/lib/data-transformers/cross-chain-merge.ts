@@ -1,5 +1,5 @@
 import R from "ramda"
-import { Context, DelegationSet, Optout } from "./data"
+import { Context, DelegationSet, Optout } from "../data"
 
 export const mergeDelegationSets = (
   data: Context[],

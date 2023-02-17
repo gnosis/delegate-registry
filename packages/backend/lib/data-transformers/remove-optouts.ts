@@ -1,5 +1,5 @@
 import R from "ramda"
-import { Delegation, DelegationSet } from "./data"
+import { Delegation, DelegationSet } from "../data"
 
 export const removeOptouts = (
   mergedOptouts: string[],

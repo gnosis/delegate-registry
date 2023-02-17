@@ -1,4 +1,4 @@
-import { Ratio } from "./data"
+import { Ratio } from "../data"
 
 /**
  * The vote weight delegated to a delegatee.
@@ -16,9 +16,6 @@ export const computeAbsoluteVoteWeights = (
   { [delegate: string]: number },
   { [delegate: string]: { [delegatingAccount: string]: number } },
 ] => {
-  console.log("computeDelegatedVoteWeights")
-  console.log("delegationRatios:", delegationRatios)
-  console.log("voteWeights:", voteWeights)
   const computeDelegatedVoteWeight = (
     representative: string,
     accumulatedVoteWeights: { [representative: string]: number },
@@ -42,9 +39,6 @@ export const computeAbsoluteVoteWeights = (
         const ratio = numerator / denominator
         const delegatorVoteWeight = (voteWeights[member] ?? 0) * ratio
 
-        console.log(ratio)
-        console.log(delegatorVoteWeight)
-
         // add votes delegated to the delegator
         if (delegationRatios[member] != null) {
           // if the delegator has delegated votes
@@ -59,11 +53,6 @@ export const computeAbsoluteVoteWeights = (
         // add delegator's votes + any delegated votes to the delegator
         const delegatedVoteWeightToDelegator =
           (accumulatedVoteWeights[member] ?? 0) * ratio
-
-        console.log(
-          "delegatedVoteWeightToDelegator:",
-          delegatedVoteWeightToDelegator,
-        )
 
         accumulatedVoteWeights[representative] =
           (accumulatedVoteWeights[representative] ?? 0) +

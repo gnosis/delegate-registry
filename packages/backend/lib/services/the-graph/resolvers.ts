@@ -1,4 +1,4 @@
-import { Resolvers, MeshContext } from "../../.graphclient"
+import { Resolvers, MeshContext } from "../../../.graphclient"
 
 export const resolvers: Resolvers = {
   Context: {

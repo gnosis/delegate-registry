@@ -26,8 +26,13 @@ export const storeDelegatedVoteWeight = async (
       [delegatorAddress: string]: number
     }
   },
-) => {
-  await storeItems([
+) =>
+  storeItems([
+    {
+      operation: "upsert",
+      key: `${snapshotSpace.replace(".", "_")}-updateTime`,
+      value: Math.floor(Date.now() / 1000),
+    },
     {
       operation: "upsert",
       key: `${snapshotSpace.replace(".", "_")}-delegatedVoteWeight`,
@@ -39,7 +44,6 @@ export const storeDelegatedVoteWeight = async (
       value: delegatedVoteWeightByAccount,
     },
   ])
-}
 
 type EdgeConfigItem = {
   operation: "create" | "update" | "delete" | "upsert"
@@ -63,9 +67,12 @@ const storeItems = async (items: EdgeConfigItem[]) => {
       },
     )
     const result = await updateEdgeConfig.json()
-    console.log(result)
     return result
   } catch (error) {
-    console.log(error)
+    if (error instanceof Error) {
+      console.log(
+        `${error.name} error from Vercel when trying to save new data to Edge Config. Message: ${error.message}`,
+      )
+    }
   }
 }

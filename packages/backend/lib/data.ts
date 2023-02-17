@@ -2,10 +2,10 @@ import * as theGraph from "./services/the-graph"
 import {
   mergeDelegationOptouts as mergeDelegatorOptouts,
   mergeDelegationSets,
-} from "./cross-chain-merge"
-import { removeOptouts } from "./remove-optouts"
+} from "./data-transformers/cross-chain-merge"
+import { removeOptouts } from "./data-transformers/remove-optouts"
 import { GetContextQuery } from "../.graphclient"
-import { computeDelegations } from "./compute-delegations"
+import { computeDelegations } from "./data-transformers/compute-delegations"
 import R from "ramda"
 
 type Unpacked<T> = T extends (infer U)[] ? U : T
@@ -20,34 +20,23 @@ export type Ratio = {
 }
 
 export const getSnapshotSpaces = async () => {
-  const responds = await theGraph.getContextIdsFromAllChains()
+  const responds = await theGraph.fetchContextIdsFromAllChains()
   return R.uniq(responds.map((_) => _.id))
 }
 
 export const getAllDelegationsTo = async (snapshotSpace: string) => {
-  // get context from all chains
-  console.log("snapshotSpace", snapshotSpace)
-  const responds = await theGraph.getContextFromAllChains(snapshotSpace)
+  // 1. get context from all chains
+  const responds = await theGraph.fetchContextFromAllChains(snapshotSpace)
 
-  // 1. merge delegationSets and optouts
+  // 2. merge delegationSets and optouts
   const mergedDelegationSets = mergeDelegationSets(responds)
   const mergedOptouts = mergeDelegatorOptouts(responds)
 
-  console.log("mergedOptouts:")
-  console.log(JSON.stringify(mergedOptouts))
-
-  console.log("mergedDelegationSets:")
-  console.log(JSON.stringify(mergedDelegationSets))
-  // 2. remove optout delegators (and recompute dominators, across delegationSets)
+  // 3. remove optout delegators (and recompute dominators, across delegationSets)
   const finalDelegationSets = removeOptouts(mergedOptouts, mergedDelegationSets)
 
-  console.log("finalDelegationSets:")
-  console.log(JSON.stringify(finalDelegationSets))
-
+  // 4. compute delegations (delegate -> delegator -> ratio)
   const delegations = computeDelegations(finalDelegationSets)
-
-  console.log("delegations:")
-  console.log(JSON.stringify(delegations))
 
   return delegations
 }

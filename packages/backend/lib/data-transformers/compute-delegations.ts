@@ -1,5 +1,5 @@
 import R from "ramda"
-import { Delegation, DelegationSet, Ratio } from "./data"
+import { Delegation, DelegationSet, Ratio } from "../data"
 import { utils } from "ethers"
 const { getAddress } = utils
 
