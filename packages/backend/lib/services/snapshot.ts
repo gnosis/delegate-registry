@@ -11,7 +11,7 @@ type SnapshotStrategy = {
 const SNAPSHOT_HUB = "https://hub.snapshot.org"
 const SNAPSHOT_HUB_GOERLI = "https://testnet.snapshot.org"
 
-export const getVoteWeights = async (
+export const fetchVoteWeights = async (
   snapshotSpace: string,
   addresses: string[],
   blockNumber?: number,

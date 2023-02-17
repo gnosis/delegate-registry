@@ -9,7 +9,8 @@ export const computeDelegations = (
   R.reduce<DelegationSet, { [delegate: string]: { [account: string]: Ratio } }>(
     (acc, delegationSet) => {
       R.forEach<Delegation>((delegation) => {
-        acc[delegation.delegate.id] = {
+        acc[getAddress(delegation.delegate.id.slice(-40))] = {
+          // `.slice(-40)` removes the prefix since its not in use yet. This should be done in the subgraph.
           ...acc[getAddress(delegation.delegate.id.slice(-40))],
           [getAddress(delegationSet.account.id)]: {
             numerator: delegation.numerator,

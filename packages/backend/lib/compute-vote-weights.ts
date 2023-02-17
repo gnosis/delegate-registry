@@ -9,24 +9,33 @@ import { Ratio } from "./data"
  * @param voteWeights
  * @returns
  */
-export const computeDelegatedVoteWeights = (
+export const computeAbsoluteVoteWeights = (
   delegationRatios: { [representative: string]: { [member: string]: Ratio } },
   voteWeights: { [member: string]: number },
-) => {
+): [
+  { [delegate: string]: number },
+  { [delegate: string]: { [delegatingAccount: string]: number } },
+] => {
   console.log("computeDelegatedVoteWeights")
   console.log("delegationRatios:", delegationRatios)
   console.log("voteWeights:", voteWeights)
   const computeDelegatedVoteWeight = (
     representative: string,
     accumulatedVoteWeights: { [representative: string]: number },
-  ): { [address: string]: number } => {
+    accumulatedVoteWeightsByAccount: {
+      [delegate: string]: { [delegatingAccount: string]: number }
+    },
+  ): [
+    { [address: string]: number },
+    { [delegate: string]: { [delegatingAccount: string]: number } },
+  ] => {
     if (accumulatedVoteWeights[representative] != null) {
       // Already computed vote weight for this delegatee
-      return accumulatedVoteWeights
+      return [accumulatedVoteWeights, accumulatedVoteWeightsByAccount]
     }
     // Depth first
     return Object.keys(delegationRatios[representative]).reduce(
-      (acc, member) => {
+      ([accVoteWeights, accVoteWeightsByAccount], member) => {
         // for each address delegated from to this delegate (`to`)
         const { numerator, denominator } =
           delegationRatios[representative][member]
@@ -39,33 +48,44 @@ export const computeDelegatedVoteWeights = (
         // add votes delegated to the delegator
         if (delegationRatios[member] != null) {
           // if the delegator has delegated votes
-          acc = computeDelegatedVoteWeight(member, acc)
+          ;[accVoteWeights, accVoteWeightsByAccount] =
+            computeDelegatedVoteWeight(
+              member,
+              accumulatedVoteWeights,
+              accumulatedVoteWeightsByAccount,
+            )
         }
 
         // add delegator's votes + any delegated votes to the delegator
-        const delegatedVoteWeightToDelegator = (acc[member] ?? 0) * ratio
+        const delegatedVoteWeightToDelegator =
+          (accumulatedVoteWeights[member] ?? 0) * ratio
 
         console.log(
           "delegatedVoteWeightToDelegator:",
           delegatedVoteWeightToDelegator,
         )
 
-        acc[representative] =
-          (acc[representative] ?? 0) +
+        accumulatedVoteWeights[representative] =
+          (accumulatedVoteWeights[representative] ?? 0) +
           delegatorVoteWeight +
           delegatedVoteWeightToDelegator
-        return acc
+        accVoteWeightsByAccount[representative] = {
+          ...accVoteWeightsByAccount[representative],
+          [member]: delegatorVoteWeight + delegatedVoteWeightToDelegator,
+        }
+        return [accVoteWeights, accVoteWeightsByAccount]
       },
-      accumulatedVoteWeights,
+      [accumulatedVoteWeights, accumulatedVoteWeightsByAccount],
     )
   }
 
-  const voteWeightDelegatedTo: { [address: string]: number } = Object.keys(
-    delegationRatios,
-  ).reduce(
+  const resultingVoteWeights: [
+    { [delegate: string]: number },
+    { [delegate: string]: { [delegatingAccount: string]: number } },
+  ] = Object.keys(delegationRatios).reduce(
     // for each address delegated to
-    (acc, to) => computeDelegatedVoteWeight(to, acc),
-    {},
+    (acc, to) => computeDelegatedVoteWeight(to, ...acc),
+    [{}, {}],
   )
-  return voteWeightDelegatedTo
+  return resultingVoteWeights
 }

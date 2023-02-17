@@ -1,5 +1,5 @@
 // Only to be used by the Vercel Serverless Function (not for Vercel Edge Functions)
-let storage: { [address: string]: number } = {}
+import fetch from "node-fetch"
 
 const VERCEL_API_TOKEN = process.env.VERCEL_API_TOKEN!
 if (VERCEL_API_TOKEN == null) {
@@ -16,19 +16,27 @@ if (VERCEL_TEAM_ID == null) {
   throw Error("VERCEL_TEAM_ID is not defined")
 }
 
-export const storeNewSetOfDelegatedVoteWeight = async (
+export const storeDelegatedVoteWeight = async (
   snapshotSpace: string,
   delegatedVoteWeight: {
-    [address: string]: number
+    [delegate: string]: number
+  },
+  delegatedVoteWeightByAccount: {
+    [delegate: string]: {
+      [delegatorAddress: string]: number
+    }
   },
 ) => {
-  console.log(delegatedVoteWeight)
-  storage = delegatedVoteWeight
   await storeItems([
     {
       operation: "upsert",
-      key: snapshotSpace,
+      key: `${snapshotSpace.replace(".", "_")}-delegatedVoteWeight`,
       value: delegatedVoteWeight,
+    },
+    {
+      operation: "upsert",
+      key: `${snapshotSpace.replace(".", "_")}-delegatedVoteWeightByAccount`,
+      value: delegatedVoteWeightByAccount,
     },
   ])
 }

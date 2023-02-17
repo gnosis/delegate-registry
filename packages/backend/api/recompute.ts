@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node"
 import R from "ramda"
-import { computeDelegatedVoteWeights } from "../lib/compute-vote-weights"
+import { computeAbsoluteVoteWeights } from "../lib/compute-vote-weights"
 import { getAllDelegationsTo } from "../lib/data"
-import { getVoteWeights } from "../lib/services/snapshot"
+import { fetchVoteWeights } from "../lib/services/snapshot"
 import * as storage from "../lib/services/storage-write"
 import { getCrossContexts } from "../lib/services/the-graph"
 
@@ -39,19 +39,20 @@ export default async function getDelegations(
     R.flatten(Object.values(delegations).map((member) => Object.keys(member))),
   )
   console.log("delegatingAccounts:", delegatingAccounts)
-  const voteWeights = await getVoteWeights(SNAPSHOT_SPACE, delegatingAccounts)
+  const voteWeights = await fetchVoteWeights(SNAPSHOT_SPACE, delegatingAccounts)
   console.log("voteWeights:", voteWeights)
 
   console.log("3. Compute vote weights for all delegations")
-  const delegatedVoteWeight = computeDelegatedVoteWeights(
-    delegations,
-    voteWeights,
-  )
+  const [delegatedVoteWeight, delegatedVoteWeightByAccount] =
+    computeAbsoluteVoteWeights(delegations, voteWeights)
+
+  console.log("delegatedVoteWeightByAccount:", delegatedVoteWeightByAccount)
 
   console.log("4. Store delegated vote weights")
-  await storage.storeNewSetOfDelegatedVoteWeight(
+  await storage.storeDelegatedVoteWeight(
     SNAPSHOT_SPACE,
     delegatedVoteWeight,
+    delegatedVoteWeightByAccount,
   )
 
   console.log("Done!")
