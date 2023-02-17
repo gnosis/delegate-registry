@@ -17,6 +17,10 @@ export const fetchVoteWeights = async (
   blockNumber?: number,
 ): Promise<Record<string, number>> => {
   const strategies = await getStrategies(snapshotSpace)
+  if (strategies.length === 0) {
+    console.log("No strategies found for space: ", snapshotSpace)
+    return {}
+  }
   return strategies.reduce(async (acc, strategy) => {
     if (Object.keys(acc).length === 0) {
       const scores = (await snapshot.utils.getScores(
@@ -40,13 +44,22 @@ export const fetchVoteWeights = async (
 }
 
 const getStrategies = async (snapshotSpace: string) => {
-  const strategies: SnapshotStrategy[] = await getSnapshotSpaceSettings(
-    snapshotSpace,
-    false,
-  ).then((_) => _.strategies)
-  return strategies.filter(
-    (strategy) => strategy.name !== "delegation", // TODO: fix: this is hacky
-  )
+  try {
+    const strategies: SnapshotStrategy[] = await getSnapshotSpaceSettings(
+      snapshotSpace,
+      false,
+    ).then((_) => _.strategies)
+    return strategies.filter(
+      (strategy) => strategy.name !== "delegation", // TODO: fix: this is hacky
+    )
+  } catch (error) {
+    if (error instanceof TypeError) {
+      console.log(
+        `${error.name} error fetching strategies for space: ${snapshotSpace}. Message: ${error.message}`,
+      )
+    }
+    return []
+  }
 }
 
 export const getSnapshotSpaceSettings = async (

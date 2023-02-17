@@ -1,4 +1,4 @@
-query GetCrossContext($contextId: ID!, $chainNames: [String!]!) {
+query GetContext($contextId: ID!, $chainNames: [String!]!) {
   crossContext(contextId: $contextId, chainNames: $chainNames) {
     chainName
     delegationSets {

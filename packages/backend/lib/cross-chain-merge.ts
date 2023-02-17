@@ -24,6 +24,7 @@ export const mergeDelegationSets = (
 
 export const mergeDelegationOptouts = (data: Context[]): string[] =>
   R.compose(
+    R.map((_: string) => _.slice(-40)), // remove padding (as its not currently used for anything), this should be in the subgraph
     R.keys,
     R.filter((_: boolean) => _),
     R.reduce<Optout, Record<string, boolean>>(

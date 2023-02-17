@@ -4,11 +4,12 @@ import {
   mergeDelegationSets,
 } from "./cross-chain-merge"
 import { removeOptouts } from "./remove-optouts"
-import { GetCrossContextQuery } from "../.graphclient"
+import { GetContextQuery } from "../.graphclient"
 import { computeDelegations } from "./compute-delegations"
+import R from "ramda"
 
 type Unpacked<T> = T extends (infer U)[] ? U : T
-export type Context = Unpacked<GetCrossContextQuery["crossContext"]>
+export type Context = Unpacked<GetContextQuery["crossContext"]>
 export type DelegationSet = Unpacked<Context["delegationSets"]>
 export type Optout = Unpacked<Context["optouts"]>
 export type Delegation = Unpacked<DelegationSet["delegations"]>
@@ -18,10 +19,15 @@ export type Ratio = {
   denominator: number
 }
 
+export const getSnapshotSpaces = async () => {
+  const responds = await theGraph.getContextIdsFromAllChains()
+  return R.uniq(responds.map((_) => _.id))
+}
+
 export const getAllDelegationsTo = async (snapshotSpace: string) => {
   // get context from all chains
   console.log("snapshotSpace", snapshotSpace)
-  const responds = await theGraph.getCrossContexts(snapshotSpace)
+  const responds = await theGraph.getContextFromAllChains(snapshotSpace)
 
   // 1. merge delegationSets and optouts
   const mergedDelegationSets = mergeDelegationSets(responds)

@@ -10,6 +10,7 @@ additionalTypeDefs: |
   }
   extend type Query {
     crossContext(contextId: ID!, chainNames: [String!]!): [Context!]!
+    crossContexts(chainNames: [String!]!): [Context!]!
   }
 
 additionalResolvers:
