@@ -1,5 +1,4 @@
 import { getDelegatedVoteWeight } from "../lib/services/storage/read"
-import { get } from "@vercel/edge-config"
 import * as R from "ramda"
 import { utils } from "ethers"
 const { getAddress } = utils
@@ -22,6 +21,12 @@ export default async (req: Request) => {
     })
   }
   let { addresses } = body as { addresses: string[] }
+  if (!Array.isArray(addresses) || addresses.length === 0) {
+    return new Response(
+      "The `addresses` parameter is required with an array of valid addresses.",
+      { status: 400 },
+    )
+  }
   try {
     addresses = R.map(getAddress, addresses)
   } catch (e) {
@@ -32,17 +37,18 @@ export default async (req: Request) => {
     )
   }
 
-  const voteWeights = await getDelegatedVoteWeight(snapshotSpace)
-  if (voteWeights == null || R.isEmpty(voteWeights)) {
-    console.log("No vote weights found for space: ", snapshotSpace)
+  const voteWeights = await getDelegatedVoteWeight(snapshotSpace, addresses)
+  if (R.isEmpty(voteWeights)) {
+    console.log(
+      "No vote weights found for the provided addresses in the specified Snapshot Space: ",
+      snapshotSpace,
+    )
     return new Response(JSON.stringify({ score: [] }), { status: 200 })
   }
 
-  const relevantVoteWeights = R.pickAll(addresses, voteWeights)
-
   const relevantVoteWightsAsScores = R.map(
-    ([address, score = 0]) => ({ address, score }),
-    R.toPairs(relevantVoteWeights),
+    ([address, score]) => ({ address, score }),
+    R.toPairs(voteWeights),
   )
 
   return new Response(JSON.stringify(relevantVoteWightsAsScores))
