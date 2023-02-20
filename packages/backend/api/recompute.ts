@@ -5,6 +5,10 @@ import { getAllDelegationsTo, getSnapshotSpaces } from "../lib/data"
 import { fetchVoteWeights } from "../lib/services/snapshot"
 import * as storage from "../lib/services/storage/write"
 
+export const config = {
+  cron: "0 */2 * * *",
+}
+
 /**
  * Recomputes the vote weights for all delegations, and stores the results.
  *
