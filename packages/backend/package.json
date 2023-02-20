@@ -14,7 +14,7 @@
   "dependencies": {
     "@snapshot-labs/snapshot.js": "^0.4.61",
     "@vercel/edge-config": "^0.1.1",
-    "@vercel/node": "^2.5.21",
+    "@vercel/node": "^2.9.6",
     "node-fetch": "2",
     "ramda": "^0.28.0"
   },
@@ -22,7 +22,7 @@
     "@graphprotocol/client-cli": "^2.2.18",
     "@types/chai": "^4.3.4",
     "@types/mocha": "^10.0.1",
-    "@types/ramda": "^0.28.22",
+    "@types/ramda": "^0.28.23",
     "chai": "^4.3.7",
     "graphql": "^16.6.0",
     "mocha": "^10.2.0",
