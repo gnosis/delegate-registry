@@ -35,3 +35,20 @@ export const getTopDelegatesByVoteWeight = async (
 
   return R.take(numberOfDelegatesToReturn, sortedPairs)
 }
+
+export const getTopDelegatorsForDelegate = async (
+  snapshotSpace: string,
+  delegateAddress: string,
+  numberOfDelegatorsToReturn: number = 100,
+) => {
+  const delegators =
+    (await get<{
+      [delegate: string]: {
+        [delegatorAddress: string]: number
+      }
+    }>(`${snapshotSpace.replace(".", "_")}-delegatedVoteWeightByAccount`)) ?? {}
+  const pairs = R.toPairs<number>(delegators[delegateAddress])
+  const sortedPairs = R.reverse(R.sortBy<[string, number]>(R.prop(1), pairs))
+
+  return R.take(numberOfDelegatorsToReturn, sortedPairs)
+}
