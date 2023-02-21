@@ -1,4 +1,4 @@
-// send get request
+// Get the number of delegators delegating to a spesific delegate in a spesific Snapshot Space.
 
 GET http://localhost:3000/api/delegate/delegator-count?space=gnosis.eth&delegateAddress=0xDE1e8A7E184Babd9F0E3af18f40634e9Ed6F0905
 content-type: application/json
