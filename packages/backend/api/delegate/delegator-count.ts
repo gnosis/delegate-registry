@@ -5,7 +5,7 @@ import {
 } from "../../lib/services/storage/read"
 import * as R from "ramda"
 import { utils } from "ethers"
-const { getAddress, isAddress } = utils
+const { getAddress } = utils
 
 export const config = {
   runtime: "experimental-edge",
