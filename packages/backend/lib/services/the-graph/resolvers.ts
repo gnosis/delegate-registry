@@ -1,16 +1,16 @@
-import { Resolvers, MeshContext } from "../../../.graphclient"
+import { Resolvers } from "../../../.graphclient"
 
 export const resolvers: Resolvers = {
   Context: {
     // chainName can exist already in root as we pass it in the other resolver
     chainName: (root, args, meshContext, info) =>
-      root.chainName || meshContext.chainName || "gorli", // The value we provide in the config
+      root.chainName || (meshContext as any).chainName || "gorli", // The value we provide in the config
   },
   Query: {
     crossContext: async (root, args, meshContext, info) =>
       Promise.all(
         args.chainNames.map((chainName: string) =>
-          meshContext.DelegateRegistry.Query.contexts({
+          (meshContext as any).DelegateRegistry.Query.contexts({
             root,
             args,
             context: {
@@ -30,7 +30,7 @@ export const resolvers: Resolvers = {
     crossContexts: async (root, args, meshContext, info) =>
       Promise.all(
         args.chainNames.map((chainName: string) =>
-          meshContext.DelegateRegistry.Query.contexts({
+          (meshContext as any).DelegateRegistry.Query.contexts({
             root,
             args,
             context: {
