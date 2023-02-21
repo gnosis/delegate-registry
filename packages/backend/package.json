@@ -7,7 +7,7 @@
   "scripts": {
     "start": "vercel dev",
     "deploy": "vercel deploy",
-    "build": "yarn codegen && vercel build",
+    "build": "yarn codegen",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md,graphql}\"",
     "codegen": "graphclient build",
     "test": "mocha --require ts-node/register lib/**/*.test.ts"
