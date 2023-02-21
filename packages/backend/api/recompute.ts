@@ -33,9 +33,7 @@ export default async function getDelegations(
       const delegations = await getAllDelegationsTo(space)
       if (delegations == null) {
         console.log(`[${space}] Done: no delegations found`)
-        return response.status(200).json({
-          body: "ok, no delegations found",
-        })
+        return `[${space}] Done: no delegations found`
       }
 
       const delegatingAccounts = R.uniq(
@@ -76,6 +74,8 @@ export default async function getDelegations(
 
   console.log("Done! Computing and storing delegated vote weights.")
   response.status(200).json({
-    body: "ok",
+    success: "true",
+    info: "Done! Computing and storing delegated vote weights.",
+    spaces: spaces,
   })
 }

@@ -41,7 +41,7 @@ export default async (req: Request) => {
       "No delegators found for the provided addresses in the specified Snapshot Space: ",
       snapshotSpace,
     )
-    return new Response(JSON.stringify({ score: [] }), { status: 200 })
+    return new Response(JSON.stringify([]), { status: 200 })
   }
 
   return new Response(JSON.stringify(delegators))
