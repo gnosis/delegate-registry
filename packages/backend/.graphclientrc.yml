@@ -17,4 +17,4 @@ additionalResolvers:
   - ./lib/the-graph/resolvers.ts
 
 documents:
-  - './lib/the-graph/queries/**/*.graphql'
+  - './lib/services/the-graph/queries/**/*.graphql'
