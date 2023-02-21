@@ -1,6 +1,6 @@
 // send get request
 
-POST http://localhost:3000/api/get-delegations?space=gnosis.eth
+POST http://localhost:3000/api/delegates/scores?space=gnosis.eth
 content-type: application/json
 
 {

@@ -1,4 +1,4 @@
-import { getDelegatedVoteWeight } from "../lib/services/storage/read"
+import { getDelegatedVoteWeight } from "../../lib/services/storage/read"
 import * as R from "ramda"
 import { utils } from "ethers"
 const { getAddress } = utils
