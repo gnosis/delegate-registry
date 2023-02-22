@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
     "api/recompute.ts": {
-      "includeFiles": "lib/**",
+      "includeFiles": ["lib/**", ".graphclient/**"],
       "maxDuration": 60
     }
   }
