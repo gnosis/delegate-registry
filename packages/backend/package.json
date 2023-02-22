@@ -9,7 +9,7 @@
     "deploy": "vercel deploy",
     "build": "yarn codegen",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md,graphql}\"",
-    "codegen": "graphclient build",
+    "codegen": "graphclient build && rm -r -f lib/services/the-graph/.graphclient  && mv -f .graphclient lib/services/the-graph",
     "test": "mocha --require ts-node/register lib/**/*.test.ts"
   },
   "dependencies": {

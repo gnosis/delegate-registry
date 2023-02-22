@@ -1,4 +1,4 @@
-import { getBuiltGraphSDK } from "../../../.graphclient"
+import { getBuiltGraphSDK } from "./.graphclient"
 
 // TODO: move to env variable and document that the subgraphs have to end in these names
 const CHAIN_NAMES = ["gnosis", "goerli"]

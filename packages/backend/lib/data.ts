@@ -4,7 +4,7 @@ import {
   mergeDelegationSets,
 } from "./data-transformers/cross-chain-merge"
 import { removeOptouts } from "./data-transformers/remove-optouts"
-import { GetContextQuery } from "../.graphclient"
+import { GetContextQuery } from "./services/the-graph/.graphclient"
 import { computeDelegations } from "./data-transformers/compute-delegations"
 import R from "ramda"
 
