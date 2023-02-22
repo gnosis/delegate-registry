@@ -14,7 +14,7 @@ additionalTypeDefs: |
   }
 
 additionalResolvers:
-  - ./resolvers.ts
+  - ./resolvers.js
 
 documents:
   - './lib/services/the-graph/queries/**/*.graphql'

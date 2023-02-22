@@ -10,7 +10,7 @@ module.exports.resolvers = {
   Query: {
     crossContext: async (root, args, meshContext, info) =>
       Promise.all(
-        args.chainNames.map((chainName: string) =>
+        args.chainNames.map((chainName) =>
           meshContext.DelegateRegistry.Query.contexts({
             root,
             args,
@@ -30,7 +30,7 @@ module.exports.resolvers = {
       ).then((allContexts) => allContexts.flat()),
     crossContexts: async (root, args, meshContext, info) =>
       Promise.all(
-        args.chainNames.map((chainName: string) =>
+        args.chainNames.map((chainName) =>
           meshContext.DelegateRegistry.Query.contexts({
             root,
             args,
