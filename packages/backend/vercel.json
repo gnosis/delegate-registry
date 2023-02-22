@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/recompute.ts": {
+      "includeFiles": "lib/**",
+      "maxDuration": 60
+    }
+  }
+}
