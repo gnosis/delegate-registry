@@ -1,18 +1,35 @@
 import "mocha"
 import { expect } from "chai"
-import { computeDelegatedVoteWeights } from "./compute-vote-weights"
+import { computeAbsoluteVoteWeights } from "./compute-vote-weights"
+import { Ratio } from "../data"
 
 describe("compute-vote-weights", () => {
   describe("computeDelegateeVoteWeights", () => {
     it("should return correct values on example graph", () => {
-      const delegationRatios: { [to: string]: { [from: string]: number } } = {
-        "0x01": { "0x04": 1 },
-        "0x02": { "0x09": 0.5, "0x06": 1, "0x05": 1 },
-        "0x03": { "0x07": 1, "0x13": 1 },
-        "0x04": { "0x08": 0.5 },
-        "0x07": { "0x08": 0.5, "0x10": 0.5, "0x09": 0.5 },
-        "0x09": { "0x11": 1, "0x10": 0.5 },
-        "0x13": { "0x12": 1 },
+      const delegationRatios: {
+        [delegate: string]: { [from: string]: Ratio }
+      } = {
+        "0x01": { "0x04": { numerator: 1, denominator: 1 } },
+        "0x02": {
+          "0x09": { numerator: 1, denominator: 2 },
+          "0x06": { numerator: 1, denominator: 1 },
+          "0x05": { numerator: 1, denominator: 1 },
+        },
+        "0x03": {
+          "0x07": { numerator: 1, denominator: 1 },
+          "0x13": { numerator: 1, denominator: 1 },
+        },
+        "0x04": { "0x08": { numerator: 1, denominator: 2 } },
+        "0x07": {
+          "0x08": { numerator: 1, denominator: 2 },
+          "0x10": { numerator: 1, denominator: 2 },
+          "0x09": { numerator: 1, denominator: 2 },
+        },
+        "0x09": {
+          "0x11": { numerator: 1, denominator: 1 },
+          "0x10": { numerator: 1, denominator: 2 },
+        },
+        "0x13": { "0x12": { numerator: 1, denominator: 1 } },
       }
 
       const votes: { [address: string]: number } = {
@@ -31,7 +48,7 @@ describe("compute-vote-weights", () => {
         "0x13": 0,
       }
 
-      const voteWeights = computeDelegatedVoteWeights(delegationRatios, votes)
+      const [voteWeights] = computeAbsoluteVoteWeights(delegationRatios, votes)
 
       const expected = {
         "0x01": 7.5 + 44, // delegated(0x04) + 0x04

@@ -1,8 +1,8 @@
 import { Ratio } from "../data"
 
 /**
- * The vote weight delegated to a delegatee.
- * To get total vote weight for a delegatee, add the vote weight for the delegatee them self.
+ * The vote weight delegated to a delegate.
+ * To get total vote weight for a delegate, add the vote weight for the delegate them self.
  * This is just what is delegated to them.
  *
  * @param delegationRatios
@@ -10,7 +10,7 @@ import { Ratio } from "../data"
  * @returns
  */
 export const computeAbsoluteVoteWeights = (
-  delegationRatios: { [representative: string]: { [member: string]: Ratio } },
+  delegationRatios: { [delegate: string]: { [delegator: string]: Ratio } },
   voteWeights: { [member: string]: number },
 ): [
   { [delegate: string]: number },
