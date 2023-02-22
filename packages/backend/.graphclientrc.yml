@@ -18,3 +18,6 @@ additionalResolvers:
 
 documents:
   - './lib/services/the-graph/queries/**/*.graphql'
+
+codegen:
+  contextType: 'MeshContext & { chainName: string, DelegateRegistry: any }'
