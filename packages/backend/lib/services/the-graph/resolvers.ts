@@ -1,6 +1,7 @@
-import { Resolvers } from "./.graphclient"
+// import { Resolvers } from "./.graphclient"
 
-export const resolvers: Resolvers = {
+export const resolvers = {
+  //: Resolvers = {
   Context: {
     // chainName can exist already in root as we pass it in the other resolver
     chainName: (root, args, meshContext, info) =>
