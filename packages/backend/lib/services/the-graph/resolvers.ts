@@ -1,6 +1,6 @@
 // import { Resolvers } from "./.graphclient"
 
-export const resolvers = {
+module.exports.resolvers = {
   //: Resolvers = {
   Context: {
     // chainName can exist already in root as we pass it in the other resolver
