@@ -11,20 +11,31 @@ type SnapshotStrategy = {
 const SNAPSHOT_HUB = "https://hub.snapshot.org"
 const SNAPSHOT_HUB_GOERLI = "https://testnet.snapshot.org"
 
+/**
+ * Fetches the and returns the vote weights for each address in a given space.
+ *
+ * It uses the active strategies for the space to calculate the vote weights
+ * (except the delegation strategy).
+ *
+ * @param spaceName - The space name
+ * @param addresses - The addresses to get the vote weights for
+ * @param blockNumber - The block number to get the vote weights at
+ * @returns a map of address to vote weight
+ */
 export const fetchVoteWeights = async (
-  snapshotSpace: string,
+  spaceName: string,
   addresses: string[],
   blockNumber?: number,
 ): Promise<Record<string, number>> => {
-  const strategies = await getStrategies(snapshotSpace)
+  const strategies = await fetchStrategies(spaceName)
   if (strategies.length === 0) {
-    console.log("No strategies found for space: ", snapshotSpace)
+    console.log("No strategies found for space: ", spaceName)
     return {}
   }
   return strategies.reduce(async (acc, strategy) => {
     if (Object.keys(acc).length === 0) {
       const scores = (await snapshot.utils.getScores(
-        snapshotSpace,
+        spaceName,
         [strategy],
         strategy.network,
         addresses,
@@ -33,7 +44,7 @@ export const fetchVoteWeights = async (
       return scores.reduce((acc, score) => ({ ...acc, ...score }), {})
     }
     const scores = await snapshot.utils.getScores(
-      snapshotSpace,
+      spaceName,
       [strategy],
       strategy.network,
       addresses,
@@ -43,35 +54,51 @@ export const fetchVoteWeights = async (
   }, {})
 }
 
-const getStrategies = async (snapshotSpace: string) => {
+/**
+ * Fetches the strategies for a given space, except the delegation strategy.
+ *
+ * @param spaceName - The space name
+ * @returns the strategies for the space or a empty array if no strategies were found
+ */
+const fetchStrategies = async (
+  spaceName: string,
+): Promise<SnapshotStrategy[]> => {
   try {
-    const strategies: SnapshotStrategy[] = await getSnapshotSpaceSettings(
-      snapshotSpace,
-      false,
-    ).then((_) => _.strategies)
+    const strategies = await getSnapshotSpaceSettings(spaceName, false).then(
+      (_) => _.strategies,
+    )
     return strategies.filter(
       (strategy) => strategy.name !== "delegation", // TODO: fix: this is hacky
     )
   } catch (error) {
-    if (error instanceof TypeError) {
+    if (error instanceof Error) {
       console.log(
-        `${error.name} error fetching strategies for space: ${snapshotSpace}. Message: ${error.message}`,
+        `${error.name} error fetching strategies for space: ${spaceName}. Message: ${error.message}`,
       )
     }
     return []
   }
 }
 
+/**
+ * Fetches the settings for a given space.
+ *
+ * @param spaceName - The space name
+ * @param testSpace - Whether to fetch the settings for the test Hub
+ * @returns the settings for the space
+ */
 export const getSnapshotSpaceSettings = async (
-  ensName: string,
+  spaceName: string,
   testSpace: boolean,
-) => {
-  const res = await fetch(`${getHubUrl(testSpace)}/api/spaces/${ensName}`)
+): Promise<{ strategies: SnapshotStrategy[] }> => {
+  const res = await fetch(`${getHubUrl(testSpace)}/api/spaces/${spaceName}`, {})
   if (res.ok) {
     try {
       return await res.json()
     } catch (error) {
-      return undefined // there is not snapshot space for this ENS
+      throw Error(
+        `The response from the Snapshot Hub was not valid JSON. Most likely the space does not exist for ${spaceName}.`,
+      )
     }
   } else {
     throw res

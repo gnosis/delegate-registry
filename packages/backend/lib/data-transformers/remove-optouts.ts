@@ -1,16 +1,31 @@
 import R from "ramda"
-import { Delegation, DelegationSet } from "../data"
+import {
+  Delegation,
+  DelegationSet,
+  DelegatorToDelegationSet,
+} from "../../types"
 
+/**
+ * Removes optouts from a list from a (delegator -> delegation set) map.
+ *
+ * @remarks
+ * This also recomputes the denominator for each delegation set were a delegate
+ * in the set has opted out.
+ *
+ * @param listOfOptouts - List of delegates that have opted out
+ * @param delegationSets - Delegation sets to remove optouts from
+ * @returns A delegation set with optouts removed
+ */
 export const removeOptouts = (
-  mergedOptouts: string[],
-  delegationSets: Record<string, DelegationSet>,
-): Record<string, DelegationSet> =>
+  listOfOptouts: string[],
+  delegationSets: DelegatorToDelegationSet,
+): DelegatorToDelegationSet =>
   R.compose(
-    R.reduce<string, Record<string, DelegationSet>>((sets, optoutDelegate) => {
+    R.reduce<string, DelegatorToDelegationSet>((sets, optoutDelegate) => {
       // find all sets with the optoutDelegate
       // recompute denominator and remove optout delegate from set
       // This is slow. How can we speed up?
-      return R.reduce<DelegationSet, Record<string, DelegationSet>>(
+      return R.reduce<DelegationSet, DelegatorToDelegationSet>(
         (acc, delegationSet) => {
           const optoutDelegation = R.find<Delegation>(
             R.pathEq(["delegate", "id"], optoutDelegate),
@@ -34,4 +49,4 @@ export const removeOptouts = (
         R.values(sets),
       )
     }, delegationSets),
-  )(mergedOptouts)
+  )(listOfOptouts)

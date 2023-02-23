@@ -1,7 +1,7 @@
 import "mocha"
 import { expect } from "chai"
 import { computeAbsoluteVoteWeights } from "./compute-vote-weights"
-import { Ratio } from "../data"
+import { Ratio } from "../../types"
 
 describe("compute-vote-weights", () => {
   describe("computeDelegateeVoteWeights", () => {

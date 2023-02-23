@@ -1,13 +1,25 @@
 import R from "ramda"
-import { Context, DelegationSet, Optout } from "../data"
+import { DelegationSet, DelegatorToDelegationSet, Optout } from "../../types"
 
+/**
+ * Merges multiple arrays of delegation sets into one array.
+ *
+ * @remarks
+ * If a delegator has delegation sets in multiple arrays we use the newest and
+ * discard others.
+ *
+ * @param delegationSetsForEachChain - An array (one for each chain) of arrays
+ * of delegation sets for a specific snapshot space
+ * @returns all delegation sets merged
+ */
 export const mergeDelegationSets = (
-  data: Context[],
-): Record<string, DelegationSet> =>
+  delegationSetsForEachChain: DelegationSet[][],
+): DelegatorToDelegationSet =>
   R.compose(
-    R.reduce<DelegationSet, Record<string, DelegationSet>>(
+    R.reduce<DelegationSet, DelegatorToDelegationSet>(
       (sets, set) =>
-        // if the account is already in the (delegation)sets, we keep the one with the highest `delegationUpdated`
+        // if the account is already in the (delegation)sets, we keep the one
+        // with the highest `delegationUpdated`
         R.mergeWith(
           (set1: DelegationSet, set2: DelegationSet) =>
             set1.delegationUpdated > set2.delegationUpdated ? set1 : set2,
@@ -19,17 +31,30 @@ export const mergeDelegationSets = (
       {},
     ),
     R.flatten,
-    R.map<Context, DelegationSet[]>((context) => context.delegationSets),
-  )(data)
+  )(delegationSetsForEachChain)
 
-export const mergeDelegationOptouts = (data: Context[]): string[] =>
+/**
+ * Merges multiple arrays of optouts into one array, and returns
+ * a list of the addresses of delegates that have opted out.
+ *
+ * @remarks
+ * If a delegate has optouts in multiple arrays we use the newest status and
+ * discard others.
+ *
+ * @param optoutsForEachChain - an array (one for each chain) of arrays of
+ * optouts for a specific snapshot space
+ * @returns a list of the addresses of delegates that have opted out
+ */
+export const mergeDelegationOptouts = (
+  optoutsForEachChain: Optout[][],
+): string[] =>
   R.compose(
     R.map((_: string) => _.slice(-40)), // remove padding (as its not currently used for anything), this should be in the subgraph
     R.keys,
     R.filter((_: boolean) => _),
     R.reduce<Optout, Record<string, boolean>>(
       (optouts, optout) =>
-        // if the delegate is already in the soptouts, we keep the one with the highest `updated`
+        // if the delegate is already in the optouts, we keep the one with the highest `updated`
         R.mergeWith(
           (optout1: Optout, optout2: Optout) =>
             optout1.updated > optout2.updated ? optout1.status : optout2.status,
@@ -41,5 +66,4 @@ export const mergeDelegationOptouts = (data: Context[]): string[] =>
       {},
     ),
     R.flatten,
-    R.map<Context, Optout[]>((context) => context.optouts),
-  )(data)
+  )(optoutsForEachChain)

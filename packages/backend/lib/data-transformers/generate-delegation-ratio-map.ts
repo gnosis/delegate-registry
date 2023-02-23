@@ -1,12 +1,25 @@
 import R from "ramda"
-import { Delegation, DelegationSet, Ratio } from "../data"
+import {
+  DelegateToDelegatorToRatio,
+  Delegation,
+  DelegationSet,
+  DelegatorToDelegationSet,
+} from "../../types"
 import { utils } from "ethers"
 const { getAddress } = utils
 
-export const computeDelegations = (
-  delegationSets: Record<string, DelegationSet>,
-): { [delegate: string]: { [account: string]: Ratio } } =>
-  R.reduce<DelegationSet, { [delegate: string]: { [account: string]: Ratio } }>(
+/**
+ * Transforms a (delegator -> delegation set) map into a (delegate -> delegator -> ratio) map.
+ *
+ * @param delegatorToDelegationSets - Each delegator's delegation set
+ * @returns A map of each delegate to a map of each delegator to their ratio
+ * (delegate -> delegator -> ratio)
+ */
+
+export const generateDelegationRatioMap = (
+  delegatorToDelegationSets: DelegatorToDelegationSet,
+): DelegateToDelegatorToRatio =>
+  R.reduce<DelegationSet, DelegateToDelegatorToRatio>(
     (acc, delegationSet) => {
       R.forEach<Delegation>((delegation) => {
         acc[getAddress(delegation.delegate.id.slice(-40))] = {
@@ -21,5 +34,5 @@ export const computeDelegations = (
       return acc
     },
     {},
-    R.values(delegationSets),
+    R.values(delegatorToDelegationSets),
   )

@@ -1,5 +1,9 @@
 // Only to be used by the Vercel Serverless Function (not for Vercel Edge Functions)
 import fetch from "node-fetch"
+import {
+  DelegateToDelegatorToVoteWeight,
+  DelegateToVoteWeight,
+} from "../../../types"
 
 const VERCEL_API_TOKEN = process.env.VERCEL_API_TOKEN!
 if (VERCEL_API_TOKEN == null) {
@@ -18,14 +22,8 @@ if (VERCEL_TEAM_ID == null) {
 
 export const storeDelegatedVoteWeight = async (
   snapshotSpace: string,
-  delegatedVoteWeight: {
-    [delegate: string]: number
-  },
-  delegatedVoteWeightByAccount: {
-    [delegate: string]: {
-      [delegatorAddress: string]: number
-    }
-  },
+  delegatedVoteWeight: DelegateToVoteWeight,
+  delegatedVoteWeightByDelegate: DelegateToDelegatorToVoteWeight,
 ) =>
   storeItems([
     {
@@ -41,7 +39,7 @@ export const storeDelegatedVoteWeight = async (
     {
       operation: "upsert",
       key: `${snapshotSpace.replace(".", "_")}-delegatedVoteWeightByAccount`,
-      value: delegatedVoteWeightByAccount,
+      value: delegatedVoteWeightByDelegate,
     },
   ])
 

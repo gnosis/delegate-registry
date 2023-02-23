@@ -1,8 +1,4 @@
-import {
-  getDelegatedVoteWeight,
-  getNumberOfDelegatorsForDelegate,
-  getTopDelegatorsForDelegate,
-} from "../../lib/services/storage/read"
+import { getNumberOfDelegatorsForDelegate } from "../../lib/services/storage/read"
 import * as R from "ramda"
 import { utils } from "ethers"
 const { getAddress } = utils
@@ -10,6 +6,15 @@ const { getAddress } = utils
 export const config = {
   runtime: "experimental-edge",
 }
+
+/**
+ * Returns the number of delegators for a given delegate.
+ *
+ * @example responds:
+ * {
+ *  "numberOfDelegators": 1
+ * }
+ */
 
 export default async (req: Request) => {
   const url = new URL(req.url)

@@ -1,7 +1,4 @@
-import {
-  getDelegatedVoteWeight,
-  getTopDelegatorsForDelegate,
-} from "../../lib/services/storage/read"
+import { getTopDelegatorsForDelegate } from "../../lib/services/storage/read"
 import * as R from "ramda"
 import { utils } from "ethers"
 const { getAddress } = utils
@@ -10,6 +7,21 @@ export const config = {
   runtime: "experimental-edge",
 }
 
+/**
+ * Returns the top delegators (by vote weight) for a given delegate.
+ *
+ * @example responds:
+ *[
+ * [
+ *   "0x6cc5b30Cd0A93C1F85C7868f5F2620AB8c458190",
+ *   12.53397165446844
+ * ],
+ * [
+ *   "0x53bcFaEd43441C7bB6149563eC11f756739C9f6A",
+ *   0.006666666666666666
+ * ]
+ *]
+ */
 export default async (req: Request) => {
   const url = new URL(req.url)
   const snapshotSpace = url.searchParams.get("space")

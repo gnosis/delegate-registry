@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node"
 import R from "ramda"
 import { computeAbsoluteVoteWeights } from "../lib/data-transformers/compute-vote-weights"
-import { getAllDelegationsTo, getSnapshotSpaces } from "../lib/data"
+import { getDelegationRatioMap, getSnapshotSpaces } from "../lib/data"
 import { fetchVoteWeights } from "../lib/services/snapshot"
 import * as storage from "../lib/services/storage/write"
 
@@ -30,7 +30,7 @@ export default async function getDelegations(
       console.log(
         `[${space}] 1. Fetch and merge all delegations across all chains`,
       )
-      const delegations = await getAllDelegationsTo(space)
+      const delegations = await getDelegationRatioMap(space)
       if (delegations == null) {
         console.log(`[${space}] Done: no delegations found`)
         return `[${space}] Done: no delegations found`

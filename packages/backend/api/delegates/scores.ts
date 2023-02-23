@@ -4,8 +4,24 @@ import { utils } from "ethers"
 const { getAddress } = utils
 
 /**
+ * Returns the delegated vote weight for a given array of addresses.
+ *
  * To be called by the "API POST strategy" snapshot strategy:
  * https://github.com/snapshot-labs/snapshot-strategies/tree/master/src/strategies/api-post
+ *
+ * @example responds:
+ *{
+ * "score": [
+ *   {
+ *     "score": 123,
+ *     "address": "0xEA2E9cEcDFF8bbfF107a349aDB9Ad0bd7b08a7B7"
+ *   },
+ *   {
+ *     "score": 456,
+ *     "address": "0x3c4B8C52Ed4c29eE402D9c91FfAe1Db2BAdd228D"
+ *   },
+ * ]
+ *}
  */
 export const config = {
   runtime: "experimental-edge",

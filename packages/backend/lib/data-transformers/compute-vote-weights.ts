@@ -1,13 +1,16 @@
-import { Ratio } from "../data"
+import { Ratio } from "../../types"
 
 /**
- * The vote weight delegated to a delegate.
- * To get total vote weight for a delegate, add the vote weight for the delegate them self.
- * This is just what is delegated to them.
+ * Used to compute the vote weight delegated to delegators.
+ * This is just what is delegated to a delegate. To get total vote weight for
+ * a delegate, add the vote weight for the delegate them self.
  *
- * @param delegationRatios
- * @param voteWeights
- * @returns
+ * @param delegationRatios - the delegation ratios for each delegate
+ * (delegate -> delegator -> Ratio)
+ * @param voteWeights - the vote weight for each delegator
+ * (delegator -> vote weight)
+ * @returns a tuple of two maps:
+ * (delegate -> vote weight) and (delegate -> delegator -> vote weight)
  */
 export const computeAbsoluteVoteWeights = (
   delegationRatios: { [delegate: string]: { [delegator: string]: Ratio } },

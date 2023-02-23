@@ -4,39 +4,60 @@ import {
   mergeDelegationSets,
 } from "./data-transformers/cross-chain-merge"
 import { removeOptouts } from "./data-transformers/remove-optouts"
-import { GetContextQuery } from "./services/the-graph/.graphclient"
-import { computeDelegations } from "./data-transformers/compute-delegations"
+import { generateDelegationRatioMap } from "./data-transformers/generate-delegation-ratio-map"
 import R from "ramda"
+import { DelegationSet, Optout } from "../types"
 
-type Unpacked<T> = T extends (infer U)[] ? U : T
-export type Context = Unpacked<GetContextQuery["crossContext"]>
-export type DelegationSet = Unpacked<Context["delegationSets"]>
-export type Optout = Unpacked<Context["optouts"]>
-export type Delegation = Unpacked<DelegationSet["delegations"]>
-
-export type Ratio = {
-  numerator: number
-  denominator: number
-}
-
+/**
+ * This will fetch all unique context ids from all subgraphs.
+ *
+ * @remarks
+ * The context ids are assumed to reference snapshot spaces. However this list will
+ * also contain context ids that are not snapshot spaces.
+ *
+ * @returns All unique snapshot spaces (context ids) from all chains
+ *
+ */
 export const getSnapshotSpaces = async () => {
   const responds = await theGraph.fetchContextIdsFromAllChains()
   return R.uniq(responds.map((_) => _.id))
 }
-
-export const getAllDelegationsTo = async (snapshotSpace: string) => {
-  // 1. get context from all chains
-  const responds = await theGraph.fetchContextFromAllChains(snapshotSpace)
+/**
+ * This will:
+ * 1. Fetch all delegations to a given snapshot space (context id) from all subgraphs.
+ * 2. Merge the delegationSets and optouts from all chains (in case of conflicts the latest will be used).
+ * 3. Remove optout delegators (and recompute dominators, across delegationSets).
+ * 4. Creates the delegation ratio map (delegate -> delegator -> ratio).
+ *
+ * @param snapshotSpace - The snapshot space (context id) to fetch delegations for
+ * @returns Map of (delegate -> delegator -> ratio)
+ */
+export const getDelegationRatioMap = async (snapshotSpace: string) => {
+  // 1. fetch context from all chains
+  const allContexts = await theGraph.fetchContextFromAllChains(snapshotSpace)
+  const delegationSetsForEachChain: DelegationSet[][] = R.map(
+    R.prop("delegationSets"),
+    allContexts,
+  )
+  const allOptoutsForEachChain: Optout[][] = R.map(
+    R.prop("optouts"),
+    allContexts,
+  )
 
   // 2. merge delegationSets and optouts
-  const mergedDelegationSets = mergeDelegationSets(responds)
-  const mergedOptouts = mergeDelegatorOptouts(responds)
+  const mergedDelegatorToDelegationSets = mergeDelegationSets(
+    delegationSetsForEachChain,
+  )
+  const listOfOptouts = mergeDelegatorOptouts(allOptoutsForEachChain)
 
   // 3. remove optout delegators (and recompute dominators, across delegationSets)
-  const finalDelegationSets = removeOptouts(mergedOptouts, mergedDelegationSets)
+  const finalDelegatorToDelegationSets = removeOptouts(
+    listOfOptouts,
+    mergedDelegatorToDelegationSets,
+  )
 
-  // 4. compute delegations (delegate -> delegator -> ratio)
-  const delegations = computeDelegations(finalDelegationSets)
+  // 4. generate the delegation ratio map (delegate -> delegator -> ratio)
+  const delegations = generateDelegationRatioMap(finalDelegatorToDelegationSets)
 
   return delegations
 }
