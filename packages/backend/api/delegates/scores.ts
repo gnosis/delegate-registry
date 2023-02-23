@@ -1,4 +1,7 @@
-import { getDelegatedVoteWeight } from "../../lib/services/storage/read"
+import {
+  getDelegatedVoteWeight,
+  getLastUpdateTime,
+} from "../../lib/services/storage/read"
 import * as R from "ramda"
 import { utils } from "ethers"
 const { getAddress } = utils
@@ -20,7 +23,8 @@ const { getAddress } = utils
  *     "score": 456,
  *     "address": "0x3c4B8C52Ed4c29eE402D9c91FfAe1Db2BAdd228D"
  *   },
- * ]
+ * ],
+, * "updateTime": 1677158495
  *}
  */
 export const config = {
@@ -67,5 +71,9 @@ export default async (req: Request) => {
     R.toPairs(voteWeights),
   )
 
-  return new Response(JSON.stringify(relevantVoteWightsAsScores))
+  const updateTime = await getLastUpdateTime(snapshotSpace)
+
+  return new Response(
+    JSON.stringify({ score: relevantVoteWightsAsScores, updateTime }),
+  )
 }

@@ -1,4 +1,7 @@
-import { getTopDelegatorsForDelegate } from "../../lib/services/storage/read"
+import {
+  getLastUpdateTime,
+  getTopDelegatorsForDelegate,
+} from "../../lib/services/storage/read"
 import * as R from "ramda"
 import { utils } from "ethers"
 const { getAddress } = utils
@@ -11,16 +14,20 @@ export const config = {
  * Returns the top delegators (by vote weight) for a given delegate.
  *
  * @example responds:
- *[
- * [
- *   "0x6cc5b30Cd0A93C1F85C7868f5F2620AB8c458190",
- *   12.53397165446844
+ *{
+ * "delegate": "0xDE1e8A7E184Babd9F0E3af18f40634e9Ed6F0905",
+ * "delegators": [
+ *   [
+ *     "0x6cc5b30Cd0A93C1F85C7868f5F2620AB8c458190",
+ *     12.53397165446844
+ *   ],
+ *   [
+ *     "0x53bcFaEd43441C7bB6149563eC11f756739C9f6A",
+ *     0.006666666666666666
+ *   ]
  * ],
- * [
- *   "0x53bcFaEd43441C7bB6149563eC11f756739C9f6A",
- *   0.006666666666666666
- * ]
- *]
+ * "updateTime": 1677158495
+ *}
  */
 export default async (req: Request) => {
   const url = new URL(req.url)
@@ -56,5 +63,9 @@ export default async (req: Request) => {
     return new Response(JSON.stringify([]), { status: 200 })
   }
 
-  return new Response(JSON.stringify(delegators))
+  const updateTime = await getLastUpdateTime(snapshotSpace)
+
+  return new Response(
+    JSON.stringify({ delegate: delegateAddress, delegators, updateTime }),
+  )
 }

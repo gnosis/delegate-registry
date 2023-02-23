@@ -1,4 +1,4 @@
-// To be used by the Vercel Edge Function
+// To be used by Vercel Edge Functions
 import { get } from "@vercel/edge-config"
 import * as R from "ramda"
 import {
@@ -87,4 +87,14 @@ export const getNumberOfDelegatorsForDelegate = async (
     )) ?? {}
 
   return R.keys(delegators[delegateAddress] ?? {}).length
+}
+
+/**
+ * Get the last update time for the delegated vote weight data.
+ *
+ * @param snapshotSpace - Name of the Snapshot space
+ * @returns The last update time for the delegated vote weight in seconds since the Unix epoch
+ */
+export const getLastUpdateTime = async (snapshotSpace: string) => {
+  return get<number>(`${snapshotSpace.replace(".", "_")}-updateTime`)
 }

@@ -1,4 +1,7 @@
-import { getNumberOfDelegatorsForDelegate } from "../../lib/services/storage/read"
+import {
+  getLastUpdateTime,
+  getNumberOfDelegatorsForDelegate,
+} from "../../lib/services/storage/read"
 import * as R from "ramda"
 import { utils } from "ethers"
 const { getAddress } = utils
@@ -12,7 +15,9 @@ export const config = {
  *
  * @example responds:
  * {
- *  "numberOfDelegators": 1
+ *  "delegate": "0xDE1e8A7E184Babd9F0E3af18f40634e9Ed6F0905",
+ *  "numberOfDelegators": 1,
+ *  "updateTime": 1677158495
  * }
  */
 
@@ -41,5 +46,13 @@ export default async (req: Request) => {
     delegateAddress,
   )
 
-  return new Response(JSON.stringify({ numberOfDelegators }))
+  const updateTime = await getLastUpdateTime(snapshotSpace)
+
+  return new Response(
+    JSON.stringify({
+      delegate: delegateAddress,
+      numberOfDelegators,
+      updateTime,
+    }),
+  )
 }
