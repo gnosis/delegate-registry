@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node"
 import R from "ramda"
-import { computeAbsoluteVoteWeights } from "../lib/data-transformers/compute-vote-weights"
+import { computeVoteWeights } from "../lib/data-transformers/compute-vote-weights"
 import { getDelegationRatioMap, getSnapshotSpaces } from "../lib/data"
 import { fetchVoteWeights } from "../lib/services/snapshot"
 import * as storage from "../lib/services/storage/write"
@@ -57,7 +57,7 @@ export default async function getDelegations(
         } delegating addresses with non-zero vote weight.`,
       )
       const [delegatedVoteWeight, delegatedVoteWeightByAccount] =
-        computeAbsoluteVoteWeights(delegations, voteWeights)
+        computeVoteWeights(delegations, voteWeights)
 
       console.log(
         `[${space}] 4. Storing delegated vote weight for ${

@@ -12,7 +12,7 @@ import { Ratio } from "../../types"
  * @returns a tuple of two maps:
  * (delegate -> vote weight) and (delegate -> delegator -> vote weight)
  */
-export const computeAbsoluteVoteWeights = (
+export const computeVoteWeights = (
   delegationRatios: { [delegate: string]: { [delegator: string]: Ratio } },
   voteWeights: { [member: string]: number },
 ): [
