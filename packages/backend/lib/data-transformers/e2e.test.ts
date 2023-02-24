@@ -210,8 +210,6 @@ describe("the whole data transformation pipeline", () => {
     )
     const optoutsRemovedDelegationSets = removeOptouts(optouts, delegationSets)
 
-    // handle cycles
-
     const delegations = generateDelegationRatioMap(optoutsRemovedDelegationSets)
 
     const expected = {
