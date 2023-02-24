@@ -7,6 +7,7 @@ import {
   DelegateToVoteWeight,
   Ratio,
 } from "../../types"
+import R from "ramda"
 
 describe("compute-vote-weights", () => {
   describe("computeVoteWeights", () => {
@@ -136,6 +137,70 @@ describe("compute-vote-weights", () => {
       }
 
       expect(delegationToRatio).to.deep.equal(expected)
+    })
+
+    it("should handle cycles in the delegation graph. Cycles are: (0x01 -> 0x02 -> 0x04 -> 0x01) and (0x04 -> 0x01 -> 0x02 -> 0x04))", () => {
+      const delegationRatios: DelegateToDelegatorToRatio = {
+        "0x01": { "0x04": { numerator: 1, denominator: 2 } },
+        "0x02": {
+          "0x01": { numerator: 1, denominator: 1 },
+          "0x06": { numerator: 1, denominator: 1 },
+          "0x05": { numerator: 1, denominator: 1 },
+        },
+        "0x03": {
+          "0x07": { numerator: 1, denominator: 1 },
+          "0x13": { numerator: 1, denominator: 1 },
+        },
+        "0x04": {
+          "0x02": { numerator: 1, denominator: 1 },
+          "0x08": { numerator: 1, denominator: 2 },
+        },
+        "0x07": {
+          "0x08": { numerator: 1, denominator: 2 },
+          "0x10": { numerator: 1, denominator: 2 },
+          "0x09": { numerator: 1, denominator: 2 },
+        },
+        "0x09": {
+          "0x11": { numerator: 1, denominator: 1 },
+          "0x10": { numerator: 1, denominator: 2 },
+          "0x04": { numerator: 1, denominator: 2 },
+        },
+        "0x13": { "0x12": { numerator: 1, denominator: 1 } },
+      }
+
+      const votes: { [address: string]: number } = {
+        "0x01": 3,
+        "0x02": 80,
+        "0x03": 7,
+        "0x04": 44,
+        "0x05": 4,
+        "0x06": 12,
+        "0x07": 32,
+        "0x08": 15,
+        "0x09": 90,
+        "0x10": 8,
+        "0x11": 4,
+        "0x12": 2,
+        "0x13": 0,
+      }
+
+      const [delegateToVoteWeight, delegationToRatio] = computeVoteWeights(
+        delegationRatios,
+        votes,
+      )
+
+      // TODO: this must be validated. Is this what we want?
+      const expected: DelegateToVoteWeight = {
+        "0x01": 75.25,
+        "0x02": 19,
+        "0x03": 132.125,
+        "0x04": 106.5,
+        "0x07": 98.125,
+        "0x09": 83.25,
+        "0x13": 2,
+      }
+
+      expect(delegateToVoteWeight).to.deep.equal(expected)
     })
   })
 })

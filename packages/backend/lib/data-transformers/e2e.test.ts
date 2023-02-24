@@ -210,6 +210,8 @@ describe("the whole data transformation pipeline", () => {
     )
     const optoutsRemovedDelegationSets = removeOptouts(optouts, delegationSets)
 
+    // handle cycles
+
     const delegations = generateDelegationRatioMap(optoutsRemovedDelegationSets)
 
     const expected = {
@@ -219,12 +221,6 @@ describe("the whole data transformation pipeline", () => {
           denominator: 40,
         },
       },
-      // "0x7ef021f62E3E7975FBC21d3202C5A1F19D53bB47": {
-      //   "0x6cc5b30Cd0A93C1F85C7868f5F2620AB8c458190": {
-      //     numerator: "4",
-      //     denominator: "17",
-      //   },
-      // },
       "0xDE1e8A7E184Babd9F0E3af18f40634e9Ed6F0905": {
         "0x6cc5b30Cd0A93C1F85C7868f5F2620AB8c458190": {
           numerator: 13,
