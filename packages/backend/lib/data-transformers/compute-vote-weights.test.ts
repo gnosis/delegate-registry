@@ -141,31 +141,42 @@ describe("compute-vote-weights", () => {
 
     it("should handle cycles in the delegation graph. Cycles are: (0x01 -> 0x02 -> 0x04 -> 0x01) and (0x04 -> 0x01 -> 0x02 -> 0x04))", () => {
       const delegationRatios: DelegateToDelegatorToRatio = {
-        "0x01": { "0x04": { numerator: 1, denominator: 2 } },
+        "0x01": {
+          // ok
+          "0x04": { numerator: 1, denominator: 2 }, // 75,25
+        },
         "0x02": {
-          "0x01": { numerator: 1, denominator: 1 },
-          "0x06": { numerator: 1, denominator: 1 },
-          "0x05": { numerator: 1, denominator: 1 },
+          // ok
+          "0x01": { numerator: 1, denominator: 1 }, // 3 cut off
+          "0x06": { numerator: 1, denominator: 1 }, // 12
+          "0x05": { numerator: 1, denominator: 1 }, // 4
         },
         "0x03": {
-          "0x07": { numerator: 1, denominator: 1 },
-          "0x13": { numerator: 1, denominator: 1 },
+          // ok
+          "0x07": { numerator: 1, denominator: 1 }, // 103,5
+          "0x13": { numerator: 1, denominator: 1 }, // 2
         },
         "0x04": {
-          "0x02": { numerator: 1, denominator: 1 },
-          "0x08": { numerator: 1, denominator: 2 },
+          // OK
+          "0x02": { numerator: 1, denominator: 1 }, // 99
+          "0x08": { numerator: 1, denominator: 2 }, // 7.5
         },
         "0x07": {
-          "0x08": { numerator: 1, denominator: 2 },
-          "0x10": { numerator: 1, denominator: 2 },
-          "0x09": { numerator: 1, denominator: 2 },
+          // ok
+          "0x08": { numerator: 1, denominator: 2 }, //7.5
+          "0x10": { numerator: 1, denominator: 2 }, // 4
+          "0x09": { numerator: 1, denominator: 2 }, // 60
         },
         "0x09": {
-          "0x11": { numerator: 1, denominator: 1 },
-          "0x10": { numerator: 1, denominator: 2 },
-          "0x04": { numerator: 1, denominator: 2 },
+          // ok
+          "0x11": { numerator: 1, denominator: 1 }, // 4
+          "0x10": { numerator: 1, denominator: 2 }, // 4
+          "0x04": { numerator: 1, denominator: 2 }, // 22 cut off
         },
-        "0x13": { "0x12": { numerator: 1, denominator: 1 } },
+        "0x13": {
+          // ok
+          "0x12": { numerator: 1, denominator: 1 }, // 2
+        },
       }
 
       const votes: { [address: string]: number } = {
@@ -193,10 +204,10 @@ describe("compute-vote-weights", () => {
       const expected: DelegateToVoteWeight = {
         "0x01": 75.25,
         "0x02": 19,
-        "0x03": 132.125,
+        "0x03": 105.5,
         "0x04": 106.5,
-        "0x07": 98.125,
-        "0x09": 83.25,
+        "0x07": 71.5,
+        "0x09": 30,
         "0x13": 2,
       }
 

@@ -34,14 +34,14 @@ export const computeVoteWeights = (
     topLevelAccVoteWeights: Readonly<DelegateToVoteWeight>,
     topLevelAccVoteWeightsByAccount: Readonly<DelegateToDelegatorToVoteWeight>,
     brokenEdges: Readonly<BrokenEdges>,
-    trace: Readonly<Visited>,
+    trace: Readonly<string[]>,
   ): [DelegateToVoteWeight, DelegateToDelegatorToVoteWeight, BrokenEdges] => {
-    if (trace[delegate]) {
+    if (trace.includes(delegate)) {
       console.log("WARNING: Cycle detected in delegation graph!")
-      const cycleTrace = [...R.keys(trace), delegate].reverse() as string[]
+      const cycleTrace = [...trace, delegate] as string[]
       console.log(
         // obs, we can't really trust the order of keys in an object
-        "Cycle:" + cycleTrace.join(" -> "),
+        "Trace:" + cycleTrace.join(" -> "),
       )
 
       const mapIndexed = R.addIndex<string, boolean>(R.map)
@@ -82,7 +82,7 @@ export const computeVoteWeights = (
             topLevelAccVoteWeights,
             topLevelAccVoteWeightsByAccount,
             brokenEdges,
-            { ...trace, [delegate]: true },
+            [...trace, delegate],
           )
         }
       }, R.keys(delegationRatios[delegate]) as string[])
@@ -111,7 +111,7 @@ export const computeVoteWeights = (
                 accVoteWeights,
                 accVoteWeightsByAccount,
                 brokenEdges,
-                { ...trace, [delegate]: true },
+                [...trace, delegate],
               )
           } catch (e) {
             // TODO: this is how we break cycles, its not ideal or clearly defined
@@ -123,7 +123,7 @@ export const computeVoteWeights = (
               {
                 ...accVoteWeights,
                 [delegate]:
-                  (topLevelAccVoteWeights[delegate] ?? 0) + delegatorVoteWeight,
+                  (accVoteWeights[delegate] ?? 0) + delegatorVoteWeight,
               },
               {
                 ...accVoteWeightsByAccount,
@@ -179,7 +179,7 @@ export const computeVoteWeights = (
           delegateToVoteWeight,
           delegateToDelegatorToVoteWeight,
           brokenEdges,
-          {}, // we are starting from a new delegate, so no visited
+          [], // we are starting from a new delegate, so no visited
         )
       }
       return [
