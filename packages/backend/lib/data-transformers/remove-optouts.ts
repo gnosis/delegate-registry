@@ -31,14 +31,17 @@ export const removeOptouts = (
             R.pathEq(["delegate", "id"], optoutDelegate),
           )(delegationSet.delegations)
           if (optoutDelegation != null) {
-            acc[delegationSet.account.id] = {
-              ...delegationSet,
-              denominator:
-                delegationSet.denominator - optoutDelegation.numerator,
-              delegations: R.reject(
-                R.pathEq(["delegate", "id"], optoutDelegate),
-                delegationSet.delegations,
-              ),
+            const delegations = R.reject(
+              R.pathEq(["delegate", "id"], optoutDelegate),
+              delegationSet.delegations,
+            )
+            if (!R.isEmpty(delegations)) {
+              acc[delegationSet.account.id] = {
+                ...delegationSet,
+                denominator:
+                  delegationSet.denominator - optoutDelegation.numerator,
+                delegations,
+              }
             }
           } else {
             acc[delegationSet.account.id] = delegationSet

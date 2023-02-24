@@ -1,5 +1,7 @@
 import R from "ramda"
 import { DelegationSet, DelegatorToDelegationSet, Optout } from "../../types"
+import { utils } from "ethers"
+const { getAddress } = utils
 
 /**
  * Merges multiple arrays of delegation sets into one array.
@@ -41,6 +43,8 @@ export const mergeDelegationSets = (
  * If a delegate has optouts in multiple arrays we use the newest status and
  * discard others.
  *
+ * Will also convert the optout's delegate id to the address.
+ *
  * @param optoutsForEachChain - an array (one for each chain) of arrays of
  * optouts for a specific snapshot space
  * @returns a list of the addresses of delegates that have opted out
@@ -49,7 +53,7 @@ export const mergeDelegationOptouts = (
   optoutsForEachChain: Optout[][],
 ): string[] =>
   R.compose(
-    R.map((_: string) => _.slice(-40)), // remove padding (as its not currently used for anything), this should be in the subgraph
+    R.map((_: string) => getAddress(_.slice(-40))), // remove padding (as its not currently used for anything), this should be in the subgraph
     R.keys,
     R.filter((_: boolean) => _),
     R.reduce<Optout, Record<string, boolean>>(

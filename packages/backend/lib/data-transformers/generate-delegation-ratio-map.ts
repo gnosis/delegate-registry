@@ -11,6 +11,9 @@ const { getAddress } = utils
 /**
  * Transforms a (delegator -> delegation set) map into a (delegate -> delegator -> ratio) map.
  *
+ * @remarks
+ * Will also convert the delegate's id to the address.
+ *
  * @param delegatorToDelegationSets - Each delegator's delegation set
  * @returns A map of each delegate to a map of each delegator to their ratio
  * (delegate -> delegator -> ratio)

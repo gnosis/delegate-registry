@@ -2,7 +2,7 @@ import * as theGraph from "./services/the-graph"
 import {
   mergeDelegationOptouts as mergeDelegatorOptouts,
   mergeDelegationSets,
-} from "./data-transformers/cross-chain-merge"
+} from "./data-transformers/merge-delegation-sets"
 import { removeOptouts } from "./data-transformers/remove-optouts"
 import { generateDelegationRatioMap } from "./data-transformers/generate-delegation-ratio-map"
 import R from "ramda"
