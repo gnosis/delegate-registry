@@ -5,14 +5,9 @@ import {
   DelegationSet,
   DelegatorToDelegationSet,
 } from "../../types"
-import { utils } from "ethers"
-const { getAddress } = utils
 
 /**
  * Transforms a (delegator -> delegation set) map into a (delegate -> delegator -> ratio) map.
- *
- * @remarks
- * Will also convert the delegate's id to the address.
  *
  * @param delegatorToDelegationSets - Each delegator's delegation set
  * @returns A map of each delegate to a map of each delegator to their ratio
@@ -25,10 +20,10 @@ export const generateDelegationRatioMap = (
   R.reduce<DelegationSet, DelegateToDelegatorToRatio>(
     (acc, delegationSet) => {
       R.forEach<Delegation>((delegation) => {
-        acc[getAddress(delegation.delegate.id.slice(-40))] = {
+        acc[delegation.delegate.id] = {
           // `.slice(-40)` removes the prefix since its not in use yet. This should be done in the subgraph.
-          ...acc[getAddress(delegation.delegate.id.slice(-40))],
-          [getAddress(delegationSet.account.id)]: {
+          ...acc[delegation.delegate.id],
+          [delegationSet.account.id]: {
             numerator: delegation.numerator,
             denominator: delegationSet.denominator,
           },

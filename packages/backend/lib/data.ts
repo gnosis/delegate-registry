@@ -7,6 +7,11 @@ import { removeOptouts } from "./data-transformers/remove-optouts"
 import { generateDelegationRatioMap } from "./data-transformers/generate-delegation-ratio-map"
 import R from "ramda"
 import { DelegationSet, Optout } from "../types"
+import {
+  convertDelegationSetAddressesToAddress,
+  convertDelegationSetsDelegateIdsToAddress,
+  convertOptoutsDelegateIdsToAddress,
+} from "./data-transformers/convert-to-address"
 
 /**
  * This will fetch all unique context ids from all subgraphs.
@@ -35,14 +40,16 @@ export const getSnapshotSpaces = async () => {
 export const getDelegationRatioMap = async (snapshotSpace: string) => {
   // 1. fetch context from all chains
   const allContexts = await theGraph.fetchContextFromAllChains(snapshotSpace)
-  const delegationSetsForEachChain: DelegationSet[][] = R.map(
-    R.prop("delegationSets"),
-    allContexts,
+  const delegationSetsForEachChain: DelegationSet[][] =
+    convertDelegationSetsDelegateIdsToAddress(
+      R.map(R.prop("delegationSets"), allContexts),
+    )
+
+  const allOptoutsForEachChain: Optout[][] = convertOptoutsDelegateIdsToAddress(
+    R.map(R.prop("optouts"), allContexts),
   )
-  const allOptoutsForEachChain: Optout[][] = R.map(
-    R.prop("optouts"),
-    allContexts,
-  )
+
+  console.log("allOptoutsForEachChain", JSON.stringify(allOptoutsForEachChain))
 
   // 2. merge delegationSets and optouts
   const mergedDelegatorToDelegationSets = mergeDelegationSets(

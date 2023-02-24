@@ -1,8 +1,11 @@
 import "mocha"
 import { expect } from "chai"
 import R from "ramda"
-import { DelegationSet } from "../../types"
-import { mergeDelegationSets } from "./merge-delegation-sets"
+import { DelegationSet, Optout } from "../../types"
+import {
+  mergeDelegationOptouts,
+  mergeDelegationSets,
+} from "./merge-delegation-sets"
 
 const delegationSets1: DelegationSet[] = [
   {
@@ -173,6 +176,57 @@ describe("merge-delegation-sets", () => {
         mergeDelegationSets([delegationSets2]),
         "the returning delegation set should be the same as the second delegation set (the delegation set in the `delegationSets1` is replaced in the `delegationSets1` set)",
       )
+    })
+  })
+  describe("mergeDelegationOptouts", () => {
+    const optout1: Optout[] = [
+      {
+        delegate: {
+          id: "0x53bcfaed43441c7bb6149563ec11f756739c9f6a",
+        },
+        status: true,
+        updated: "1776379432",
+      },
+    ]
+
+    const optout2: Optout[] = [
+      {
+        delegate: {
+          id: "0x53bcfaed43441c7bb6149563ec11f756739c9f6a",
+        },
+        status: false,
+        updated: "1376379432",
+      },
+    ]
+    const optout3: Optout[] = [
+      {
+        delegate: {
+          id: "0x53bcfaed43441c7bb6149563ec11f756739c9f6a",
+        },
+        status: false,
+        updated: "1676379432",
+      },
+      {
+        delegate: {
+          id: "0x53bcfaed43441c7bb6149563ec11f756739c9f6b",
+        },
+        status: true,
+        updated: "1676379432",
+      },
+    ]
+
+    it("should return the expected merged set of optouts", () => {
+      const mergedOptouts = mergeDelegationOptouts([optout1, optout2, optout3])
+
+      expect(mergedOptouts.length).equal(2)
+      expect(mergedOptouts).to.contain(optout3[1].delegate.id)
+      expect(mergedOptouts).to.contain(optout3[0].delegate.id)
+    })
+    it("should return only one and the correct optout when two different optout set arrays, with only the same optout is provided", () => {
+      const mergedOptouts = mergeDelegationOptouts([optout1, optout2])
+
+      expect(mergedOptouts.length).equal(1)
+      expect(mergedOptouts).to.contain(optout3[0].delegate.id)
     })
   })
 })
