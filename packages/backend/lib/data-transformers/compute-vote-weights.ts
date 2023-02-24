@@ -30,32 +30,29 @@ export const computeVoteWeights = (
   voteWeights: DelegateToVoteWeight,
 ): [DelegateToVoteWeight, DelegateToDelegatorToVoteWeight, BrokenEdges] => {
   const computeDelegatedVoteWeight = (
-    representative: string,
-    accumulatedVoteWeights: DelegateToVoteWeight,
-    accumulatedVoteWeightsByAccount: DelegateToDelegatorToVoteWeight,
-    visited: Visited,
-    brokenEdges: BrokenEdges,
+    delegate: string,
+    topLevelAccVoteWeights: Readonly<DelegateToVoteWeight>,
+    topLevelAccVoteWeightsByAccount: Readonly<DelegateToDelegatorToVoteWeight>,
+    brokenEdges: Readonly<BrokenEdges>,
+    trace: Readonly<Visited>,
   ): [DelegateToVoteWeight, DelegateToDelegatorToVoteWeight, BrokenEdges] => {
-    if (visited[representative]) {
+    if (trace[delegate]) {
       console.log("WARNING: Cycle detected in delegation graph!")
-      const cycle: string[] = [
-        ...R.keys(visited),
-        representative,
-      ].reverse() as string[]
+      const cycleTrace = [...R.keys(trace), delegate].reverse() as string[]
       console.log(
         // obs, we can't really trust the order of keys in an object
-        "Cycle:" + cycle.join(" -> "),
+        "Cycle:" + cycleTrace.join(" -> "),
       )
 
       const mapIndexed = R.addIndex<string, boolean>(R.map)
       const alreadyHandled = R.includes(
         true,
         mapIndexed(
-          (val, idx) =>
-            brokenEdges[val] != null &&
-            idx - 1 < cycle.length &&
-            brokenEdges[val] === cycle[idx + 1],
-          cycle,
+          (from, index) =>
+            brokenEdges[from] != null &&
+            index + 1 < cycleTrace.length &&
+            brokenEdges[from] === cycleTrace[index + 1],
+          cycleTrace,
         ),
       )
 
@@ -63,110 +60,126 @@ export const computeVoteWeights = (
         throw Error("Cycle detected in delegation graph")
       } else {
         console.log("Cycle already handled, ignoring")
+        // it is safe to return here because if it is visited it is also computed
+        // this is where the cycle is cut
         return [
-          accumulatedVoteWeights,
-          accumulatedVoteWeightsByAccount,
+          topLevelAccVoteWeights,
+          topLevelAccVoteWeightsByAccount,
           brokenEdges,
         ]
       }
     }
-    if (accumulatedVoteWeights[representative] != null) {
+    if (topLevelAccVoteWeights[delegate] != null) {
       // Already computed vote weight for this delegatee
       // we still needs to go over every edge to detect cycles :/
 
       // will throw if cycle detected
-      Object.keys(delegationRatios[representative]).map((member) => {
+      R.map((delegator) => {
         // if this member has delegated votes
-        if (delegationRatios[member] != null) {
+        if (delegationRatios[delegator] != null) {
           computeDelegatedVoteWeight(
-            member,
-            accumulatedVoteWeights,
-            accumulatedVoteWeightsByAccount,
-            { ...visited, [representative]: true },
+            delegator,
+            topLevelAccVoteWeights,
+            topLevelAccVoteWeightsByAccount,
             brokenEdges,
+            { ...trace, [delegate]: true },
           )
         }
-      })
+      }, R.keys(delegationRatios[delegate]) as string[])
 
       return [
-        accumulatedVoteWeights,
-        accumulatedVoteWeightsByAccount,
+        topLevelAccVoteWeights,
+        topLevelAccVoteWeightsByAccount,
         brokenEdges,
       ]
     }
     // Depth first
-    return Object.keys(delegationRatios[representative]).reduce(
-      ([accVoteWeights, accVoteWeightsByAccount, brokenEdges], member) => {
+    return R.reduce(
+      ([accVoteWeights, accVoteWeightsByAccount, brokenEdges], delegator) => {
         // for each address delegated from to this delegate (`to`)
-        const { numerator, denominator } =
-          delegationRatios[representative][member]
+        const { numerator, denominator } = delegationRatios[delegate][delegator]
         const ratio = numerator / denominator
-        const delegatorVoteWeight = (voteWeights[member] ?? 0) * ratio
+        const delegatorVoteWeight = (voteWeights[delegator] ?? 0) * ratio
 
         // add votes delegated to the delegator
-        if (delegationRatios[member] != null) {
+        if (delegationRatios[delegator] != null) {
           // if the delegator has delegated votes
           try {
             ;[accVoteWeights, accVoteWeightsByAccount, brokenEdges] =
               computeDelegatedVoteWeight(
-                member,
-                accumulatedVoteWeights,
-                accumulatedVoteWeightsByAccount,
-                { ...visited, [representative]: true },
+                delegator,
+                accVoteWeights,
+                accVoteWeightsByAccount,
                 brokenEdges,
+                { ...trace, [delegate]: true },
               )
           } catch (e) {
             // TODO: this is how we break cycles, its not ideal or clearly defined
             // If cycle add only delegator's votes (NOT delegated votes)
-            accumulatedVoteWeights[representative] =
-              (accumulatedVoteWeights[representative] ?? 0) +
-              delegatorVoteWeight
-            accVoteWeightsByAccount[representative] = {
-              ...accVoteWeightsByAccount[representative],
-              [member]: delegatorVoteWeight,
-            }
             console.log(
-              `Delegation from ${member} to ${representative} only adds delegator's votes (NOT votes delegated to the delegator)`,
+              `Delegation from ${delegator} to ${delegate} only adds delegator's votes (NOT votes delegated to the delegator)`,
             )
             return [
-              accVoteWeights,
-              accVoteWeightsByAccount,
-              { ...brokenEdges, [member]: representative },
+              {
+                ...accVoteWeights,
+                [delegate]:
+                  (topLevelAccVoteWeights[delegate] ?? 0) + delegatorVoteWeight,
+              },
+              {
+                ...accVoteWeightsByAccount,
+                [delegate]: {
+                  ...accVoteWeightsByAccount[delegate],
+                  [delegator]: delegatorVoteWeight,
+                },
+              },
+              { ...brokenEdges, [delegator]: delegate },
             ]
           }
         }
-
         // add delegator's votes + any delegated votes to the delegator
         const delegatedVoteWeightToDelegator =
-          (accumulatedVoteWeights[member] ?? 0) * ratio
+          (accVoteWeights[delegator] ?? 0) * ratio
 
-        accumulatedVoteWeights[representative] =
-          (accumulatedVoteWeights[representative] ?? 0) +
-          delegatorVoteWeight +
-          delegatedVoteWeightToDelegator
-        accVoteWeightsByAccount[representative] = {
-          ...accVoteWeightsByAccount[representative],
-          [member]: delegatorVoteWeight + delegatedVoteWeightToDelegator,
-        }
-        return [accVoteWeights, accVoteWeightsByAccount, brokenEdges]
+        return [
+          {
+            ...accVoteWeights,
+            [delegate]:
+              (accVoteWeights[delegate] ?? 0) +
+              delegatorVoteWeight +
+              delegatedVoteWeightToDelegator,
+          },
+          {
+            ...accVoteWeightsByAccount,
+            [delegate]: {
+              ...accVoteWeightsByAccount[delegate],
+              [delegator]: delegatorVoteWeight + delegatedVoteWeightToDelegator,
+            },
+          },
+          brokenEdges,
+        ]
       },
-      [accumulatedVoteWeights, accumulatedVoteWeightsByAccount, brokenEdges],
+      [topLevelAccVoteWeights, topLevelAccVoteWeightsByAccount, brokenEdges],
+      R.keys(delegationRatios[delegate]) as string[],
     )
   }
 
-  const resultingVoteWeights = Object.keys(delegationRatios).reduce(
-    // for each address delegated to
+  const resultingVoteWeights = R.reduce<
+    string,
+    [DelegateToVoteWeight, DelegateToDelegatorToVoteWeight, BrokenEdges]
+  >(
+    // for each delegate
     (
       [delegateToVoteWeight, delegateToDelegatorToVoteWeight, brokenEdges],
-      to,
+      delegate,
     ) => {
-      if (delegateToVoteWeight[to] == null) {
+      if (delegateToVoteWeight[delegate] == null) {
+        // this delegate has not been computed yet
         return computeDelegatedVoteWeight(
-          to,
-          delegateToVoteWeight as DelegateToVoteWeight,
-          delegateToDelegatorToVoteWeight as DelegateToDelegatorToVoteWeight,
-          {},
-          brokenEdges as BrokenEdges,
+          delegate,
+          delegateToVoteWeight,
+          delegateToDelegatorToVoteWeight,
+          brokenEdges,
+          {}, // we are starting from a new delegate, so no visited
         )
       }
       return [
@@ -175,12 +188,10 @@ export const computeVoteWeights = (
         brokenEdges,
       ]
     },
-    [
-      {} as DelegateToVoteWeight,
-      {} as DelegateToDelegatorToVoteWeight,
-      {} as BrokenEdges,
-    ],
+    [{}, {}, {}],
+    R.keys(delegationRatios) as string[],
   )
+
   return resultingVoteWeights as [
     DelegateToVoteWeight,
     DelegateToDelegatorToVoteWeight,
