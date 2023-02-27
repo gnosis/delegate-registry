@@ -114,8 +114,9 @@ export const computeVoteWeights = (
                 [...trace, delegate],
               )
           } catch (e) {
-            // TODO: this is how we break cycles, its not ideal or clearly defined
-            // If cycle add only delegator's votes (NOT delegated votes)
+            // This is how we break cycles. The first time we encounter a edge creating
+            // a cycle we cut it by only adding the delegator's votes (NOT the votes delegated to the
+            // delegator).
             console.log(
               `Delegation from ${delegator} to ${delegate} only adds delegator's votes (NOT votes delegated to the delegator)`,
             )

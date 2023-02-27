@@ -3,6 +3,10 @@ sources:
     handler:
       graphql:
         endpoint: https://api.thegraph.com/subgraphs/name/manboy-eth/delegate-registry-v2-{context.chainName:goerli}
+    transforms:
+      - autoPagination:
+          # You might want to disable schema validation for faster startup
+          validateSchema: true
 
 additionalTypeDefs: |
   extend type Context {
