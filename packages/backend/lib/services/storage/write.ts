@@ -4,6 +4,7 @@ import {
   DelegateToDelegatorToVoteWeight,
   DelegateToVoteWeight,
 } from "../../../types"
+import { spaceNameToKey } from "./read"
 
 const VERCEL_API_TOKEN = process.env.VERCEL_API_TOKEN!
 if (VERCEL_API_TOKEN == null) {
@@ -28,17 +29,17 @@ export const storeDelegatedVoteWeight = async (
   storeItems([
     {
       operation: "upsert",
-      key: `${snapshotSpace.replace(".", "_")}-updateTime`,
+      key: `${spaceNameToKey(snapshotSpace)}-updateTime`,
       value: Math.floor(Date.now() / 1000),
     },
     {
       operation: "upsert",
-      key: `${snapshotSpace.replace(".", "_")}-delegatedVoteWeight`,
+      key: `${spaceNameToKey(snapshotSpace)}-delegatedVoteWeight`,
       value: delegatedVoteWeight,
     },
     {
       operation: "upsert",
-      key: `${snapshotSpace.replace(".", "_")}-delegatedVoteWeightByAccount`,
+      key: `${spaceNameToKey(snapshotSpace)}-delegatedVoteWeightByAccount`,
       value: delegatedVoteWeightByDelegate,
     },
   ])

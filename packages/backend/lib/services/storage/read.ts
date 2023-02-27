@@ -6,6 +6,9 @@ import {
   DelegateToVoteWeight,
 } from "../../../types"
 
+export const spaceNameToKey = (snapshotSpace: string) =>
+  snapshotSpace.replace(/[^\w]/g, "_")
+
 /**
  * Returns the delegated vote weight for the given addresses.
  *
@@ -21,7 +24,7 @@ export const getDelegatedVoteWeight = async (
 ) => {
   const voteWeights = await get<{
     [delegate: string]: number
-  }>(`${snapshotSpace.replace(".", "_")}-delegatedVoteWeight`)
+  }>(`${spaceNameToKey(snapshotSpace)}-delegatedVoteWeight`)
   return R.pick(addresses, voteWeights) ?? {}
 }
 
@@ -38,7 +41,7 @@ export const getTopDelegatesByVoteWeight = async (
 ) => {
   const voteWeights =
     (await get<DelegateToVoteWeight>(
-      `${snapshotSpace.replace(".", "_")}-delegatedVoteWeight`,
+      `${spaceNameToKey(snapshotSpace)}-delegatedVoteWeight`,
     )) ?? {}
 
   const pairs = R.toPairs<number>(voteWeights)
@@ -62,7 +65,7 @@ export const getTopDelegatorsForDelegate = async (
 ) => {
   const delegators =
     (await get<DelegateToDelegatorToVoteWeight>(
-      `${snapshotSpace.replace(".", "_")}-delegatedVoteWeightByAccount`,
+      `${spaceNameToKey(snapshotSpace)}-delegatedVoteWeightByAccount`,
     )) ?? {}
   const pairs = R.toPairs<number>(delegators[delegateAddress])
   const sortedPairs = R.reverse(R.sortBy<[string, number]>(R.prop(1), pairs))
@@ -83,7 +86,7 @@ export const getNumberOfDelegatorsForDelegate = async (
 ) => {
   const delegators =
     (await get<DelegateToDelegatorToVoteWeight>(
-      `${snapshotSpace.replace(".", "_")}-delegatedVoteWeightByAccount`,
+      `${spaceNameToKey(snapshotSpace)}-delegatedVoteWeightByAccount`,
     )) ?? {}
 
   return R.keys(delegators[delegateAddress] ?? {}).length
@@ -96,5 +99,5 @@ export const getNumberOfDelegatorsForDelegate = async (
  * @returns The last update time for the delegated vote weight in seconds since the Unix epoch
  */
 export const getLastUpdateTime = async (snapshotSpace: string) => {
-  return get<number>(`${snapshotSpace.replace(".", "_")}-updateTime`)
+  return get<number>(`${spaceNameToKey(snapshotSpace)}-updateTime`)
 }
