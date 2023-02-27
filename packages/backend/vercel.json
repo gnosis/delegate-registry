@@ -5,5 +5,11 @@
       "includeFiles": "lib/**/*.ts",
       "maxDuration": 60
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/recompute",
+      "schedule": "0 */2 * * *"
+    }
+  ]
 }
