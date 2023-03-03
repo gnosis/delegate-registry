@@ -32,26 +32,21 @@ export const fetchVoteWeights = async (
     console.log("No strategies found for space: ", spaceName)
     return {}
   }
-  return strategies.reduce(async (acc, strategy) => {
-    if (Object.keys(acc).length === 0) {
-      const scores = (await snapshot.utils.getScores(
+  return strategies.reduce(async (accPromise, strategy) => {
+    const acc = await accPromise
+    const scores = scoresAsObject(
+      await snapshot.utils.getScores(
         spaceName,
         [strategy],
         strategy.network,
         addresses,
         blockNumber,
-      )) as Array<Record<string, number>>
-      return scores.reduce((acc, score) => ({ ...acc, ...score }), {})
-    }
-    const scores = await snapshot.utils.getScores(
-      spaceName,
-      [strategy],
-      strategy.network,
-      addresses,
-      blockNumber,
+      ),
     )
-    return R.mergeWith(R.add, acc, scores)
-  }, {})
+    return Object.keys(acc).length === 0
+      ? scores
+      : R.mergeWith(R.add, acc, scores)
+  }, {} as Promise<Record<string, number>>)
 }
 
 /**
@@ -113,3 +108,6 @@ export const getSnapshotSpaceSettings = async (
 
 const getHubUrl = (testSpace: boolean = false) =>
   testSpace ? SNAPSHOT_HUB_GOERLI : SNAPSHOT_HUB
+
+const scoresAsObject = (scores: Array<Record<string, number>>) =>
+  scores.reduce((acc, score) => ({ ...acc, ...score }), {})
