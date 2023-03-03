@@ -1,7 +1,7 @@
 // Get the voting power delegated to each delegate (provided in the request body).
 // Returned in the format required by the "API POST strategy" (https://github.com/snapshot-labs/snapshot-strategies/tree/master/src/strategies/api-post)
 
-POST http://localhost:3000/api/delegates/scores?space=gnosis.eth
+POST http://localhost:3000/api/delegates/scores?space=gnosisdaotest.eth
 content-type: application/json
 
 {

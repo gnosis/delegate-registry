@@ -25,7 +25,7 @@ export const getDelegatedVoteWeight = async (
   const voteWeights = await get<{
     [delegate: string]: number
   }>(`${spaceNameToKey(snapshotSpace)}-delegatedVoteWeight`)
-  return R.pick(addresses, voteWeights) ?? {}
+  return R.pick(addresses, voteWeights ?? {})
 }
 
 /**
