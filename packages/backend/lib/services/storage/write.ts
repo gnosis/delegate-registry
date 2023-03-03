@@ -35,12 +35,12 @@ export const storeDelegatedVoteWeight = async (
     {
       operation: "upsert",
       key: `${spaceNameToKey(snapshotSpace)}-delegatedVoteWeight`,
-      value: delegatedVoteWeight,
+      value: delegatedVoteWeight ?? {},
     },
     {
       operation: "upsert",
       key: `${spaceNameToKey(snapshotSpace)}-delegatedVoteWeightByAccount`,
-      value: delegatedVoteWeightByDelegate,
+      value: delegatedVoteWeightByDelegate ?? {},
     },
   ])
 

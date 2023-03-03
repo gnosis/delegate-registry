@@ -29,7 +29,7 @@ export default async function getDelegations(
       const delegations = await getDelegationRatioMap(space)
       if (delegations == null) {
         console.log(`[${space}] Done: no delegations found`)
-        return `[${space}] Done: no delegations found`
+        return await storage.storeDelegatedVoteWeight(space, {}, {})
       }
 
       const delegatingAccounts = R.uniq(
@@ -44,7 +44,7 @@ export default async function getDelegations(
 
       if (R.keys(voteWeights)?.length === 0) {
         console.log(`[${space}] Done: no vote weights found.`)
-        return `[${space}] Done: no vote weights found`
+        return await storage.storeDelegatedVoteWeight(space, {}, {})
       }
 
       console.log(
@@ -62,8 +62,14 @@ export default async function getDelegations(
       )
       return await storage.storeDelegatedVoteWeight(
         space,
-        delegatedVoteWeight,
-        delegatedVoteWeightByAccount,
+        R.pickBy((val) => val > 0, delegatedVoteWeight) ?? {},
+        R.pickBy(
+          (val) => R.keys(val).length > 0,
+          R.map(
+            R.pickBy((val) => val > 0),
+            delegatedVoteWeightByAccount,
+          ),
+        ) ?? {},
       )
     }),
   )
