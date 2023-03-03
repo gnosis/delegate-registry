@@ -11,23 +11,23 @@ module.exports.resolvers = {
     crossContext: async (root, args, meshContext, info) =>
       Promise.all(
         args.chainNames.map((chainName) =>
-          meshContext.DelegateRegistry.Query.contexts({
+          meshContext.DelegateRegistry.Query.context({
             root,
-            args,
+            args: {
+              id: args.contextId,
+            },
             context: {
               ...meshContext,
               chainName,
             },
             info,
-          }).then((contextsRes) => {
+          }).then((contextRes) => {
+            if (contextRes == null) return undefined
             // We send chainName here so we can take it in the resolver above
-            return contextsRes.map((contextRes) => ({
-              ...contextRes,
-              chainName,
-            }))
+            return { ...contextRes, chainName }
           }),
         ),
-      ).then((allContexts) => allContexts.flat()),
+      ).then((allContexts) => allContexts.filter((_) => _ != null).flat()),
     crossContexts: async (root, args, meshContext, info) =>
       Promise.all(
         args.chainNames.map((chainName) =>

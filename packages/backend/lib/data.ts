@@ -49,8 +49,6 @@ export const getDelegationRatioMap = async (snapshotSpace: string) => {
     R.map(R.prop("optouts"), allContexts),
   )
 
-  console.log("allOptoutsForEachChain", JSON.stringify(allOptoutsForEachChain))
-
   // 2. merge delegationSets and optouts
   const mergedDelegatorToDelegationSets = mergeDelegationSets(
     delegationSetsForEachChain,
