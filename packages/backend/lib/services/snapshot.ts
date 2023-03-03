@@ -62,13 +62,19 @@ export const fetchVoteWeights = async (
  */
 const fetchStrategies = async (
   spaceName: string,
+  testSpace: boolean = false,
 ): Promise<SnapshotStrategy[]> => {
   try {
-    const strategies = await getSnapshotSpaceSettings(spaceName, false).then(
-      (_) => _.strategies,
-    )
+    const strategies = await getSnapshotSpaceSettings(
+      spaceName,
+      testSpace,
+    ).then((_) => _.strategies)
     return strategies.filter(
-      (strategy) => strategy.name !== "delegation", // TODO: fix: this is hacky
+      (strategy) =>
+        !(
+          strategy.name === "api-post" &&
+          strategy.params?.api?.includes("/api/delegates/scores")
+        ),
     )
   } catch (error) {
     if (error instanceof Error) {
