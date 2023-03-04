@@ -23,8 +23,12 @@ if (VERCEL_TEAM_ID == null) {
 
 export const storeDelegatedVoteWeight = async (
   snapshotSpace: string,
-  delegatedVoteWeight: DelegateToVoteWeight,
-  delegatedVoteWeightByDelegate: DelegateToDelegatorToVoteWeight,
+  delegatedVoteWeight: { [delegate: string]: string },
+  delegatedVoteWeightByDelegate: {
+    [delegate: string]: {
+      [delegatorAddress: string]: string
+    }
+  },
 ) =>
   storeItems([
     {
