@@ -27,12 +27,12 @@ export type DelegateToDelegatorToRatio = {
   }
 }
 
-export type DelegateToVoteWeight = {
-  [delegate: string]: number
+export type DelegateToVoteWeight<T = number> = {
+  [delegate: string]: T
 }
 
-export type DelegateToDelegatorToVoteWeight = {
+export type DelegateToDelegatorToVoteWeight<T = number> = {
   [delegate: string]: {
-    [delegatorAddress: string]: number
+    [delegatorAddress: string]: T
   }
 }

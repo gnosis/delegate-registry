@@ -4,8 +4,10 @@ import { computeVoteWeights } from "../lib/data-transformers/compute-vote-weight
 import { getDelegationRatioMap, getSnapshotSpaces } from "../lib/data"
 import { fetchVoteWeights } from "../lib/services/snapshot"
 import * as storage from "../lib/services/storage/write"
-import { ethers } from "ethers"
-import { DelegateToDelegatorToVoteWeight } from "../types"
+import {
+  convertDelegatedVoteWeight,
+  convertDelegatedVoteWeightByAccount,
+} from "../lib/data-transformers/scale-and-remove-empty"
 
 /**
  * Recomputes the vote weights for all delegations, and stores the results.
@@ -63,39 +65,11 @@ export default async function getDelegations(
         } delegates.`,
       )
 
-      // Remove delegations with 0 vote weight and convert values to BigNumber (18 decimals)
-      const delegatedVoteWeightScaled: { [delegate: string]: string } = R.map(
-        (value: number) => value.toFixed(18).replace(".", ""),
-        R.pickBy((val: number) => val > 0, delegatedVoteWeight ?? {}),
-      )
-      console.log("delegatedVoteWeight")
-      console.log(delegatedVoteWeight)
-      console.log("delegatedVoteWeightScaled")
-      console.log(delegatedVoteWeightScaled)
+      const delegatedVoteWeightScaled =
+        convertDelegatedVoteWeight(delegatedVoteWeight)
 
-      const delegatedVoteWeightByAccountScaled: {
-        [delegate: string]: {
-          [delegatorAddress: string]: string
-        }
-      } = R.compose(
-        R.pickBy(
-          (delegate: { [delegatorAddress: string]: number }) =>
-            R.keys(delegate).length > 0, // if delegate has delegators we keep it
-        ),
-        R.map((delegate: { [delegatorAddress: string]: number }) =>
-          // for each delegate
-          R.compose(
-            R.map((value: number) => value.toFixed(18).replace(".", "")),
-            // for each delegator
-            R.pickBy((val: number) => val > 0),
-          )(delegate),
-        ),
-      )((delegatedVoteWeightByAccount ?? {}) as any)
-
-      console.log("delegatedVoteWeightByAccount:")
-      console.log(delegatedVoteWeightByAccount)
-      console.log("delegatedVoteWeightByAccountScaled:")
-      console.log(delegatedVoteWeightByAccountScaled)
+      const delegatedVoteWeightByAccountScaled =
+        convertDelegatedVoteWeightByAccount(delegatedVoteWeightByAccount)
 
       return await storage.storeDelegatedVoteWeight(
         space,
