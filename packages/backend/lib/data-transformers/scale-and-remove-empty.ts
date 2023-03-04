@@ -1,20 +1,17 @@
 import R from "ramda"
-import {
-  DelegateToDelegatorToVoteWeight,
-  DelegateToVoteWeight,
-} from "../../types"
+import { DelegateToDelegatorToValue, DelegateToValue } from "../../types"
 
 export const convertDelegatedVoteWeight = (
-  delegateToVoteWeight: DelegateToVoteWeight = {},
-): DelegateToVoteWeight<string> =>
+  delegateToVoteWeight: DelegateToValue = {},
+): DelegateToValue<string> =>
   (R.map as any)(
     (value: number) => value.toFixed(18).replace(".", ""),
     R.pickBy((val: number) => val > 0, delegateToVoteWeight),
-  ) as DelegateToVoteWeight<string>
+  ) as DelegateToValue<string>
 
 export const convertDelegatedVoteWeightByAccount = (
-  delegatedVoteWeightByAccount: DelegateToDelegatorToVoteWeight = {},
-): DelegateToDelegatorToVoteWeight<string> =>
+  delegatedVoteWeightByAccount: DelegateToDelegatorToValue = {},
+): DelegateToDelegatorToValue<string> =>
   (R.compose as any)(
     R.pickBy(
       (delegate: { [delegatorAddress: string]: number }) =>

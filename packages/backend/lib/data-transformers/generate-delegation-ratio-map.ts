@@ -1,9 +1,10 @@
 import R from "ramda"
 import {
-  DelegateToDelegatorToRatio,
+  DelegateToDelegatorToValue,
+  DelegateToValue,
   Delegation,
   DelegationSet,
-  DelegatorToDelegationSet,
+  Ratio,
 } from "../../types"
 
 /**
@@ -15,9 +16,9 @@ import {
  */
 
 export const generateDelegationRatioMap = (
-  delegatorToDelegationSets: DelegatorToDelegationSet,
-): DelegateToDelegatorToRatio =>
-  R.reduce<DelegationSet, DelegateToDelegatorToRatio>(
+  delegatorToDelegationSets: DelegateToValue<DelegationSet>,
+): DelegateToDelegatorToValue<Ratio> =>
+  R.reduce<DelegationSet, DelegateToDelegatorToValue<Ratio>>(
     (acc, delegationSet) => {
       R.forEach<Delegation>((delegation) => {
         acc[delegation.delegate.id] = {

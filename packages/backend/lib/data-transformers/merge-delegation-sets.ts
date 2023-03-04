@@ -1,5 +1,5 @@
 import R from "ramda"
-import { DelegationSet, DelegatorToDelegationSet, Optout } from "../../types"
+import { DelegateToValue, DelegationSet, Optout } from "../../types"
 
 /**
  * Merges multiple arrays of delegation sets into one array.
@@ -14,9 +14,9 @@ import { DelegationSet, DelegatorToDelegationSet, Optout } from "../../types"
  */
 export const mergeDelegationSets = (
   delegationSetsForEachChain: DelegationSet[][],
-): DelegatorToDelegationSet =>
+): DelegateToValue<DelegationSet> =>
   R.compose(
-    R.reduce<DelegationSet, DelegatorToDelegationSet>(
+    R.reduce<DelegationSet, DelegateToValue<DelegationSet>>(
       (sets, set) =>
         // if the account is already in the (delegation)sets, we keep the one
         // with the highest `delegationUpdated`

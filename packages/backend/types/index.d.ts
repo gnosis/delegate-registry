@@ -11,27 +11,11 @@ export type Ratio = Readonly<{
   denominator: number
 }>
 
-/**
- * (delegator address -> delegationSet)
- */
-export type DelegatorToDelegationSet = {
-  [delegator: string]: DelegationSet
-}
-
-/**
- * (delegate address -> delegator address -> ratio)
- */
-export type DelegateToDelegatorToRatio = {
-  [delegate: string]: {
-    [delegator: string]: Ratio
-  }
-}
-
-export type DelegateToVoteWeight<T = number> = {
+export type DelegateToValue<T = number> = {
   [delegate: string]: T
 }
 
-export type DelegateToDelegatorToVoteWeight<T = number> = {
+export type DelegateToDelegatorToValue<T = number> = {
   [delegate: string]: {
     [delegatorAddress: string]: T
   }

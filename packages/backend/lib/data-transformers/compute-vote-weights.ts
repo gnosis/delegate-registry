@@ -1,10 +1,5 @@
 import R from "ramda"
-import {
-  DelegateToDelegatorToRatio,
-  DelegateToDelegatorToVoteWeight,
-  DelegateToVoteWeight,
-  Ratio,
-} from "../../types"
+import { DelegateToDelegatorToValue, DelegateToValue, Ratio } from "../../types"
 
 type BrokenEdges = { [from: string]: string }
 type Visited = { [representative: string]: boolean }
@@ -26,16 +21,16 @@ type Visited = { [representative: string]: boolean }
  * (delegate -> vote weight) and (delegate -> delegator -> vote weight)
  */
 export const computeVoteWeights = (
-  delegationRatios: DelegateToDelegatorToRatio,
-  voteWeights: DelegateToVoteWeight,
-): [DelegateToVoteWeight, DelegateToDelegatorToVoteWeight, BrokenEdges] => {
+  delegationRatios: DelegateToDelegatorToValue<Ratio>,
+  voteWeights: DelegateToValue,
+): [DelegateToValue, DelegateToDelegatorToValue, BrokenEdges] => {
   const computeDelegatedVoteWeight = (
     delegate: string,
-    topLevelAccVoteWeights: Readonly<DelegateToVoteWeight>,
-    topLevelAccVoteWeightsByAccount: Readonly<DelegateToDelegatorToVoteWeight>,
+    topLevelAccVoteWeights: Readonly<DelegateToValue>,
+    topLevelAccVoteWeightsByAccount: Readonly<DelegateToDelegatorToValue>,
     brokenEdges: Readonly<BrokenEdges>,
     trace: Readonly<string[]>,
-  ): [DelegateToVoteWeight, DelegateToDelegatorToVoteWeight, BrokenEdges] => {
+  ): [DelegateToValue, DelegateToDelegatorToValue, BrokenEdges] => {
     if (trace.includes(delegate)) {
       console.log("WARNING: Cycle detected in delegation graph!")
       const cycleTrace = [...trace, delegate] as string[]
@@ -166,7 +161,7 @@ export const computeVoteWeights = (
 
   const resultingVoteWeights = R.reduce<
     string,
-    [DelegateToVoteWeight, DelegateToDelegatorToVoteWeight, BrokenEdges]
+    [DelegateToValue, DelegateToDelegatorToValue, BrokenEdges]
   >(
     // for each delegate
     (
@@ -194,8 +189,8 @@ export const computeVoteWeights = (
   )
 
   return resultingVoteWeights as [
-    DelegateToVoteWeight,
-    DelegateToDelegatorToVoteWeight,
+    DelegateToValue,
+    DelegateToDelegatorToValue,
     BrokenEdges,
   ]
 }

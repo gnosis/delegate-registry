@@ -1,9 +1,5 @@
 // Only to be used by the Vercel Serverless Function (not for Vercel Edge Functions)
 import fetch from "node-fetch"
-import {
-  DelegateToDelegatorToVoteWeight,
-  DelegateToVoteWeight,
-} from "../../../types"
 import { spaceNameToKey } from "./read"
 
 const VERCEL_API_TOKEN = process.env.VERCEL_API_TOKEN!

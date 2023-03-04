@@ -1,10 +1,7 @@
 // To be used by Vercel Edge Functions
 import { get } from "@vercel/edge-config"
 import * as R from "ramda"
-import {
-  DelegateToDelegatorToVoteWeight,
-  DelegateToVoteWeight,
-} from "../../../types"
+import { DelegateToDelegatorToValue, DelegateToValue } from "../../../types"
 
 export const spaceNameToKey = (snapshotSpace: string) =>
   snapshotSpace.replace(/[^\w]/g, "_")
@@ -22,9 +19,9 @@ export const getDelegatedVoteWeight = async (
   snapshotSpace: string,
   addresses: string[],
 ) => {
-  const voteWeights = await get<{
-    [delegate: string]: number
-  }>(`${spaceNameToKey(snapshotSpace)}-delegatedVoteWeight`)
+  const voteWeights = await get<DelegateToValue<string>>(
+    `${spaceNameToKey(snapshotSpace)}-delegatedVoteWeight`,
+  )
   return R.pick(addresses, voteWeights ?? {})
 }
 
@@ -40,12 +37,12 @@ export const getTopDelegatesByVoteWeight = async (
   numberOfDelegatesToReturn: number = 100,
 ) => {
   const voteWeights =
-    (await get<DelegateToVoteWeight>(
+    (await get<DelegateToValue<string>>(
       `${spaceNameToKey(snapshotSpace)}-delegatedVoteWeight`,
     )) ?? {}
 
-  const pairs = R.toPairs<number>(voteWeights)
-  const sortedPairs = R.reverse(R.sortBy<[string, number]>(R.prop(1), pairs))
+  const pairs = R.toPairs<string>(voteWeights)
+  const sortedPairs = R.reverse(R.sortBy<[string, string]>(R.prop(1), pairs))
 
   return R.take(numberOfDelegatesToReturn, sortedPairs)
 }
@@ -64,11 +61,11 @@ export const getTopDelegatorsForDelegate = async (
   numberOfDelegatorsToReturn: number = 100,
 ) => {
   const delegators =
-    (await get<DelegateToDelegatorToVoteWeight>(
+    (await get<DelegateToDelegatorToValue<string>>(
       `${spaceNameToKey(snapshotSpace)}-delegatedVoteWeightByAccount`,
     )) ?? {}
-  const pairs = R.toPairs<number>(delegators[delegateAddress])
-  const sortedPairs = R.reverse(R.sortBy<[string, number]>(R.prop(1), pairs))
+  const pairs = R.toPairs<string>(delegators[delegateAddress])
+  const sortedPairs = R.reverse(R.sortBy<[string, string]>(R.prop(1), pairs))
 
   return R.take(numberOfDelegatorsToReturn, sortedPairs)
 }
@@ -85,7 +82,7 @@ export const getNumberOfDelegatorsForDelegate = async (
   delegateAddress: string,
 ) => {
   const delegators =
-    (await get<DelegateToDelegatorToVoteWeight>(
+    (await get<DelegateToDelegatorToValue<string>>(
       `${spaceNameToKey(snapshotSpace)}-delegatedVoteWeightByAccount`,
     )) ?? {}
 

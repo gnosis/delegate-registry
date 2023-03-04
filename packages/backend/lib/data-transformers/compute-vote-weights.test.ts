@@ -1,12 +1,7 @@
 import "mocha"
 import { expect } from "chai"
 import { computeVoteWeights } from "./compute-vote-weights"
-import {
-  DelegateToDelegatorToRatio,
-  DelegateToDelegatorToVoteWeight,
-  DelegateToVoteWeight,
-  Ratio,
-} from "../../types"
+import { DelegateToDelegatorToValue, DelegateToValue, Ratio } from "../../types"
 import R from "ramda"
 
 describe("compute-vote-weights", () => {
@@ -56,7 +51,7 @@ describe("compute-vote-weights", () => {
 
       const [delegateToVoteWeight] = computeVoteWeights(delegationRatios, votes)
 
-      const expected: DelegateToVoteWeight = {
+      const expected: DelegateToValue = {
         "0x01": 7.5 + 44, // delegated(0x04) + 0x04
         "0x02": 8 / 2 + 45 + 4 + 12, // delegated(0x09)/2 + 0x09/2 + 0x06 + 0x05
         "0x03": 7.5 + 4 + 49 + 32 + 2, // delegated(0x07) + 0x07 + delegated(0x13)
@@ -70,7 +65,7 @@ describe("compute-vote-weights", () => {
     })
 
     it("should return correct (delegator -> delegate -> vote weight) map", () => {
-      const delegationRatios: DelegateToDelegatorToRatio = {
+      const delegationRatios: DelegateToDelegatorToValue<Ratio> = {
         "0x01": { "0x04": { numerator: 1, denominator: 1 } },
         "0x02": {
           "0x09": { numerator: 1, denominator: 2 },
@@ -112,7 +107,7 @@ describe("compute-vote-weights", () => {
 
       const [, delegationToRatio] = computeVoteWeights(delegationRatios, votes)
 
-      const expected: DelegateToDelegatorToVoteWeight = {
+      const expected: DelegateToDelegatorToValue = {
         "0x01": { "0x04": 7.5 + 44 }, // 0x04 + delegated(0x04)
         "0x02": {
           "0x09": (90 + 8) / 2, // (0x09 + delegated(0x09))/2
@@ -140,7 +135,7 @@ describe("compute-vote-weights", () => {
     })
 
     it("should handle cycles in the delegation graph. Cycles are: (0x01 -> 0x02 -> 0x04 -> 0x01) and (0x04 -> 0x01 -> 0x02 -> 0x04))", () => {
-      const delegationRatios: DelegateToDelegatorToRatio = {
+      const delegationRatios: DelegateToDelegatorToValue<Ratio> = {
         "0x01": {
           // ok
           "0x04": { numerator: 1, denominator: 2 }, // 75,25
@@ -201,7 +196,7 @@ describe("compute-vote-weights", () => {
       )
 
       // TODO: this must be validated. Is this what we want?
-      const expected: DelegateToVoteWeight = {
+      const expected: DelegateToValue = {
         "0x01": 75.25,
         "0x02": 19,
         "0x03": 105.5,
