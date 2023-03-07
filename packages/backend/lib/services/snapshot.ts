@@ -110,9 +110,4 @@ const getHubUrl = (testSpace: boolean = false) =>
   testSpace ? SNAPSHOT_HUB_GOERLI : SNAPSHOT_HUB
 
 const scoresAsObject = (scores: Array<Record<string, number>>) =>
-  scores.reduce((acc, scoreObj) => {
-    const address = R.keys(scoreObj)[0]
-    const score = R.values(scoreObj)[0]
-
-    return { ...acc, [address]: score }
-  }, {})
+  scores.reduce((acc, scoreObj) => ({ ...acc, ...scoreObj }), {})
