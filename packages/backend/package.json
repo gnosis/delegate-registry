@@ -16,6 +16,8 @@
     "@snapshot-labs/snapshot.js": "^0.4.61",
     "@vercel/edge-config": "^0.1.1",
     "@vercel/node": "^2.9.6",
+    "@vercel/postgres": "^0.1.3",
+    "@vercel/postgres-kysely": "^0.1.3",
     "ethers": "^5.7.2",
     "node-fetch": "2",
     "ramda": "^0.28.0"
