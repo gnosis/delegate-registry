@@ -5,7 +5,7 @@
   "description": "For computing vote weight for voters in Snapshot proposals",
   "repository": "https://github.com/gnosis/delegate-registry",
   "scripts": {
-    "start": "vercel dev",
+    "start": "vercel dev ../..",
     "deploy": "vercel deploy",
     "build": "yarn codegen",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md,graphql}\"",

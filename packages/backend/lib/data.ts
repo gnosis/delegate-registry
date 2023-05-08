@@ -37,11 +37,19 @@ export const getSnapshotSpaces = async () => {
  * @param snapshotSpace - The snapshot space (context id) to fetch delegations for
  * @returns Map of (delegate -> delegator -> ratio)
  */
-export const getDelegationRatioMap = async (snapshotSpace: string) => {
+export const getDelegationRatioMap = async (
+  snapshotSpace: string,
+  blocknumber?: number,
+) => {
+  if (blocknumber != null) {
+    throw new Error("blocknumber is not i implemented yet")
+  }
+
   // 1. fetch context from all chains
   const allContexts = await theGraph.fetchContextFromAllChains(snapshotSpace)
   const delegationSetsForEachChain: DelegationSet[][] =
     convertDelegationSetsDelegateIdsToAddress(
+      // optimization option: this can be done when writing to the database, we just have to always convert to lowercased addresses (instead of the checksumable address version)
       R.map(R.prop("delegationSets"), allContexts),
     )
 
