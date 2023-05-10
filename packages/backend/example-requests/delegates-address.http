@@ -1,0 +1,5 @@
+// Get the top delegates for a spesific Snapshot Space.
+
+GET http://localhost:3000/api/gnosisdaotest.eth/latest/delegates/0x6cc5b30Cd0A93C1F85C7868f5F2620AB8c458190
+content-type: application/json
+
