@@ -1729,10 +1729,10 @@
   resolved "https://registry.yarnpkg.com/@repeaterjs/repeater/-/repeater-3.0.4.tgz#a04d63f4d1bf5540a41b01a921c9a7fddc3bd1ca"
   integrity sha512-AW8PKd6iX3vAZ0vA43nOUOnbq/X5ihgU+mSXXqunMkeQADGiqw/PY0JNeYtD5sr0PAy51YPgAPbDoeapv9r8WA==
 
-"@snapshot-labs/snapshot.js@^0.4.61":
-  version "0.4.61"
-  resolved "https://registry.yarnpkg.com/@snapshot-labs/snapshot.js/-/snapshot.js-0.4.61.tgz#a8849d34deed94443e0eba047e76a377ae0946a1"
-  integrity sha512-7EpZKcRmECbq8b46ghQa/MCSo99r2NxufZ5UJE1RImPRmFSwyekZUd7QP/KoqUacKtaJVbcYl3PXM5ZoYwhkNQ==
+"@snapshot-labs/snapshot.js@^0.4.82":
+  version "0.4.82"
+  resolved "https://registry.yarnpkg.com/@snapshot-labs/snapshot.js/-/snapshot.js-0.4.82.tgz#5e37e7075fbacba9e4bed0fcc67461bf9f9d5751"
+  integrity sha512-JQPemFSPST+z4TPkpUTpzGzXJPJemp/xuDd2VY8btw7/SWtBZ+LupuLfzrNQzssELr0I5GkJJwUX5yyphnWuDg==
   dependencies:
     "@ensdomains/eth-ens-namehash" "^2.0.15"
     "@ethersproject/abi" "^5.6.4"

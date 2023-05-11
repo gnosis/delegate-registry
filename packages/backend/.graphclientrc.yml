@@ -12,8 +12,11 @@ additionalTypeDefs: |
   extend type Context {
     chainName: String
   }
+  input Block {
+    number: Int
+  }
   extend type Query {
-    crossContext(contextId: ID!, chainNames: [String!]!): [Context!]!
+    crossContext(contextId: ID!, chainNames: [String!]!, block: Block): [Context!]!
     crossContexts(chainNames: [String!]!): [Context!]!
   }
 

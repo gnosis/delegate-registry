@@ -42,11 +42,17 @@ export const getDelegationRatioMap = async (
   blocknumber?: number,
 ) => {
   if (blocknumber != null) {
-    throw new Error("blocknumber is not i implemented yet")
+    // get the timestamp of the blocknumber
+    // for each chain, get the block number of the last block before the timestamp
+    // for each chain, get the delegations at that block number
+    // can we still use the graph's graph cli for this?
   }
 
   // 1. fetch context from all chains
-  const allContexts = await theGraph.fetchContextFromAllChains(snapshotSpace)
+  const allContexts = await theGraph.fetchContextFromAllChains(
+    snapshotSpace,
+    blocknumber,
+  )
   const delegationSetsForEachChain: DelegationSet[][] =
     convertDelegationSetsDelegateIdsToAddress(
       // optimization option: this can be done when writing to the database, we just have to always convert to lowercased addresses (instead of the checksumable address version)

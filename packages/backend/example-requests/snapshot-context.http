@@ -1,0 +1,6 @@
+// Recomputes the vote weights for all delegates across all Snapshot Spaces.
+
+GET http://localhost:3000/api/gnosis.eth/snapshot/8979656/create
+
+// 8500949 - has one delegation set on goerli in gnosis.eth
+// 8979655 - has more

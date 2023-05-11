@@ -50,11 +50,11 @@ const storeSnapshot = async (delegationSnapshot: DelegationSnapshot[]) => {
     .execute()
 }
 
-const emptyLatestSnapshot = async (context: string) =>
+const deleteLatestSnapshot = async (context: string) =>
   db
     .deleteFrom("delegation_snapshot")
     .where("context", "=", context)
-    .where("main_chain_block_number", "=", null)
+    .where("main_chain_block_number", "is", null)
     .execute()
 
 const getDelegationSnapshot = async (
@@ -80,6 +80,6 @@ export {
   sql,
   initDb,
   storeSnapshot,
-  emptyLatestSnapshot,
+  deleteLatestSnapshot,
   getDelegationSnapshot,
 }

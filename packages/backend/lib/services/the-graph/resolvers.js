@@ -15,6 +15,15 @@ module.exports.resolvers = {
             root,
             args: {
               id: args.contextId,
+              contextId: args.contextId,
+              chainName,
+              ...(args.blocknumber != null &&
+                typeof args.blocknumber === "number" &&
+                args.blocknumber > 0 && {
+                  block: {
+                    number: args.blocknumber,
+                  },
+                }),
             },
             context: {
               ...meshContext,
@@ -22,6 +31,7 @@ module.exports.resolvers = {
             },
             info,
           }).then((contextRes) => {
+            console.log("contextRes", contextRes)
             if (contextRes == null) return undefined
             // We send chainName here so we can take it in the resolver above
             return { ...contextRes, chainName }
@@ -33,13 +43,24 @@ module.exports.resolvers = {
         args.chainNames.map((chainName) =>
           meshContext.DelegateRegistry.Query.contexts({
             root,
-            args,
+            args: {
+              contextId: args.contextId,
+              chainName,
+              ...(args.blocknumber != null &&
+                typeof args.blocknumber === "number" &&
+                args.blocknumber > 0 && {
+                  block: {
+                    number: args.blocknumber,
+                  },
+                }),
+            },
             context: {
               ...meshContext,
               chainName,
             },
             info,
           }).then((contextsRes) => {
+            console.log("contextsRes", contextsRes)
             // We send chainName here so we can take it in the resolver above
             return contextsRes.map((contextRes) => ({
               ...contextRes,

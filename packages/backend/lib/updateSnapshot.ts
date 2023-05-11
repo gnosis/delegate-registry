@@ -2,31 +2,31 @@ import R from "ramda"
 import { computeVoteWeights } from "./data-transformers/compute-vote-weights"
 import { getDelegationRatioMap } from "./data"
 import { fetchVoteWeights } from "./services/snapshot"
-import {
-  convertDelegatedVoteWeight,
-  convertDelegatedVoteWeightByAccount,
-} from "./data-transformers/scale-and-remove-empty"
+import { convertDelegatedVoteWeightByAccount } from "./data-transformers/scale-and-remove-empty"
 import * as db from "./services/storage/db"
 
-/**
- * Recomputes the vote weights for all delegations, and stores the results.
- *
- * Triggered by a cron job
- */
 export const createDelegationSnapshot = async (
   space: string,
   blocknumber?: number,
 ) => {
-  console.log("Updating the latest snapshot for the following space:", space)
-
-  console.log(`[${space}] Starting computation for space: ${space}`)
+  if (blocknumber == null) {
+    console.log("Updating the latest snapshot for the following space:", space)
+    await db.deleteLatestSnapshot(space) // should only have one latest snapshot (last snapshot has blocknumber = null)
+  } else {
+    console.log(
+      "Creating a snapshot for the following space:",
+      space,
+      "at blocknumber:",
+      blocknumber,
+    )
+  }
 
   console.log(`[${space}] 1. Fetch and merge all delegations across all chains`)
 
-  const delegations = await getDelegationRatioMap(space)
+  const delegations = await getDelegationRatioMap(space, blocknumber)
   if (delegations == null) {
-    console.log(`[${space}] Done: no delegations found`)
-    return await db.emptyLatestSnapshot(space)
+    console.log(`[${space}] Done: no delegations found.`)
+    return
   }
 
   const accountsRequiringVoteWeight = R.uniq(
@@ -40,11 +40,15 @@ export const createDelegationSnapshot = async (
   console.log(
     `[${space}] 2. Getting vote weights for ${accountsRequiringVoteWeight.length} unique delegating addresses.`,
   )
-  const voteWeights = await fetchVoteWeights(space, accountsRequiringVoteWeight)
+  const voteWeights = await fetchVoteWeights(
+    space,
+    accountsRequiringVoteWeight,
+    blocknumber,
+  )
 
   if (R.keys(voteWeights)?.length === 0) {
     console.log(`[${space}] Done: no vote weights found.`)
-    return await db.emptyLatestSnapshot(space)
+    return
   }
 
   console.log(
@@ -83,7 +87,7 @@ export const createDelegationSnapshot = async (
           : voteWeights[delegate].toFixed(18).replace(".", "")
       acc.push({
         context: space,
-        main_chain_block_number: null,
+        main_chain_block_number: blocknumber ?? null,
         from_address: delegator,
         to_address: delegate,
         delegated_amount: voteWeight,
@@ -95,5 +99,9 @@ export const createDelegationSnapshot = async (
 
   console.log("snapshot", snapshot)
 
+  if (snapshot.length === 0) {
+    // TODO: find a way to store empty snapshots so we do not recompute it every time
+    return
+  }
   return await db.storeSnapshot(snapshot)
 }
