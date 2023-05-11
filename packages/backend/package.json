@@ -5,7 +5,7 @@
   "description": "For computing vote weight for voters in Snapshot proposals",
   "repository": "https://github.com/gnosis/delegate-registry",
   "scripts": {
-    "start": "vercel dev",
+    "start": "vercel dev ../..",
     "deploy": "vercel deploy",
     "build": "yarn codegen",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md,graphql}\"",
@@ -13,10 +13,12 @@
     "test": "mocha --require ts-node/register lib/**/*.test.ts"
   },
   "dependencies": {
-    "@snapshot-labs/snapshot.js": "^0.4.61",
+    "@snapshot-labs/snapshot.js": "^0.4.82",
     "@vercel/edge-config": "^0.1.1",
     "@vercel/node": "^2.9.6",
+    "@vercel/postgres-kysely": "^0.2.0",
     "ethers": "^5.7.2",
+    "kysely": "^0.24.2",
     "node-fetch": "2",
     "ramda": "^0.28.0"
   },

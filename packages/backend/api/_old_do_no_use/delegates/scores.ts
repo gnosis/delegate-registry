@@ -1,7 +1,7 @@
 import {
   getDelegatedVoteWeight,
   getLastUpdateTime,
-} from "../../lib/services/storage/read"
+} from "../../../lib/services/storage/read"
 import * as R from "ramda"
 import { utils } from "ethers"
 const { getAddress } = utils

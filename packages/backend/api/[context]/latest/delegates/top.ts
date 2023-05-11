@@ -1,7 +1,11 @@
+// return the top delegates for this context from the snapshot table where blocknumber is null
+// - should be possible to set limit
+// - should be possible to select top based on vote weight or based on number of delegates
+
 import {
   getLastUpdateTime,
   getTopDelegatesByVoteWeight,
-} from "../../lib/services/storage/read"
+} from "../../../../lib/services/storage/read"
 
 export const config = {
   runtime: "experimental-edge",

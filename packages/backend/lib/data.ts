@@ -37,11 +37,25 @@ export const getSnapshotSpaces = async () => {
  * @param snapshotSpace - The snapshot space (context id) to fetch delegations for
  * @returns Map of (delegate -> delegator -> ratio)
  */
-export const getDelegationRatioMap = async (snapshotSpace: string) => {
+export const getDelegationRatioMap = async (
+  snapshotSpace: string,
+  blocknumber?: number,
+) => {
+  if (blocknumber != null) {
+    // get the timestamp of the blocknumber
+    // for each chain, get the block number of the last block before the timestamp
+    // for each chain, get the delegations at that block number
+    // can we still use the graph's graph cli for this?
+  }
+
   // 1. fetch context from all chains
-  const allContexts = await theGraph.fetchContextFromAllChains(snapshotSpace)
+  const allContexts = await theGraph.fetchContextFromAllChains(
+    snapshotSpace,
+    blocknumber,
+  )
   const delegationSetsForEachChain: DelegationSet[][] =
     convertDelegationSetsDelegateIdsToAddress(
+      // optimization option: this can be done when writing to the database, we just have to always convert to lowercased addresses (instead of the checksumable address version)
       R.map(R.prop("delegationSets"), allContexts),
     )
 

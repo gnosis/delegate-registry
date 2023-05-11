@@ -1,14 +1,22 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "api/recompute.ts": {
+    "api/update-all.ts": {
+      "includeFiles": "lib/**/*.ts",
+      "maxDuration": 60
+    },
+    "api/[context]/snapshot/[blocknumber]/create.ts": {
+      "includeFiles": "lib/**/*.ts",
+      "maxDuration": 60
+    },
+    "api/[context]/latest/update.ts": {
       "includeFiles": "lib/**/*.ts",
       "maxDuration": 60
     }
   },
   "crons": [
     {
-      "path": "/api/recompute",
+      "path": "/api/update-all",
       "schedule": "0 */6 * * *"
     }
   ]

@@ -1,0 +1,38 @@
+query GetContextAtBlocknumber(
+  $contextId: ID!
+  $chainNames: [String!]!
+  $blocknumber: Int
+) {
+  crossContext(
+    contextId: $contextId
+    chainNames: $chainNames
+    block: { number: $blocknumber }
+  ) {
+    chainName
+    delegationSets {
+      account {
+        id
+      }
+      delegations {
+        delegate {
+          id
+        }
+        account {
+          id
+        }
+        numerator
+      }
+      expiration
+      denominator
+      delegationUpdated
+      expirationUpdated
+    }
+    optouts {
+      delegate {
+        id
+      }
+      status
+      updated
+    }
+  }
+}

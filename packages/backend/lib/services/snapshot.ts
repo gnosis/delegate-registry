@@ -34,18 +34,22 @@ export const fetchVoteWeights = async (
   }
   return strategies.reduce(async (accPromise, strategy) => {
     const acc = await accPromise
-    const scores = scoresAsObject(
-      await snapshot.utils.getScores(
+    try {
+      const rawScores = await snapshot.utils.getScores(
         spaceName,
         [strategy],
         strategy.network,
         addresses,
         blockNumber,
-      ),
-    )
-    return Object.keys(acc).length === 0
-      ? scores
-      : R.mergeWith(R.add, acc, scores)
+      )
+      const scores = scoresAsObject(rawScores)
+      return Object.keys(acc).length === 0
+        ? scores
+        : R.mergeWith(R.add, acc, scores)
+    } catch (error) {
+      console.log("error", error)
+      return acc
+    }
   }, {} as Promise<Record<string, number>>)
 }
 
