@@ -13,20 +13,19 @@
     "test": "mocha --require ts-node/register lib/**/*.test.ts"
   },
   "dependencies": {
-    "@snapshot-labs/snapshot.js": "^0.4.82",
-    "@vercel/edge-config": "^0.1.1",
-    "@vercel/node": "^2.9.6",
-    "@vercel/postgres-kysely": "^0.2.0",
+    "@snapshot-labs/snapshot.js": "^0.4.83",
+    "@vercel/node": "^2.14.2",
+    "@vercel/postgres-kysely": "^0.3.0",
     "ethers": "^5.7.2",
     "kysely": "^0.24.2",
     "node-fetch": "2",
-    "ramda": "^0.28.0"
+    "ramda": "^0.29.0"
   },
   "devDependencies": {
-    "@graphprotocol/client-cli": "^2.2.18",
+    "@graphprotocol/client-cli": "2.2.18",
     "@types/chai": "^4.3.4",
     "@types/mocha": "^10.0.1",
-    "@types/ramda": "^0.28.23",
+    "@types/ramda": "^0.29.1",
     "chai": "^4.3.7",
     "graphql": "^16.6.0",
     "mocha": "^10.2.0",

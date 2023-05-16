@@ -8,6 +8,12 @@ Computes and exposes each addresses delegated voting power.
 
 To see the available endpoints and how to interact with them, see [the example requests](packages/backend/example-requests).
 
+```
+cd packages/backend
+yarn
+yarn start
+```
+
 ## ToDo
 
 This only computes the delegated voting power. In order to use this for voting, we need to address delegator voting. How should we handle it?

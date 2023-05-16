@@ -22,3 +22,4 @@ build
 .latest.json
 .bin
 .vscode
+.DS_Store

@@ -18,7 +18,7 @@ export const fetchContextFromAllChains = async (
       : await sdk.GetContextAtBlocknumber({
           contextId: snapshotSpace,
           chainNames: CHAIN_NAMES,
-          blocknumber,
+          blocknumber, // TODO: need to figure out how to get the correct blocknumber for other chains than the "main-chain"
         })
   return results.crossContext
 }

@@ -99,7 +99,9 @@ export const getSnapshotSpaceSettings = async (
   const res = await fetch(`${getHubUrl(testSpace)}/api/spaces/${spaceName}`, {})
   if (res.ok) {
     try {
-      return await res.json()
+      const resJson = await res.json()
+      console.log("resJson", resJson)
+      return resJson
     } catch (error) {
       throw Error(
         `The response from the Snapshot Hub was not valid JSON. Most likely the space does not exist for ${spaceName}.`,

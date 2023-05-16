@@ -2,10 +2,10 @@
 // - should be possible to set limit
 // - should be possible to select top based on vote weight or based on number of delegates
 
-import {
-  getLastUpdateTime,
-  getTopDelegatesByVoteWeight,
-} from "../../../../lib/services/storage/read"
+// import {
+//   getLastUpdateTime,
+//   getTopDelegatesByVoteWeight,
+// } from "../../../../lib/services/storage/read"
 
 export const config = {
   runtime: "experimental-edge",
@@ -48,13 +48,12 @@ export default async (req: Request) => {
     })
   }
 
-  const topDelegatesByVoteWeight = await getTopDelegatesByVoteWeight(
-    snapshotSpace,
-    isNaN(limit) || limit <= 0 ? 100 : limit,
-  )
-  const updateTime = await getLastUpdateTime(snapshotSpace)
+  // const topDelegatesByVoteWeight = await getTopDelegatesByVoteWeight(
+  //   snapshotSpace,
+  //   isNaN(limit) || limit <= 0 ? 100 : limit,
+  // )
+  // const updateTime = await getLastUpdateTime(snapshotSpace)
 
-  return new Response(
-    JSON.stringify({ delegates: topDelegatesByVoteWeight, updateTime }),
-  )
+  return new Response()
+  // JSON.stringify({ delegates: topDelegatesByVoteWeight, updateTime }),
 }
