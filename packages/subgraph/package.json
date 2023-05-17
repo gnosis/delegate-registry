@@ -11,10 +11,10 @@
     "test": "graph test"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.40.0",
-    "@graphprotocol/graph-ts": "0.29.3"
+    "@graphprotocol/graph-cli": "0.49.0",
+    "@graphprotocol/graph-ts": "0.30.0"
   },
   "devDependencies": {
-    "matchstick-as": "^0.5.1"
+    "matchstick-as": "^0.5.2"
   }
 }
