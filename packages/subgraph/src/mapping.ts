@@ -37,6 +37,14 @@ export const getOptoutId = (
 ): string =>
   `${contextId}-${accountId}-${blocknumber.toString()}-${transactionIndex.toString()}-${transactionLogIndex.toString()}`
 
+/**
+ *
+ * @param delegate padded delegate
+ * @returns delegate address
+ */
+export const paddedDelegateToAddress = (delegate: string): Address =>
+  Address.fromString(delegate.substr(26))
+
 export function handleDelegation(event: DelegationUpdated): void {
   const eventTime = event.block.timestamp
   const fromAccount: Account = loadOrCreateAccount(event.params.account)
@@ -64,8 +72,9 @@ export function handleDelegation(event: DelegationUpdated): void {
   for (let i = 0; i < newDelegationsFromEvent.length; i++) {
     const delegationFromEvent: DelegationUpdatedDelegationStruct =
       newDelegationsFromEvent[i]
-    const delegateHexString: string = delegationFromEvent.delegate.toHex()
-    const delegateAddress: Address = Address.fromString(delegateHexString)
+    const delegateAddress: Address = paddedDelegateToAddress(
+      delegationFromEvent.delegate.toHex(),
+    )
     const toAccount: Account = loadOrCreateAccount(delegateAddress)
     const delegationId = getDelegationId(newDelegationSet.id, toAccount.id)
     const delegation = new Delegation(delegationId)

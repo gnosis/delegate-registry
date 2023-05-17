@@ -1,21 +1,21 @@
 import { Address, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts"
 import {
   handleDelegation,
-  handleExpirationUpdate,
   handleDelegationCleared,
   handleOptout,
-  getDelegationId,
   getDelegationSetId,
   getOptoutId,
+  paddedDelegateToAddress,
 } from "../src/mapping"
 import {
   DelegationUpdated,
   DelegationUpdatedDelegationStruct,
   DelegationCleared,
-  ExpirationUpdated,
   OptOutStatusSet,
 } from "../generated/DelegateRegistry/DelegateRegistry"
 import { assert, clearStore, newMockEvent, test } from "matchstick-as"
+
+const padding: Bytes = Bytes.fromHexString("0x000000000000000000000000")
 
 const ADDRESS_ZERO = Address.fromString(
   "0x0000000000000000000000000000000000000000",
@@ -38,21 +38,27 @@ const CONTEXT2 = "context2"
 const DELEGATION2: DelegationUpdatedDelegationStruct = new DelegationUpdatedDelegationStruct()
 DELEGATION2.push(
   // id
-  ethereum.Value.fromBytes(Bytes.fromHexString(USER2_ADDRESS.toHex())),
+  ethereum.Value.fromBytes(
+    Bytes.fromHexString(padding.concat(USER2_ADDRESS).toHex()),
+  ),
 )
 DELEGATION2.push(ethereum.Value.fromI32(1)) // ratio
 
 const DELEGATION3: DelegationUpdatedDelegationStruct = new DelegationUpdatedDelegationStruct()
 DELEGATION3.push(
   // id
-  ethereum.Value.fromBytes(Bytes.fromHexString(USER3_ADDRESS.toHex())),
+  ethereum.Value.fromBytes(
+    Bytes.fromHexString(padding.concat(USER3_ADDRESS).toHex()),
+  ),
 )
 DELEGATION3.push(ethereum.Value.fromI32(1))
 
 const DELEGATION4: DelegationUpdatedDelegationStruct = new DelegationUpdatedDelegationStruct()
 DELEGATION4.push(
   // id
-  ethereum.Value.fromBytes(Bytes.fromHexString(USER4_ADDRESS.toHex())),
+  ethereum.Value.fromBytes(
+    Bytes.fromHexString(padding.concat(USER4_ADDRESS).toHex()),
+  ),
 )
 DELEGATION4.push(ethereum.Value.fromI32(1))
 
@@ -194,43 +200,52 @@ test("DelegationUpdated() event adds delegations", () => {
     "fromAccount",
     USER1_ADDRESS.toHex(),
   )
+  const delegate2Address = paddedDelegateToAddress(
+    DELEGATION2.delegate.toHex(),
+  ).toHex()
   assert.fieldEquals(
     "Delegation",
-    `${delegationSetId}-${DELEGATION2.delegate.toHex()}`,
+    `${delegationSetId}-${delegate2Address}`,
     "toAccount",
-    DELEGATION2.delegate.toHex(),
+    delegate2Address,
   )
   assert.fieldEquals(
     "Delegation",
-    `${delegationSetId}-${DELEGATION2.delegate.toHex()}`,
+    `${delegationSetId}-${delegate2Address}`,
     "numerator",
     DELEGATION2.ratio.toString(),
   )
 
   // check DELEGATION3
+  const delegate3Address = paddedDelegateToAddress(
+    DELEGATION3.delegate.toHex(),
+  ).toHex()
   assert.fieldEquals(
     "Delegation",
-    `${delegationSetId}-${DELEGATION3.delegate.toHex()}`,
+    `${delegationSetId}-${delegate3Address}`,
     "toAccount",
-    DELEGATION3.delegate.toHex(),
+    delegate3Address,
   )
   assert.fieldEquals(
     "Delegation",
-    `${delegationSetId}-${DELEGATION3.delegate.toHex()}`,
+    `${delegationSetId}-${delegate3Address}`,
     "numerator",
     DELEGATION3.ratio.toString(),
   )
 
   // check DELEGATION4
+  const delegate4Address = paddedDelegateToAddress(
+    DELEGATION4.delegate.toHex(),
+  ).toHex()
   assert.fieldEquals(
     "Delegation",
-    `${delegationSetId}-${DELEGATION4.delegate.toHex()}`,
+    `${delegationSetId}-${delegate4Address}`,
     "toAccount",
-    DELEGATION4.delegate.toHex(),
+    delegate4Address,
   )
   assert.fieldEquals(
     "Delegation",
-    `${delegationSetId}-${DELEGATION4.delegate.toHex()}`,
+    `${delegationSetId}-${delegate4Address}`,
     "numerator",
     DELEGATION4.ratio.toString(),
   )
