@@ -1,5 +1,28 @@
 // import { Resolvers } from "./.graphclient"
 
+const SNAPSHOT_HUB = "https://hub.snapshot.org"
+const SNAPSHOT_HUB_GOERLI = "https://testnet.snapshot.org"
+
+const getSnapshotSpaceSettings = async (spaceName, testSpace) => {
+  const res = await fetch(`${getHubUrl(testSpace)}/api/spaces/${spaceName}`, {})
+  if (res.ok) {
+    try {
+      const resJson = await res.json()
+      console.log("resJson", resJson)
+      return resJson
+    } catch (error) {
+      throw Error(
+        `The response from the Snapshot Hub was not valid JSON. Most likely the space does not exist for ${spaceName}.`,
+      )
+    }
+  } else {
+    throw res
+  }
+}
+
+const getHubUrl = (testSpace = false) =>
+  testSpace ? SNAPSHOT_HUB_GOERLI : SNAPSHOT_HUB
+
 module.exports.resolvers = {
   //: Resolvers = {
   Context: {
@@ -8,8 +31,21 @@ module.exports.resolvers = {
       root.chainName || meshContext.chainName || "gorli", // The value we provide in the config
   },
   Query: {
-    crossContext: async (root, args, meshContext, info) =>
-      Promise.all(
+    crossContext: async (root, args, meshContext, info) => {
+      // Get the snapshot space, to figure out the main blockchain
+      const { network: mainChainChainId } = await getSnapshotSpaceSettings(
+        args.contextId,
+      )
+      console.log("mainChainChainId", mainChainChainId)
+      console.log("blocknumber: " + args.blocknumber)
+      // Get the time of the blocknumber
+      const blockTime = console.log("timestamp of block: ")
+
+      // For each chain, get the correct blocknumber (the last block before the time of the main chain blocknumber)
+
+      // Or, modify the subgraph to keep all delegation sets (never delete, just mark them as inactive instead)
+
+      return Promise.all(
         args.chainNames.map((chainName) =>
           meshContext.DelegateRegistry.Query.context({
             root,
@@ -37,7 +73,8 @@ module.exports.resolvers = {
             return { ...contextRes, chainName }
           }),
         ),
-      ).then((allContexts) => allContexts.filter((_) => _ != null).flat()),
+      ).then((allContexts) => allContexts.filter((_) => _ != null).flat())
+    },
     crossContexts: async (root, args, meshContext, info) =>
       Promise.all(
         args.chainNames.map((chainName) =>

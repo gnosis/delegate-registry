@@ -6,7 +6,7 @@ const CHAIN_NAMES = ["goerli"]
 
 export const fetchContextFromAllChains = async (
   snapshotSpace: string,
-  blocknumber?: number,
+  blocknumber?: number, // main chain (the chain specified in the Snapshot space) blocknumber
 ) => {
   const sdk = getBuiltGraphSDK()
   const results =

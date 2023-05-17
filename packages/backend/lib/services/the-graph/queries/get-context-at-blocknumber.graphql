@@ -10,29 +10,30 @@ query GetContextAtBlocknumber(
   ) {
     chainName
     delegationSets {
-      account {
+      fromAccount {
         id
       }
       delegations {
-        delegate {
-          id
-        }
-        account {
+        toAccount {
           id
         }
         numerator
       }
-      expiration
-      denominator
-      delegationUpdated
-      expirationUpdated
+      expireTimestamp
+      fromTimestamp
     }
     optouts {
-      delegate {
+      account {
         id
       }
       status
-      updated
+      fromTimestamp
+    }
+  }
+  _meta {
+    block {
+      number
+      timestamp
     }
   }
 }
