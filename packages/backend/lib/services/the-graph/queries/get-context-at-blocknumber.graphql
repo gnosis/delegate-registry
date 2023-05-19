@@ -1,7 +1,8 @@
 query GetContextAtBlocknumber(
   $contextId: ID!
   $chainNames: [String!]!
-  $blocknumber: Int
+  $mainChain: String!
+  $blocknumber: Int!
 ) {
   crossContext(
     contextId: $contextId
@@ -20,14 +21,15 @@ query GetContextAtBlocknumber(
         numerator
       }
       expireTimestamp
-      fromTimestamp
+      denominator
+      creationTimestamp
     }
     optouts {
       account {
         id
       }
       status
-      fromTimestamp
+      creationTimestamp
     }
   }
   _meta {

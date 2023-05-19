@@ -59,8 +59,9 @@ export const getDelegationRatioMap = async (
       R.map(R.prop("delegationSets"), allContexts),
     )
 
-  const allOptoutsForEachChain: Optout[][] = convertOptoutsDelegateIdsToAddress(
-    R.map(R.prop("optouts"), allContexts),
+  const allOptoutsForEachChain: Optout[][] = R.map(
+    R.prop("optouts"),
+    allContexts,
   )
 
   // 2. merge delegationSets and optouts

@@ -7,17 +7,21 @@ const CHAIN_NAMES = ["goerli"]
 export const fetchContextFromAllChains = async (
   snapshotSpace: string,
   blocknumber?: number, // main chain (the chain specified in the Snapshot space) blocknumber
+  mainChain: string = "goerli",
 ) => {
   const sdk = getBuiltGraphSDK()
   const results =
     blocknumber == null
       ? await sdk.GetContext({
+          // get newest
           contextId: snapshotSpace,
           chainNames: CHAIN_NAMES,
         })
       : await sdk.GetContextAtBlocknumber({
+          // get at blocknumber (internally uses the timestamp of the block on the main chain)
           contextId: snapshotSpace,
           chainNames: CHAIN_NAMES,
+          mainChain,
           blocknumber, // TODO: need to figure out how to get the correct blocknumber for other chains than the "main-chain"
         })
   return results.crossContext

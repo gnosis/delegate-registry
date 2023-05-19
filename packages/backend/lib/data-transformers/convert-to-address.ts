@@ -14,19 +14,15 @@ export const convertDelegationSetAddressesToAddress = (
   delegationSet: DelegationSet,
 ): DelegationSet => ({
   ...delegationSet,
-  account: {
-    ...delegationSet.account,
-    id: getAddress(delegationSet.account.id),
+  fromAccount: {
+    ...delegationSet.fromAccount,
+    id: getAddress(delegationSet.fromAccount.id),
   },
   delegations: delegationSet.delegations.map((delegation) => ({
     ...delegation,
-    delegate: {
-      ...delegation.delegate,
-      id: getAddress(delegation.delegate.id.slice(-40)),
-    },
-    account: {
-      ...delegation.account,
-      id: getAddress(delegation.account.id),
+    toAccount: {
+      ...delegation.toAccount,
+      id: getAddress(delegation.toAccount.id),
     },
   })),
 })
@@ -44,9 +40,9 @@ export const convertDelegationSetsDelegateIdsToAddress = (
  */
 export const convertOptoutDelegateIdToAddress = (optout: Optout): Optout => ({
   ...optout,
-  delegate: {
-    ...optout.delegate,
-    id: getAddress(optout.delegate.id.slice(-40)),
+  account: {
+    ...optout.account,
+    id: getAddress(optout.account.id),
   },
 })
 

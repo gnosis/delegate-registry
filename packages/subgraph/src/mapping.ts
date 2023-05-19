@@ -62,11 +62,18 @@ export function handleDelegation(event: DelegationUpdated): void {
 
   const expiration: BigInt = event.params.expirationTimestamp
 
+  let denominator: BigInt = BigInt.fromU32(0)
+  for (let i = 0; i < newDelegationsFromEvent.length; i++) {
+    const delegation = newDelegationsFromEvent[i]
+    denominator = denominator.plus(delegation.ratio)
+  }
+
   const newDelegationSet = new DelegationSet(delegationSetId)
   newDelegationSet.fromAccount = fromAccount.id
   newDelegationSet.inContext = inContext.id
+  newDelegationSet.denominator = denominator
   newDelegationSet.expireTimestamp = expiration
-  newDelegationSet.fromTimestamp = eventTime
+  newDelegationSet.creationTimestamp = eventTime
   newDelegationSet.save()
 
   for (let i = 0; i < newDelegationsFromEvent.length; i++) {
@@ -101,7 +108,8 @@ export function handleDelegationCleared(event: DelegationCleared): void {
   const newDelegationSet = new DelegationSet(delegationSetId)
   newDelegationSet.fromAccount = fromAddress
   newDelegationSet.inContext = context
-  newDelegationSet.fromTimestamp = eventTime
+  newDelegationSet.denominator = BigInt.fromI32(0)
+  newDelegationSet.creationTimestamp = eventTime
   newDelegationSet.save()
 }
 
@@ -125,7 +133,7 @@ export function handleOptout(event: OptOutStatusSet): void {
   optout.account = account.id
   optout.inContext = inContext.id
   optout.status = status
-  optout.fromTimestamp = eventTime
+  optout.creationTimestamp = eventTime
   optout.save()
 }
 

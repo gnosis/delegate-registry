@@ -33,13 +33,12 @@ module.exports.resolvers = {
   Query: {
     crossContext: async (root, args, meshContext, info) => {
       // Get the snapshot space, to figure out the main blockchain
-      const { network: mainChainChainId } = await getSnapshotSpaceSettings(
-        args.contextId,
-      )
-      console.log("mainChainChainId", mainChainChainId)
-      console.log("blocknumber: " + args.blocknumber)
+      if (args.blocknumber == null || typeof args.blocknumber !== "number") {
+        console.log("mainChain", args.mainChain)
+        console.log("blocknumber: " + args.blocknumber)
+        const blockTime = console.log("timestamp of block: ")
+      }
       // Get the time of the blocknumber
-      const blockTime = console.log("timestamp of block: ")
 
       // For each chain, get the correct blocknumber (the last block before the time of the main chain blocknumber)
 

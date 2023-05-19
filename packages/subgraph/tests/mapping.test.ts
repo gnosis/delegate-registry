@@ -200,6 +200,9 @@ test("DelegationUpdated() event adds delegations", () => {
     "fromAccount",
     USER1_ADDRESS.toHex(),
   )
+
+  assert.fieldEquals("DelegationSet", delegationSetId, "denominator", "3")
+
   const delegate2Address = paddedDelegateToAddress(
     DELEGATION2.delegate.toHex(),
   ).toHex()
@@ -282,6 +285,8 @@ test("DelegationCleared() event creates a empty delegationSet", () => {
     EXPIRATION.toString(),
   )
 
+  assert.fieldEquals("DelegationSet", delegationSetId1, "denominator", "3")
+
   handleDelegationCleared(delegationCleared)
   const delegationSetId2 = getDelegationSetId(
     CONTEXT1,
@@ -293,9 +298,11 @@ test("DelegationCleared() event creates a empty delegationSet", () => {
   assert.fieldEquals(
     "DelegationSet",
     delegationSetId2,
-    "fromTimestamp",
+    "creationTimestamp",
     delegationCleared.block.timestamp.toString(),
   )
+
+  assert.fieldEquals("DelegationSet", delegationSetId2, "denominator", "0")
 
   clearStore()
 })

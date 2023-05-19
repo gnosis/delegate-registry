@@ -32,7 +32,7 @@ export const removeOptouts = (
               delegationSet.delegations,
             )
             if (!R.isEmpty(delegations)) {
-              acc[delegationSet.account.id] = {
+              acc[delegationSet.fromAccount.id] = {
                 ...delegationSet,
                 denominator:
                   delegationSet.denominator - optoutDelegation.numerator,
@@ -40,7 +40,7 @@ export const removeOptouts = (
               }
             }
           } else {
-            acc[delegationSet.account.id] = delegationSet
+            acc[delegationSet.fromAccount.id] = delegationSet
           }
           return acc
         },

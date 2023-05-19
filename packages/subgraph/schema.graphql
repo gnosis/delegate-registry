@@ -12,20 +12,21 @@ type Context @entity(immutable: true) {
 }
 
 type DelegationSet @entity {
-  id: ID! # `${inContext.id}-${fromAccount.id}-${fromTimestamp}`
+  id: ID! # `${inContext.id}-${fromAccount.id}-${creationTimestamp}`
   fromAccount: Account! # from address
   inContext: Context! # snapshot space
-  fromTimestamp: BigInt! # creation timestamp for this delegation set
+  creationTimestamp: BigInt! # creation timestamp for this delegation set
   expireTimestamp: BigInt # timestamp when it expired (if it already did), or when it will expire in the future. Empty delegation sets never expires
   delegations: [Delegation!]! @derivedFrom(field: "belongsToDelegationSet")
+  denominator: BigInt!
 }
 
 type Optout @entity(immutable: true) {
-  id: ID! # `${inContext.id}-${account.id}-${fromTimestamp}`
+  id: ID! # `${inContext.id}-${account.id}-${creationTimestamp}`
   inContext: Context!
   account: Account!
   status: Boolean!
-  fromTimestamp: BigInt!
+  creationTimestamp: BigInt!
 }
 
 type Delegation @entity(immutable: true) {
