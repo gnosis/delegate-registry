@@ -12,6 +12,8 @@ import {
   convertDelegationSetsDelegateIdsToAddress,
   convertOptoutsDelegateIdsToAddress,
 } from "./data-transformers/convert-to-address"
+import { fetchSnapshotSpaceSettings } from "./services/snapshot"
+import { ethers } from "ethers"
 
 /**
  * This will fetch all unique context ids from all subgraphs.
@@ -41,17 +43,23 @@ export const getDelegationRatioMap = async (
   snapshotSpace: string,
   blocknumber?: number,
 ) => {
-  if (blocknumber != null) {
-    // get the timestamp of the blocknumber
-    // for each chain, get the block number of the last block before the timestamp
-    // for each chain, get the delegations at that block number
-    // can we still use the graph's graph cli for this?
-  }
+  let timestamp: number | undefined
 
+  if (blocknumber != null) {
+    const mainChainId = (await fetchSnapshotSpaceSettings(snapshotSpace, false))
+      .network
+    console.log(`[${snapshotSpace}] Main chain chainId: ${mainChainId}`)
+    const ethersProvider = new ethers.providers.InfuraProvider()
+    const block = await ethersProvider.getBlock(blocknumber)
+    timestamp = block.timestamp
+    console.log(
+      `[${snapshotSpace}] Timestamp of block number ${blocknumber} is: ${timestamp}`,
+    )
+  }
   // 1. fetch context from all chains
   const allContexts = await theGraph.fetchContextFromAllChains(
     snapshotSpace,
-    blocknumber,
+    timestamp,
   )
   const delegationSetsForEachChain: DelegationSet[][] =
     convertDelegationSetsDelegateIdsToAddress(

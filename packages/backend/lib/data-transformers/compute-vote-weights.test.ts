@@ -2,7 +2,6 @@ import "mocha"
 import { expect } from "chai"
 import { computeVoteWeights } from "./compute-vote-weights"
 import { DelegateToDelegatorToValue, DelegateToValue, Ratio } from "../../types"
-import R from "ramda"
 
 describe("compute-vote-weights", () => {
   describe("computeVoteWeights", () => {
