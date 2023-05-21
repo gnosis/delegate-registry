@@ -8,8 +8,10 @@ module.exports.resolvers = {
       root.chainName || meshContext.chainName || "gorli", // The value we provide in the config
   },
   Query: {
-    crossContext: async (root, args, meshContext, info) =>
-      Promise.all(
+    crossContext: async (root, args, meshContext, info) => {
+      // Get the snapshot space, to figure out the main blockchain
+      const timestamp = info.variableValues.timestamp
+      return Promise.all(
         args.chainNames.map((chainName) =>
           meshContext.DelegateRegistry.Query.context({
             root,
@@ -17,13 +19,7 @@ module.exports.resolvers = {
               id: args.contextId,
               contextId: args.contextId,
               chainName,
-              ...(args.blocknumber != null &&
-                typeof args.blocknumber === "number" &&
-                args.blocknumber > 0 && {
-                  block: {
-                    number: args.blocknumber,
-                  },
-                }),
+              ...(timestamp != null && { timestamp }),
             },
             context: {
               ...meshContext,
@@ -37,22 +33,18 @@ module.exports.resolvers = {
             return { ...contextRes, chainName }
           }),
         ),
-      ).then((allContexts) => allContexts.filter((_) => _ != null).flat()),
-    crossContexts: async (root, args, meshContext, info) =>
-      Promise.all(
+      ).then((allContexts) => allContexts.filter((_) => _ != null).flat())
+    },
+    crossContexts: async (root, args, meshContext, info) => {
+      const timestamp = info.variableValues.timestamp
+      return Promise.all(
         args.chainNames.map((chainName) =>
           meshContext.DelegateRegistry.Query.contexts({
             root,
             args: {
               contextId: args.contextId,
               chainName,
-              ...(args.blocknumber != null &&
-                typeof args.blocknumber === "number" &&
-                args.blocknumber > 0 && {
-                  block: {
-                    number: args.blocknumber,
-                  },
-                }),
+              ...(timestamp != null && { timestamp }),
             },
             context: {
               ...meshContext,
@@ -68,6 +60,7 @@ module.exports.resolvers = {
             }))
           }),
         ),
-      ).then((allContexts) => allContexts.flat()),
+      ).then((allContexts) => allContexts.flat())
+    },
   },
 }

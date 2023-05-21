@@ -64,7 +64,7 @@ const fetchStrategies = async (
   testSpace: boolean = false,
 ): Promise<SnapshotStrategy[]> => {
   try {
-    const strategies = await getSnapshotSpaceSettings(
+    const strategies = await fetchSnapshotSpaceSettings(
       spaceName,
       testSpace,
     ).then((_) => _.strategies)
@@ -92,16 +92,14 @@ const fetchStrategies = async (
  * @param testSpace - Whether to fetch the settings for the test Hub
  * @returns the settings for the space
  */
-export const getSnapshotSpaceSettings = async (
+export const fetchSnapshotSpaceSettings = async (
   spaceName: string,
   testSpace: boolean,
-): Promise<{ strategies: SnapshotStrategy[] }> => {
+): Promise<{ strategies: SnapshotStrategy[]; network: string }> => {
   const res = await fetch(`${getHubUrl(testSpace)}/api/spaces/${spaceName}`, {})
   if (res.ok) {
     try {
-      const resJson = await res.json()
-      console.log("resJson", resJson)
-      return resJson
+      return res.json()
     } catch (error) {
       throw Error(
         `The response from the Snapshot Hub was not valid JSON. Most likely the space does not exist for ${spaceName}.`,

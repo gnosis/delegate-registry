@@ -1,38 +1,39 @@
 query GetContextAtBlocknumber(
   $contextId: ID!
   $chainNames: [String!]!
-  $blocknumber: Int
+  $timestamp: BigInt!
 ) {
   crossContext(
     contextId: $contextId
     chainNames: $chainNames
-    block: { number: $blocknumber }
+    timestamp: $timestamp
   ) {
     chainName
-    delegationSets {
-      account {
+    delegationSets(
+      where: {
+        expireTimestamp_gt: $timestamp
+        creationTimestamp_lt: $timestamp
+      }
+    ) {
+      fromAccount {
         id
       }
       delegations {
-        delegate {
-          id
-        }
-        account {
+        toAccount {
           id
         }
         numerator
       }
-      expiration
+      expireTimestamp
       denominator
-      delegationUpdated
-      expirationUpdated
+      creationTimestamp
     }
     optouts {
-      delegate {
+      account {
         id
       }
       status
-      updated
+      creationTimestamp
     }
   }
 }

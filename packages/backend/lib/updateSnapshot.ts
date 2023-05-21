@@ -68,6 +68,8 @@ export const createDelegationSnapshot = async (
   // const delegatedVoteWeightScaled =
   //   convertDelegatedVoteWeight(delegatedVoteWeight)
 
+  console.log("delegatedVoteWeightByAccount:", delegatedVoteWeightByAccount)
+
   const delegatedVoteWeightByAccountScaled =
     convertDelegatedVoteWeightByAccount(delegatedVoteWeightByAccount)
 

@@ -23,16 +23,21 @@ export const removeOptouts = (
       // This is slow. How can we speed up?
       return R.reduce<DelegationSet, DelegateToValue<DelegationSet>>(
         (acc, delegationSet) => {
-          const optoutDelegation = R.find<Delegation>(
-            R.pathEq(["delegate", "id"], optoutDelegate),
-          )(delegationSet.delegations)
+          console.log(
+            "delegationSet: ",
+            JSON.stringify(delegationSet, null, "  "),
+          )
+          const optoutDelegation = delegationSet.delegations.find(
+            (delegate) => delegate.toAccount.id === optoutDelegate,
+          )
+          console.log("optoutDelegate: ", optoutDelegate)
+          console.log("optoutDelegation: ", optoutDelegation)
           if (optoutDelegation != null) {
-            const delegations = R.reject(
-              R.pathEq(["delegate", "id"], optoutDelegate),
-              delegationSet.delegations,
+            const delegations = delegationSet.delegations.filter(
+              (delegate) => delegate.toAccount.id !== optoutDelegate,
             )
             if (!R.isEmpty(delegations)) {
-              acc[delegationSet.account.id] = {
+              acc[delegationSet.fromAccount.id] = {
                 ...delegationSet,
                 denominator:
                   delegationSet.denominator - optoutDelegation.numerator,
@@ -40,7 +45,7 @@ export const removeOptouts = (
               }
             }
           } else {
-            acc[delegationSet.account.id] = delegationSet
+            acc[delegationSet.fromAccount.id] = delegationSet
           }
           return acc
         },

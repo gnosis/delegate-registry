@@ -22,10 +22,10 @@ export const mergeDelegationSets = (
         // with the highest `delegationUpdated`
         R.mergeWith(
           (set1: DelegationSet, set2: DelegationSet) =>
-            set1.delegationUpdated > set2.delegationUpdated ? set1 : set2,
+            set1.creationTimestamp > set2.creationTimestamp ? set1 : set2,
           sets,
           {
-            [set.account.id]: set,
+            [set.fromAccount.id]: set,
           },
         ),
       {},
@@ -56,10 +56,12 @@ export const mergeDelegationOptouts = (
         // if the delegate is already in the optouts, we keep the one with the highest `updated`
         R.mergeWith(
           (optout1: Optout, optout2: Optout) =>
-            optout1.updated > optout2.updated ? optout1 : optout2,
+            optout1.creationTimestamp > optout2.creationTimestamp
+              ? optout1
+              : optout2,
           optouts,
           {
-            [optout.delegate.id]: optout,
+            [optout.account.id]: optout,
           },
         ),
       {},

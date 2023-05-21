@@ -2,29 +2,25 @@ query GetContext($contextId: ID!, $chainNames: [String!]!) {
   crossContext(contextId: $contextId, chainNames: $chainNames) {
     chainName
     delegationSets {
-      account {
+      fromAccount {
         id
       }
       delegations {
-        delegate {
-          id
-        }
-        account {
+        toAccount {
           id
         }
         numerator
       }
-      expiration
+      expireTimestamp
       denominator
-      delegationUpdated
-      expirationUpdated
+      creationTimestamp
     }
     optouts {
-      delegate {
+      account {
         id
       }
       status
-      updated
+      creationTimestamp
     }
   }
 }

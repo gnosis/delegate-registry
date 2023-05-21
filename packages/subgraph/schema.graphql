@@ -1,46 +1,37 @@
-type Delegate @entity(immutable: true) {
-  id: ID! # bytes32 identifier, probably an address but with room for chain-specific addresses if wanted.
-  delegations: [Delegation!]! @derivedFrom(field: "delegate")
-  optouts: [Optout!]! @derivedFrom(field: "delegate")
-}
-
 type Account @entity(immutable: true) {
-  id: ID! # address to identify account
-  delegationSets: [DelegationSet!]! @derivedFrom(field: "account")
-  delegations: [Delegation!]! @derivedFrom(field: "account")
+  id: ID! # address to identify delegate
+  incomingDelegations: [Delegation!]! @derivedFrom(field: "toAccount")
+  optouts: [Optout!]! @derivedFrom(field: "account")
+  outgoingDelegationSets: [DelegationSet!]! @derivedFrom(field: "fromAccount")
 }
 
 type Context @entity(immutable: true) {
   id: ID! # string to identify context
-  delegationSets: [DelegationSet!]! @derivedFrom(field: "context")
-  delegations: [Delegation!]! @derivedFrom(field: "context")
-  optouts: [Optout!]! @derivedFrom(field: "context")
+  delegationSets: [DelegationSet!]! @derivedFrom(field: "inContext")
+  optouts: [Optout!]! @derivedFrom(field: "inContext")
 }
 
 type DelegationSet @entity {
-  id: ID! # `${context.id}-${account.id}`
-  account: Account!
-  context: Context!
+  id: ID! # `${inContext.id}-${fromAccount.id}-${creationTimestamp}`
+  fromAccount: Account! # from address
+  inContext: Context! # snapshot space
+  creationTimestamp: BigInt! # creation timestamp for this delegation set
+  expireTimestamp: BigInt # timestamp when it expired (if it already did), or when it will expire in the future. Empty delegation sets never expires
+  delegations: [Delegation!]! @derivedFrom(field: "belongsToDelegationSet")
   denominator: BigInt!
-  expiration: BigInt!
-  delegationUpdated: BigInt!
-  expirationUpdated: BigInt!
-  delegations: [Delegation!]! @derivedFrom(field: "delegationSet")
 }
 
-type Optout @entity {
-  id: ID! # `${context.id}-${delegate.id}`
-  updated: BigInt!
-  status: Boolean!
-  delegate: Delegate!
-  context: Context!
-}
-
-type Delegation @entity {
-  id: ID! # `${context.id}-${account.id}-${delegate.id}`
-  context: Context!
+type Optout @entity(immutable: true) {
+  id: ID! # `${inContext.id}-${account.id}-${creationTimestamp}`
+  inContext: Context!
   account: Account!
-  delegate: Delegate!
-  delegationSet: DelegationSet!
+  status: Boolean!
+  creationTimestamp: BigInt!
+}
+
+type Delegation @entity(immutable: true) {
+  id: ID! # `${belongsToDelegationSet.id}-${toAccount.id}`
+  toAccount: Account! # to address
+  belongsToDelegationSet: DelegationSet! # the delegation set, that this delegation belongs to
   numerator: BigInt!
 }

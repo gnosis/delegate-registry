@@ -1,15 +1,16 @@
 import { Address, BigInt, Bytes, ethereum } from "@graphprotocol/graph-ts"
 import {
   handleDelegation,
-  handleExpirationUpdate,
   handleDelegationCleared,
   handleOptout,
+  getDelegationSetId,
+  getOptoutId,
+  paddedDelegateToAddress,
 } from "../src/mapping"
 import {
   DelegationUpdated,
   DelegationUpdatedDelegationStruct,
   DelegationCleared,
-  ExpirationUpdated,
   OptOutStatusSet,
 } from "../generated/DelegateRegistry/DelegateRegistry"
 import { assert, clearStore, newMockEvent, test } from "matchstick-as"
@@ -37,21 +38,27 @@ const CONTEXT2 = "context2"
 const DELEGATION2: DelegationUpdatedDelegationStruct = new DelegationUpdatedDelegationStruct()
 DELEGATION2.push(
   // id
-  ethereum.Value.fromBytes(Bytes.fromHexString(USER2_ADDRESS.toHex())),
+  ethereum.Value.fromBytes(
+    Bytes.fromHexString(padding.concat(USER2_ADDRESS).toHex()),
+  ),
 )
 DELEGATION2.push(ethereum.Value.fromI32(1)) // ratio
 
 const DELEGATION3: DelegationUpdatedDelegationStruct = new DelegationUpdatedDelegationStruct()
 DELEGATION3.push(
   // id
-  ethereum.Value.fromBytes(Bytes.fromHexString(USER3_ADDRESS.toHex())),
+  ethereum.Value.fromBytes(
+    Bytes.fromHexString(padding.concat(USER3_ADDRESS).toHex()),
+  ),
 )
 DELEGATION3.push(ethereum.Value.fromI32(1))
 
 const DELEGATION4: DelegationUpdatedDelegationStruct = new DelegationUpdatedDelegationStruct()
 DELEGATION4.push(
   // id
-  ethereum.Value.fromBytes(Bytes.fromHexString(USER4_ADDRESS.toHex())),
+  ethereum.Value.fromBytes(
+    Bytes.fromHexString(padding.concat(USER4_ADDRESS).toHex()),
+  ),
 )
 DELEGATION4.push(ethereum.Value.fromI32(1))
 
@@ -103,38 +110,6 @@ function createDelegationUpdatedEvent(
   )
 
   return newDelegationUpdatedEvent
-}
-
-function createExpirationUpdatedEvent(
-  account: Address,
-  context: string,
-  delegation: ethereum.Value[],
-  expirationTimestamp: BigInt,
-): ExpirationUpdated {
-  const mockEvent = newMockEvent()
-
-  const mockParameters = [
-    new ethereum.EventParam("account", ethereum.Value.fromAddress(account)),
-    new ethereum.EventParam("context", ethereum.Value.fromString(context)),
-    new ethereum.EventParam("delegation", ethereum.Value.fromArray(delegation)),
-    new ethereum.EventParam(
-      "expirationTimestamp",
-      ethereum.Value.fromUnsignedBigInt(expirationTimestamp),
-    ),
-  ]
-
-  const newExpirationUpdatedEvent = new ExpirationUpdated(
-    mockEvent.address,
-    mockEvent.logIndex,
-    mockEvent.transactionLogIndex,
-    mockEvent.logType,
-    mockEvent.block,
-    mockEvent.transaction,
-    mockParameters,
-    mockEvent.receipt,
-  )
-
-  return newExpirationUpdatedEvent
 }
 
 function createDelegationClearedEvent(
@@ -206,215 +181,82 @@ test("DelegationUpdated() event adds delegations", () => {
 
   handleDelegation(delegationEvent)
   // check DELEGATION2
+  const delegationSetId = getDelegationSetId(
+    CONTEXT1,
+    USER1_ADDRESS.toHex(),
+    delegationEvent.block.number,
+    delegationEvent.transaction.index,
+    delegationEvent.transactionLogIndex,
+  )
   assert.fieldEquals(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.delegate.toHex()}`,
-    "account",
+    "DelegationSet",
+    delegationSetId,
+    "expireTimestamp",
+    EXPIRATION.toString(),
+  )
+  assert.fieldEquals(
+    "DelegationSet",
+    delegationSetId,
+    "fromAccount",
     USER1_ADDRESS.toHex(),
   )
+
+  assert.fieldEquals("DelegationSet", delegationSetId, "denominator", "3")
+
+  const delegate2Address = paddedDelegateToAddress(
+    DELEGATION2.delegate.toHex(),
+  ).toHex()
   assert.fieldEquals(
     "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.delegate.toHex()}`,
-    "delegate",
-    DELEGATION2.delegate.toHex(),
+    `${delegationSetId}-${delegate2Address}`,
+    "toAccount",
+    delegate2Address,
   )
   assert.fieldEquals(
     "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.delegate.toHex()}`,
+    `${delegationSetId}-${delegate2Address}`,
     "numerator",
     DELEGATION2.ratio.toString(),
-  )
-  assert.fieldEquals(
-    "DelegationSet",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
-    "denominator",
-    "3",
-  )
-  assert.fieldEquals(
-    "DelegationSet",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
-    "expiration",
-    EXPIRATION.toString(),
   )
 
   // check DELEGATION3
-  assert.fieldEquals(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION3.delegate.toHex()}`,
-    "account",
-    USER1_ADDRESS.toHex(),
-  )
-  assert.fieldEquals(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION3.delegate.toHex()}`,
-    "delegate",
+  const delegate3Address = paddedDelegateToAddress(
     DELEGATION3.delegate.toHex(),
+  ).toHex()
+  assert.fieldEquals(
+    "Delegation",
+    `${delegationSetId}-${delegate3Address}`,
+    "toAccount",
+    delegate3Address,
   )
   assert.fieldEquals(
     "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION3.delegate.toHex()}`,
+    `${delegationSetId}-${delegate3Address}`,
     "numerator",
     DELEGATION3.ratio.toString(),
   )
-  assert.fieldEquals(
-    "DelegationSet",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
-    "expiration",
-    EXPIRATION.toString(),
-  )
 
   // check DELEGATION4
-  assert.fieldEquals(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION4.delegate.toHex()}`,
-    "account",
-    USER1_ADDRESS.toHex(),
-  )
-  assert.fieldEquals(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION4.delegate.toHex()}`,
-    "delegate",
+  const delegate4Address = paddedDelegateToAddress(
     DELEGATION4.delegate.toHex(),
+  ).toHex()
+  assert.fieldEquals(
+    "Delegation",
+    `${delegationSetId}-${delegate4Address}`,
+    "toAccount",
+    delegate4Address,
   )
   assert.fieldEquals(
     "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION4.delegate.toHex()}`,
+    `${delegationSetId}-${delegate4Address}`,
     "numerator",
     DELEGATION4.ratio.toString(),
   )
-  assert.fieldEquals(
-    "DelegationSet",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
-    "expiration",
-    EXPIRATION.toString(),
-  )
 
   clearStore()
 })
 
-test("DelegationUpdated() event removes previous delegations", () => {
-  let delegationEvent1 = createDelegationUpdatedEvent(
-    USER1_ADDRESS,
-    CONTEXT1,
-    PREVIOUS_DELEGATION,
-    DELEGATION_ETHEREUM_VALUE,
-    EXPIRATION,
-  )
-
-  const newDelegation: ethereum.Value[] = [
-    ethereum.Value.fromTuple(DELEGATION2),
-  ]
-
-  const delegationEvent2 = createDelegationUpdatedEvent(
-    USER1_ADDRESS,
-    CONTEXT1,
-    DELEGATION_ETHEREUM_VALUE,
-    newDelegation,
-    EXPIRATION,
-  )
-  handleDelegation(delegationEvent1)
-
-  assert.fieldEquals(
-    "DelegationSet",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
-    "denominator",
-    "3",
-  )
-
-  handleDelegation(delegationEvent2)
-
-  assert.fieldEquals(
-    "DelegationSet",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
-    "denominator",
-    "1",
-  )
-
-  // check DELEGATION2
-  assert.fieldEquals(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.delegate.toHex()}`,
-    "account",
-    USER1_ADDRESS.toHex(),
-  )
-  assert.fieldEquals(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.delegate.toHex()}`,
-    "delegate",
-    DELEGATION2.delegate.toHex(),
-  )
-  assert.fieldEquals(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.delegate.toHex()}`,
-    "numerator",
-    DELEGATION2.ratio.toString(),
-  )
-  assert.fieldEquals(
-    "DelegationSet",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
-    "expiration",
-    EXPIRATION.toString(),
-  )
-
-  // check DELEGATION3 has been removed from store
-  assert.notInStore(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION3.delegate.toHex()}`,
-  )
-
-  // check DELEGATION4
-  assert.notInStore(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION4.delegate.toHex()}`,
-  )
-  clearStore()
-})
-
-test("ExpirationUpdated() event updates expirations", () => {
-  const delegationEvent = createDelegationUpdatedEvent(
-    USER1_ADDRESS,
-    CONTEXT1,
-    PREVIOUS_DELEGATION,
-    DELEGATION_ETHEREUM_VALUE,
-    EXPIRATION,
-  )
-  const newExpiration: BigInt = BigInt.fromU32(500)
-  const expirationUpdateEvent = createExpirationUpdatedEvent(
-    USER1_ADDRESS,
-    CONTEXT1,
-    DELEGATION_ETHEREUM_VALUE,
-    newExpiration,
-  )
-  handleDelegation(delegationEvent)
-  assert.fieldEquals(
-    "DelegationSet",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
-    "expiration",
-    EXPIRATION.toString(),
-  )
-  handleExpirationUpdate(expirationUpdateEvent)
-  assert.fieldEquals(
-    "DelegationSet",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
-    "expiration",
-    newExpiration.toString(),
-  )
-  assert.fieldEquals(
-    "DelegationSet",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
-    "expiration",
-    newExpiration.toString(),
-  )
-  assert.fieldEquals(
-    "DelegationSet",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
-    "expiration",
-    newExpiration.toString(),
-  )
-  clearStore()
-})
-
-test("DelegationCleared() event clears delegations", () => {
+test("DelegationCleared() event creates a empty delegationSet", () => {
   const delegationEvent = createDelegationUpdatedEvent(
     USER1_ADDRESS,
     CONTEXT1,
@@ -428,121 +270,86 @@ test("DelegationCleared() event clears delegations", () => {
     DELEGATION_ETHEREUM_VALUE,
   )
   handleDelegation(delegationEvent)
+  const delegationSetId1 = getDelegationSetId(
+    CONTEXT1,
+    USER1_ADDRESS.toHex(),
+    delegationEvent.block.number,
+    delegationEvent.transaction.index,
+    delegationEvent.transactionLogIndex,
+  )
+
   assert.fieldEquals(
     "DelegationSet",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
-    "expiration",
+    delegationSetId1,
+    "expireTimestamp",
     EXPIRATION.toString(),
   )
-  assert.fieldEquals(
-    "DelegationSet",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
-    "expiration",
-    EXPIRATION.toString(),
-  )
-  assert.fieldEquals(
-    "DelegationSet",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}`,
-    "expiration",
-    EXPIRATION.toString(),
-  )
+
+  assert.fieldEquals("DelegationSet", delegationSetId1, "denominator", "3")
+
   handleDelegationCleared(delegationCleared)
-  assert.notInStore(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.delegate.toHex()}`,
+  const delegationSetId2 = getDelegationSetId(
+    CONTEXT1,
+    USER1_ADDRESS.toHex(),
+    delegationCleared.block.number,
+    delegationCleared.transaction.index,
+    delegationCleared.transactionLogIndex,
   )
-  assert.notInStore(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION3.delegate.toHex()}`,
+  assert.fieldEquals(
+    "DelegationSet",
+    delegationSetId2,
+    "creationTimestamp",
+    delegationCleared.block.timestamp.toString(),
   )
-  assert.notInStore(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION4.delegate.toHex()}`,
-  )
+
+  assert.fieldEquals("DelegationSet", delegationSetId2, "denominator", "0")
+
   clearStore()
 })
 
 test("OptOutStatusSet() adds optout to store", () => {
   const optout = createOptoutEvent(USER1_ADDRESS, CONTEXT1, true)
   handleOptout(optout)
-  assert.fieldEquals(
-    "Optout",
-    `${CONTEXT1}-${padding.concat(USER1_ADDRESS).toHexString()}`,
-    "delegate",
-    padding.concat(USER1_ADDRESS).toHexString(),
-  )
-  assert.fieldEquals(
-    "Optout",
-    `${CONTEXT1}-${padding.concat(USER1_ADDRESS).toHexString()}`,
-    "context",
+
+  const optoutId = getOptoutId(
     CONTEXT1,
+    USER1_ADDRESS.toHex(),
+    optout.block.number,
+    optout.transaction.index,
+    optout.transactionLogIndex,
   )
-  assert.fieldEquals(
-    "Optout",
-    `${CONTEXT1}-${padding.concat(USER1_ADDRESS).toHexString()}`,
-    "status",
-    "true",
-  )
+
+  assert.fieldEquals("Optout", optoutId, "account", USER1_ADDRESS.toHexString())
+  assert.fieldEquals("Optout", optoutId, "inContext", CONTEXT1)
+  assert.fieldEquals("Optout", optoutId, "status", "true")
   clearStore()
 })
-test("OptOutStatusSet() with false should replace the old status", () => {
+test("OptOutStatusSet() with false should create a new optout", () => {
   const optout = createOptoutEvent(USER1_ADDRESS, CONTEXT1, true)
   const optin = createOptoutEvent(USER1_ADDRESS, CONTEXT1, false)
   handleOptout(optout)
-  assert.fieldEquals(
-    "Optout",
-    `${CONTEXT1}-${padding.concat(USER1_ADDRESS).toHexString()}`,
-    "delegate",
-    padding.concat(USER1_ADDRESS).toHexString(),
-  )
-  assert.fieldEquals(
-    "Optout",
-    `${CONTEXT1}-${padding.concat(USER1_ADDRESS).toHexString()}`,
-    "context",
-    CONTEXT1,
-  )
-  assert.fieldEquals(
-    "Optout",
-    `${CONTEXT1}-${padding.concat(USER1_ADDRESS).toHexString()}`,
-    "status",
-    "true",
-  )
-  handleOptout(optin)
-  assert.fieldEquals(
-    "Optout",
-    `${CONTEXT1}-${padding.concat(USER1_ADDRESS).toHexString()}`,
-    "delegate",
-    padding.concat(USER1_ADDRESS).toHexString(),
-  )
-  assert.fieldEquals(
-    "Optout",
-    `${CONTEXT1}-${padding.concat(USER1_ADDRESS).toHexString()}`,
-    "context",
-    CONTEXT1,
-  )
-  assert.fieldEquals(
-    "Optout",
-    `${CONTEXT1}-${padding.concat(USER1_ADDRESS).toHexString()}`,
-    "status",
-    "false",
-  )
-  clearStore()
-})
 
-test("DelegationCleared() for non existing delegation is ignored", () => {
-  const delegationCleared = createDelegationClearedEvent(
-    USER1_ADDRESS,
+  const optoutId = getOptoutId(
     CONTEXT1,
-    DELEGATION_ETHEREUM_VALUE,
+    USER1_ADDRESS.toHex(),
+    optout.block.number,
+    optout.transaction.index,
+    optout.transactionLogIndex,
   )
-  assert.notInStore(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.delegate.toHex()}`,
+
+  assert.fieldEquals("Optout", optoutId, "account", USER1_ADDRESS.toHexString())
+  assert.fieldEquals("Optout", optoutId, "inContext", CONTEXT1)
+  assert.fieldEquals("Optout", optoutId, "status", "true")
+  handleOptout(optin)
+  const optinId = getOptoutId(
+    CONTEXT1,
+    USER1_ADDRESS.toHex(),
+    optin.block.number,
+    optin.transaction.index,
+    optin.transactionLogIndex,
   )
-  handleDelegationCleared(delegationCleared)
-  assert.notInStore(
-    "Delegation",
-    `${CONTEXT1}-${USER1_ADDRESS.toHex()}-${DELEGATION2.delegate.toHex()}`,
-  )
+  assert.fieldEquals("Optout", optinId, "account", USER1_ADDRESS.toHexString())
+  assert.fieldEquals("Optout", optinId, "inContext", CONTEXT1)
+  assert.fieldEquals("Optout", optinId, "status", "false")
   clearStore()
 })
