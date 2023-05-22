@@ -1,14 +1,14 @@
 type Account @entity(immutable: true) {
   id: ID! # address to identify delegate
-  incomingDelegations: [Delegation!]! @derivedFrom(field: "toAccount")
-  optouts: [Optout!]! @derivedFrom(field: "account")
-  outgoingDelegationSets: [DelegationSet!]! @derivedFrom(field: "fromAccount")
+  incomingDelegations: [Delegation!] @derivedFrom(field: "toAccount")
+  optouts: [Optout!] @derivedFrom(field: "account")
+  outgoingDelegationSets: [DelegationSet!] @derivedFrom(field: "fromAccount")
 }
 
 type Context @entity(immutable: true) {
   id: ID! # string to identify context
-  delegationSets: [DelegationSet!]! @derivedFrom(field: "inContext")
-  optouts: [Optout!]! @derivedFrom(field: "inContext")
+  delegationSets: [DelegationSet!] @derivedFrom(field: "inContext")
+  optouts: [Optout!] @derivedFrom(field: "inContext")
 }
 
 type DelegationSet @entity {
@@ -17,7 +17,7 @@ type DelegationSet @entity {
   inContext: Context! # snapshot space
   creationTimestamp: BigInt! # creation timestamp for this delegation set
   expireTimestamp: BigInt # timestamp when it expired (if it already did), or when it will expire in the future. Empty delegation sets never expires
-  delegations: [Delegation!]! @derivedFrom(field: "belongsToDelegationSet")
+  delegations: [Delegation!] @derivedFrom(field: "belongsToDelegationSet")
   denominator: BigInt!
 }
 
