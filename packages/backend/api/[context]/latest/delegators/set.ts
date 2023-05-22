@@ -12,11 +12,7 @@ export default async function getDelegationSet(
   const delegatorAddress = ethers.utils.getAddress(
     request.query.delegatorAddress as string,
   )
-  console.log("--------------")
-  console.log(request.query)
-  console.log("context", context)
-  console.log("delegatorAddress", delegatorAddress)
-  console.log("weeee")
+
   const delegates = await db
     .selectFrom("delegation_snapshot")
     .where("context", "=", "gnosis.eth")
@@ -25,10 +21,9 @@ export default async function getDelegationSet(
     .select(["to_address", "delegated_amount", "to_address_own_amount"])
     .execute()
 
-  console.log(delegates)
-  // if (delegates.length === 0) {
-  //   console.log("No delegates found for delegatorAddress", delegatorAddress)
-  // }
+  if (delegates.length === 0) {
+    console.log("No delegates found for delegatorAddress", delegatorAddress)
+  }
 
   // const voteWeightDelegated = delegators.reduce(
   //   (acc, { delegated_amount }) => acc.add(BigNumber.from(delegated_amount)),
@@ -40,9 +35,9 @@ export default async function getDelegationSet(
 
   response.status(200).json({
     success: "true",
-    // delegators,
+    delegates,
     // voteWeightDelegated: voteWeightDelegated.toString(),
-    // numberOfDelegators: delegators.length,
+    numberOfDelegates: delegates.length,
     // delegatesOwnVoteWeight: delegatesOwnVoteWeight.toString(),
     // totalVoteWeight: voteWeightDelegated.add(delegatesOwnVoteWeight).toString(),
   })
