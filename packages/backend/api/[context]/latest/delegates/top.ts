@@ -2,10 +2,10 @@
 // - should be possible to set limit
 // - should be possible to select top based on vote weight or based on number of delegates
 
-// import {
-//   getLastUpdateTime,
-//   getTopDelegatesByVoteWeight,
-// } from "../../../../lib/services/storage/read"
+import {
+  getLastUpdateTime,
+  getTopDelegatesByVoteWeight,
+} from "../../../../lib/services/storage/read"
 
 export const config = {
   runtime: "experimental-edge",
@@ -39,9 +39,15 @@ export const config = {
  */
 
 export default async (req: Request) => {
+  console.log(req.url)
   const url = new URL(req.url)
+  console.log(url)
   const snapshotSpace = url.searchParams.get("space")
+  console.log(snapshotSpace)
+  const context = url.searchParams.get("context")
+  console.log(context)
   const limit = Number(url.searchParams.get("limit"))
+  console.log(limit)
   if (snapshotSpace == null) {
     return new Response("Missing `space` parameter (Snapshot space).", {
       status: 400,
