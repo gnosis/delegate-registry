@@ -1,1 +1,1 @@
-curl -v -X GET "http://localhost:3000/api/context/latest/delegators/set?space=gnosis.eth&delegatorAddress=0xDE1e8A7E184Babd9F0E3af18f40634e9Ed6F0905"
+curl -v -X GET "http://localhost:3000/api/context/latest/delegators/set?space=gnosis.eth&delegatorAddress=0x6cc5b30Cd0A93C1F85C7868f5F2620AB8c458190"
