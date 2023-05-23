@@ -91,8 +91,21 @@ const getTimestampForBlocknumber = async (
     return
   }
 
-  const mainChainId = (await fetchSnapshotSpaceSettings(snapshotSpace, false))
-    .network
+  let mainChainId = "1"
+
+  try {
+    const useTestHub = false
+    mainChainId = (await fetchSnapshotSpaceSettings(snapshotSpace, useTestHub))
+      .network
+  } catch (e) {
+    // TODO: WARNING: If no snapshot space if found, this tries to get strategies from the Snapshot test hub.
+    console.log(
+      `[${snapshotSpace}] No snapshot space found on the SNapshot hub. Will try to get it from the Snapshot test Hub.`,
+    )
+    const useTestHub = true
+    mainChainId = (await fetchSnapshotSpaceSettings(snapshotSpace, useTestHub))
+      .network
+  }
   console.log(`[${snapshotSpace}] Main chain chainId: ${mainChainId}`)
   const ethersProvider = new ethers.providers.InfuraProvider(
     Number(mainChainId),

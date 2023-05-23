@@ -1,8 +1,7 @@
 import { getBuiltGraphSDK } from "./.graphclient"
 
 // TODO: move to env variable and document that the subgraphs have to end in these names
-// const CHAIN_NAMES = ["gnosis", "goerli"]
-const CHAIN_NAMES = ["goerli"]
+const CHAIN_NAMES = ["gnosis", "goerli"]
 
 export const fetchContextFromAllChains = async (
   snapshotSpace: string,

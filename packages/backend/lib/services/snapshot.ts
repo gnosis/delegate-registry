@@ -27,10 +27,23 @@ export const fetchVoteWeights = async (
   addresses: string[],
   blockNumber?: number,
 ): Promise<Record<string, number>> => {
-  const strategies = await fetchStrategies(spaceName)
+  let strategies = await fetchStrategies(spaceName)
   if (strategies.length === 0) {
-    console.log("No strategies found for space: ", spaceName)
-    return {}
+    console.log(
+      "No strategies found for space: ",
+      spaceName,
+      " on the snapshot hub. Trying to get test space strategies.",
+    )
+    // TODO: WARNING: If no snapshot space if found, this tries to get strategies from the Snapshot test hub.
+    strategies = await fetchStrategies(spaceName, true)
+    if (strategies.length === 0) {
+      console.log(
+        "Also no strategies found for TEST space: ",
+        spaceName,
+        " on the snapshot hub.",
+      )
+      return {}
+    }
   }
   return strategies.reduce(async (accPromise, strategy) => {
     const acc = await accPromise
