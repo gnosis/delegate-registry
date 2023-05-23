@@ -8,6 +8,8 @@ export const fetchContextFromAllChains = async (
   snapshotSpace: string,
   timestamp?: number,
 ) => {
+  snapshotSpace.includes("GraphQLError")
+
   const sdk = getBuiltGraphSDK()
   const results =
     timestamp == null
@@ -16,7 +18,7 @@ export const fetchContextFromAllChains = async (
           contextId: snapshotSpace,
           chainNames: CHAIN_NAMES,
         })
-      : await sdk.GetContextAtBlocknumber({
+      : await sdk.GetContextAtTimestamp({
           // gets the whats active at the current timestamp
           contextId: snapshotSpace,
           chainNames: CHAIN_NAMES,

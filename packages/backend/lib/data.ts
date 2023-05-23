@@ -6,7 +6,7 @@ import {
 import { removeOptouts } from "./data-transformers/remove-optouts"
 import { generateDelegationRatioMap } from "./data-transformers/generate-delegation-ratio-map"
 import R from "ramda"
-import { DelegationSet, Optout } from "../types"
+import { Context, DelegationSet, Optout } from "../types"
 import {
   convertDelegationSetAddressesToAddress,
   convertDelegationSetsDelegateIdsToAddress,
@@ -43,32 +43,24 @@ export const getDelegationRatioMap = async (
   snapshotSpace: string,
   blocknumber?: number,
 ) => {
-  let timestamp: number | undefined
+  const timestamp = await getTimestampForBlocknumber(snapshotSpace, blocknumber)
 
-  if (blocknumber != null) {
-    const mainChainId = (await fetchSnapshotSpaceSettings(snapshotSpace, false))
-      .network
-    console.log(`[${snapshotSpace}] Main chain chainId: ${mainChainId}`)
-    const ethersProvider = new ethers.providers.InfuraProvider()
-    const block = await ethersProvider.getBlock(blocknumber)
-    timestamp = block.timestamp
-    console.log(
-      `[${snapshotSpace}] Timestamp of block number ${blocknumber} is: ${timestamp}`,
-    )
-  }
   // 1. fetch context from all chains
-  const allContexts = await theGraph.fetchContextFromAllChains(
+  const allContexts: Context[] = await theGraph.fetchContextFromAllChains(
     snapshotSpace,
     timestamp,
   )
   const delegationSetsForEachChain: DelegationSet[][] =
     convertDelegationSetsDelegateIdsToAddress(
       // optimization option: this can be done when writing to the database, we just have to always convert to lowercased addresses (instead of the checksumable address version)
-      R.map(R.prop("delegationSets"), allContexts),
+      R.map<Context, DelegationSet[]>(
+        R.propOr([] as DelegationSet[], "delegationSets"),
+        allContexts,
+      ),
     )
 
-  const allOptoutsForEachChain: Optout[][] = R.map(
-    R.prop("optouts"),
+  const allOptoutsForEachChain: Optout[][] = R.map<Context, Optout[]>(
+    R.propOr([] as Optout[], "optouts"),
     allContexts,
   )
 
@@ -88,4 +80,26 @@ export const getDelegationRatioMap = async (
   const delegations = generateDelegationRatioMap(finalDelegatorToDelegationSets)
 
   return delegations
+}
+
+const getTimestampForBlocknumber = async (
+  snapshotSpace: string,
+  blocknumber?: number,
+): Promise<number | undefined> => {
+  if (blocknumber == null) {
+    console.log(`[${snapshotSpace}] No blocknumber. Getting newest available.`)
+    return
+  }
+
+  const mainChainId = (await fetchSnapshotSpaceSettings(snapshotSpace, false))
+    .network
+  console.log(`[${snapshotSpace}] Main chain chainId: ${mainChainId}`)
+  const ethersProvider = new ethers.providers.InfuraProvider(
+    Number(mainChainId),
+  )
+  const block = await ethersProvider.getBlock(blocknumber)
+  console.log(
+    `[${snapshotSpace}] Timestamp of block number ${blocknumber} is: ${block.timestamp}`,
+  )
+  return block.timestamp
 }

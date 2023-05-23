@@ -27,7 +27,18 @@ module.exports.resolvers = {
             },
             info,
           }).then((contextRes) => {
-            console.log("contextRes", contextRes)
+            // console.log("GraphQl contextRes (in resolver): ", contextRes)
+            if (contextRes.toString().includes("GraphQLError")) {
+              console.log("GraphQLError for: ", {
+                id: args.contextId,
+                contextId: args.contextId,
+                chainName,
+                ...(timestamp != null && { timestamp }),
+              })
+              console.log("GraphQL contextRes (in resolver) error:", contextRes)
+
+              return undefined
+            }
             if (contextRes == null) return undefined
             // We send chainName here so we can take it in the resolver above
             return { ...contextRes, chainName }
@@ -52,7 +63,20 @@ module.exports.resolvers = {
             },
             info,
           }).then((contextsRes) => {
-            console.log("contextsRes", contextsRes)
+            // console.log("GraphQl contextsRes (in resolver): ", contextsRes)
+            if (contextsRes.toString().includes("GraphQLError")) {
+              console.log("GraphQLError for: ", {
+                contextId: args.contextId,
+                chainName,
+                ...(timestamp != null && { timestamp }),
+              })
+              console.log(
+                "ResGraphQL contextsRes (in resolver) error:error:",
+                contextsRes,
+              )
+
+              return []
+            }
             // We send chainName here so we can take it in the resolver above
             return contextsRes.map((contextRes) => ({
               ...contextRes,
