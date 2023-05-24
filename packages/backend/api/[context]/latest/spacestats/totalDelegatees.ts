@@ -4,7 +4,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node"
 import { db, getDelegationSnapshot } from "../../../../lib/services/storage/db"
 import { BigNumber, ethers } from "ethers"
 
-export default async function totalDelegators(
+export default async function totalDelegatees(
   request: VercelRequest,
   response: VercelResponse,
 ) {
@@ -15,16 +15,16 @@ export default async function totalDelegators(
     .selectFrom("delegation_snapshot")
     .where("context", "=", space)
     .where("main_chain_block_number", "is", null)
-    .select(["from_address"])
+    .select(["to_address"])
     .distinct()
     .execute()
 
   if (stats.length === 0) {
-    console.log("No delegators found for space context", space)
+    console.log("No delegatees found for space context", space)
   }
 
   response.status(200).json({
     success: "true",
-    totalUniqueDelegators: stats.length
+    totalUniqueDelegatees: stats.length
   })
 }
