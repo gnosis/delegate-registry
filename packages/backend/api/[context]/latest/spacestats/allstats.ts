@@ -18,14 +18,6 @@ export default async function getSpaceStats(
     .select(["from_address", "delegated_amount", "to_address_own_amount"])
     .execute()
 
-  // const stats2 = await db
-  //   .selectFrom("delegation_snapshot")
-  //   .where("context", "=", space)
-  //   .where("main_chain_block_number", "is", null)
-  //   .execute()
-
-  // console.log(stats2.length)
-
   if (stats.length === 0) {
     console.log("No delegations found for space context", space)
   }
