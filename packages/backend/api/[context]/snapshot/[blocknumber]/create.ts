@@ -5,6 +5,7 @@
 
 import type { VercelRequest, VercelResponse } from "@vercel/node"
 import { createDelegationSnapshot } from "../../../../lib/updateSnapshot"
+import { checkIfSnapshotExists } from "../../../../lib/services/storage/db"
 
 export default async function getDelegations(
   request: VercelRequest,
@@ -13,11 +14,18 @@ export default async function getDelegations(
   const context = request.query.context as string
   const mainChainBlockNumber = Number(request.query.blocknumber as string)
 
-  await createDelegationSnapshot(context, mainChainBlockNumber)
+  if (await checkIfSnapshotExists(context, mainChainBlockNumber)) {
+    console.log(
+      `Snapshot already exists. For context: ${context} at blocknumber: ${mainChainBlockNumber}`,
+    )
+  } else {
+    await createDelegationSnapshot(context, mainChainBlockNumber)
 
-  console.log(
-    `Done! Computing and storing snapshot of delegated vote weights. For context: ${context} at blocknumber: ${mainChainBlockNumber}`,
-  )
+    console.log(
+      `Done! Computing and storing snapshot of delegated vote weights. For context: ${context} at blocknumber: ${mainChainBlockNumber}`,
+    )
+  }
+
   response.status(200).json({
     success: "true",
     info:
