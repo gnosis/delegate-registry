@@ -1,5 +1,6 @@
 import { sql, Generated } from "kysely"
 import { createKysely } from "@vercel/postgres-kysely"
+
 type PromiseType<T extends Promise<any>> = T extends Promise<infer U>
   ? U
   : never
@@ -34,11 +35,11 @@ const db = createKysely<Database>()
 
 const createExcisingSnapshotsTable = async () => {
   await db.schema
-    .createTable("snapshot_index")
+    .createTable("excising_snapshots")
     .ifNotExists()
     .addColumn("id", "serial", (cb) => cb.primaryKey())
     .addColumn("context", "text", (col) => col.notNull())
-    .addColumn("main_chain_block_number", "integer", (col) => col.notNull())
+    .addColumn("main_chain_block_number", "bigint", (col) => col.notNull())
     .execute()
 }
 
@@ -48,11 +49,13 @@ const createDelegationSnapshotTable = async () => {
     .ifNotExists()
     .addColumn("id", "serial", (cb) => cb.primaryKey())
     .addColumn("context", "text", (col) => col.notNull())
-    .addColumn("main_chain_block_number", "integer")
+    .addColumn("main_chain_block_number", "bigint")
     .addColumn("from_address", "text", (col) => col.notNull())
     .addColumn("to_address", "text", (col) => col.notNull())
-    .addColumn("delegated_amount", "text", (col) => col.notNull())
-    .addColumn("to_address_own_amount", "text", (col) => col.notNull())
+    .addColumn("delegated_amount", "numeric(40)" as any, (col) => col.notNull()) // numeric(35
+    .addColumn("to_address_own_amount", "numeric(40)" as any, (col) =>
+      col.notNull(),
+    )
     .execute()
 }
 
@@ -128,6 +131,21 @@ const getDelegationSnapshot = async (
     ])
     .execute()
 
+const { sum, min } = db.fn
+const getVoteWeightSnapshot = async (
+  context: string,
+  main_chain_block_number: number | null,
+) =>
+  db
+    .selectFrom("delegation_snapshot")
+    .where("context", "=", context)
+    .where("main_chain_block_number", "=", main_chain_block_number)
+    .select("to_address")
+    .select(sum("delegated_amount").as("delegated_amount"))
+    .select(sum("to_address_own_amount").as("to_address_own_amount"))
+    .groupBy("to_address")
+    .execute()
+
 export {
   db,
   sql,
@@ -137,4 +155,5 @@ export {
   getDelegationSnapshot,
   addSnapshotToTheExcisingSnapshotTable,
   checkIfSnapshotExists,
+  getVoteWeightSnapshot,
 }
