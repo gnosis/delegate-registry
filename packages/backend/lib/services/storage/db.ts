@@ -18,12 +18,29 @@ interface DelegationSnapshotTable {
   to_address_own_amount: string // to_address's own vote weight
 }
 
+interface ExcisingSnapshots {
+  id: Generated<number> // primary key
+  context: string
+  main_chain_block_number: number
+}
+
 // Keys of this interface are table names.
 export interface Database {
+  excising_snapshots: ExcisingSnapshots
   delegation_snapshot: DelegationSnapshotTable
 }
 
 const db = createKysely<Database>()
+
+const createExcisingSnapshotsTable = async () => {
+  await db.schema
+    .createTable("snapshot_index")
+    .ifNotExists()
+    .addColumn("id", "serial", (cb) => cb.primaryKey())
+    .addColumn("context", "text", (col) => col.notNull())
+    .addColumn("main_chain_block_number", "integer", (col) => col.notNull())
+    .execute()
+}
 
 const createDelegationSnapshotTable = async () => {
   await db.schema
@@ -40,14 +57,50 @@ const createDelegationSnapshotTable = async () => {
 }
 
 const initDb = async () => {
+  await createExcisingSnapshotsTable()
   await createDelegationSnapshotTable()
 }
 
-const storeSnapshot = async (delegationSnapshot: DelegationSnapshot[]) => {
-  await db
-    .insertInto("delegation_snapshot")
-    .values(delegationSnapshot)
+const addSnapshotToTheExcisingSnapshotTable = async (
+  context: string,
+  main_chain_block_number: number,
+) =>
+  db
+    .insertInto("excising_snapshots")
+    .values({ context, main_chain_block_number })
     .execute()
+
+const checkIfSnapshotExists = async (
+  context: string,
+  main_chain_block_number: number,
+) => {
+  const res = await db
+    .selectFrom("excising_snapshots")
+    .where("context", "=", context)
+    .where("main_chain_block_number", "=", main_chain_block_number)
+    .execute()
+
+  return res.length > 0 ? true : false
+}
+
+const storeSnapshot = async (delegationSnapshot: DelegationSnapshot[]) => {
+  const context = delegationSnapshot[0].context
+  const main_chain_block_number = delegationSnapshot[0]?.main_chain_block_number
+  const parallelDbWrites: Promise<any>[] = []
+  if (main_chain_block_number != null) {
+    if (!(await checkIfSnapshotExists(context, main_chain_block_number))) {
+      console.warn(
+        "This snapshot is not stored in the `excising_snapshots`. We store it here automatically. But if this is not fixed empty snapshots will be recomputed on every request.",
+      )
+      parallelDbWrites.push(
+        addSnapshotToTheExcisingSnapshotTable(context, main_chain_block_number),
+      )
+    }
+  }
+  parallelDbWrites.push(
+    db.insertInto("delegation_snapshot").values(delegationSnapshot).execute(),
+  )
+  await Promise.all(parallelDbWrites)
 }
 
 const deleteLatestSnapshot = async (context: string) =>
@@ -82,4 +135,6 @@ export {
   storeSnapshot,
   deleteLatestSnapshot,
   getDelegationSnapshot,
+  addSnapshotToTheExcisingSnapshotTable,
+  checkIfSnapshotExists,
 }
