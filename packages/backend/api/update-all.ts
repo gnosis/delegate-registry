@@ -23,7 +23,7 @@ export default async function getDelegations(
   )
   response.status(200).json({
     success: "true",
-    info: "Done! Computing and storing delegated vote weights. FOr all spaces.",
+    info: "Done! Computing and storing delegated vote weights. For all spaces.",
     spaces: spaces,
   })
 }

@@ -1,5 +1,6 @@
 import { sql, Generated } from "kysely"
 import { createKysely } from "@vercel/postgres-kysely"
+
 type PromiseType<T extends Promise<any>> = T extends Promise<infer U>
   ? U
   : never
@@ -18,12 +19,29 @@ interface DelegationSnapshotTable {
   to_address_own_amount: string // to_address's own vote weight
 }
 
+interface ExcisingSnapshots {
+  id: Generated<number> // primary key
+  context: string
+  main_chain_block_number: number
+}
+
 // Keys of this interface are table names.
 export interface Database {
+  excising_snapshots: ExcisingSnapshots
   delegation_snapshot: DelegationSnapshotTable
 }
 
 const db = createKysely<Database>()
+
+const createExcisingSnapshotsTable = async () => {
+  await db.schema
+    .createTable("excising_snapshots")
+    .ifNotExists()
+    .addColumn("id", "serial", (cb) => cb.primaryKey())
+    .addColumn("context", "text", (col) => col.notNull())
+    .addColumn("main_chain_block_number", "bigint", (col) => col.notNull())
+    .execute()
+}
 
 const createDelegationSnapshotTable = async () => {
   await db.schema
@@ -31,23 +49,61 @@ const createDelegationSnapshotTable = async () => {
     .ifNotExists()
     .addColumn("id", "serial", (cb) => cb.primaryKey())
     .addColumn("context", "text", (col) => col.notNull())
-    .addColumn("main_chain_block_number", "integer")
+    .addColumn("main_chain_block_number", "bigint")
     .addColumn("from_address", "text", (col) => col.notNull())
     .addColumn("to_address", "text", (col) => col.notNull())
-    .addColumn("delegated_amount", "text", (col) => col.notNull())
-    .addColumn("to_address_own_amount", "text", (col) => col.notNull())
+    .addColumn("delegated_amount", "numeric(40)" as any, (col) => col.notNull()) // numeric(35
+    .addColumn("to_address_own_amount", "numeric(40)" as any, (col) =>
+      col.notNull(),
+    )
     .execute()
 }
 
 const initDb = async () => {
+  await createExcisingSnapshotsTable()
   await createDelegationSnapshotTable()
 }
 
-const storeSnapshot = async (delegationSnapshot: DelegationSnapshot[]) => {
-  await db
-    .insertInto("delegation_snapshot")
-    .values(delegationSnapshot)
+const addSnapshotToTheExcisingSnapshotTable = async (
+  context: string,
+  main_chain_block_number: number,
+) =>
+  db
+    .insertInto("excising_snapshots")
+    .values({ context, main_chain_block_number })
     .execute()
+
+const checkIfSnapshotExists = async (
+  context: string,
+  main_chain_block_number: number,
+) => {
+  const res = await db
+    .selectFrom("excising_snapshots")
+    .where("context", "=", context)
+    .where("main_chain_block_number", "=", main_chain_block_number)
+    .execute()
+
+  return res.length > 0 ? true : false
+}
+
+const storeSnapshot = async (delegationSnapshot: DelegationSnapshot[]) => {
+  const context = delegationSnapshot[0].context
+  const main_chain_block_number = delegationSnapshot[0]?.main_chain_block_number
+  const parallelDbWrites: Promise<any>[] = []
+  if (main_chain_block_number != null) {
+    if (!(await checkIfSnapshotExists(context, main_chain_block_number))) {
+      console.warn(
+        "This snapshot is not stored in the `excising_snapshots`. We store it here automatically. But if this is not fixed empty snapshots will be recomputed on every request.",
+      )
+      parallelDbWrites.push(
+        addSnapshotToTheExcisingSnapshotTable(context, main_chain_block_number),
+      )
+    }
+  }
+  parallelDbWrites.push(
+    db.insertInto("delegation_snapshot").values(delegationSnapshot).execute(),
+  )
+  await Promise.all(parallelDbWrites)
 }
 
 const deleteLatestSnapshot = async (context: string) =>
@@ -75,6 +131,21 @@ const getDelegationSnapshot = async (
     ])
     .execute()
 
+const { sum, min } = db.fn
+const getVoteWeightSnapshot = async (
+  context: string,
+  main_chain_block_number: number | null,
+) =>
+  db
+    .selectFrom("delegation_snapshot")
+    .where("context", "=", context)
+    .where("main_chain_block_number", "=", main_chain_block_number)
+    .select("to_address")
+    .select(sum("delegated_amount").as("delegated_amount"))
+    .select(sum("to_address_own_amount").as("to_address_own_amount"))
+    .groupBy("to_address")
+    .execute()
+
 export {
   db,
   sql,
@@ -82,4 +153,7 @@ export {
   storeSnapshot,
   deleteLatestSnapshot,
   getDelegationSnapshot,
+  addSnapshotToTheExcisingSnapshotTable,
+  checkIfSnapshotExists,
+  getVoteWeightSnapshot,
 }

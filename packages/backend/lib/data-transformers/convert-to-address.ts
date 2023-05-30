@@ -18,7 +18,7 @@ export const convertDelegationSetAddressesToAddress = (
     ...delegationSet.fromAccount,
     id: getAddress(delegationSet.fromAccount.id),
   },
-  delegations: delegationSet.delegations.map((delegation) => ({
+  delegations: (delegationSet.delegations ?? []).map((delegation) => ({
     ...delegation,
     toAccount: {
       ...delegation.toAccount,

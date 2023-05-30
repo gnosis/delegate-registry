@@ -1,4 +1,4 @@
-query GetContextAtBlocknumber(
+query GetContextAtTimestamp(
   $contextId: ID!
   $chainNames: [String!]!
   $timestamp: BigInt!

@@ -1,9 +1,9 @@
 import { GetContextQuery } from "../lib/services/the-graph/.graphclient"
-
+type NonNullable<T> = Exclude<T, null | undefined>
 type Unpacked<T> = T extends (infer U)[] ? U : T
 export type Context = Unpacked<GetContextQuery["crossContext"]>
-export type DelegationSet = Unpacked<Context["delegationSets"]>
-export type Optout = Unpacked<Context["optouts"]>
+export type DelegationSet = NonNullable<Unpacked<Context["delegationSets"]>>
+export type Optout = NonNullable<Unpacked<Context["optouts"]>>
 export type Delegation = Unpacked<DelegationSet["delegations"]>
 
 export type Ratio = Readonly<{

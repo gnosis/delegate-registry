@@ -26,6 +26,9 @@ export const createDelegationSnapshot = async (
   const delegations = await getDelegationRatioMap(space, blocknumber)
   if (delegations == null) {
     console.log(`[${space}] Done: no delegations found.`)
+    if (blocknumber != null) {
+      await db.addSnapshotToTheExcisingSnapshotTable(space, blocknumber)
+    }
     return
   }
 
@@ -48,6 +51,9 @@ export const createDelegationSnapshot = async (
 
   if (R.keys(voteWeights)?.length === 0) {
     console.log(`[${space}] Done: no vote weights found.`)
+    if (blocknumber != null) {
+      await db.addSnapshotToTheExcisingSnapshotTable(space, blocknumber)
+    }
     return
   }
 
@@ -103,6 +109,9 @@ export const createDelegationSnapshot = async (
 
   if (snapshot.length === 0) {
     // TODO: find a way to store empty snapshots so we do not recompute it every time
+    if (blocknumber != null) {
+      await db.addSnapshotToTheExcisingSnapshotTable(space, blocknumber)
+    }
     return
   }
   return await db.storeSnapshot(snapshot)

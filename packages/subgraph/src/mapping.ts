@@ -1,4 +1,4 @@
-import { BigInt, Address, ByteArray } from "@graphprotocol/graph-ts"
+import { BigInt, Address } from "@graphprotocol/graph-ts"
 import {
   DelegationCleared,
   DelegationUpdated,
