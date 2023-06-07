@@ -1,0 +1,39 @@
+{
+  "name": "delegate-registry_stress_testing",
+  "version": "1.0.0",
+  "description": "Delpoy a token, set up a snapshot space and make delegations in masses",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gnosis/delegate-registry.git"
+  },
+  "author": "",
+  "license": "LGPL-3.0+",
+  "bugs": {
+    "url": "https://github.com/gnosis/delegate-registry/issues"
+  },
+  "homepage": "https://github.com/gnosis/delegate-registry#readme",
+  "devDependencies": {
+    "@ethersproject/abi": "^5.7.0",
+    "@ethersproject/providers": "^5.7.2",
+    "@nomicfoundation/hardhat-chai-matchers": "1",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
+    "@nomicfoundation/hardhat-toolbox": "^2.0.2",
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@nomiclabs/hardhat-etherscan": "^3.1.7",
+    "@typechain/ethers-v5": "^11.0.0",
+    "@typechain/hardhat": "^8.0.0",
+    "chai": "^4.3.7",
+    "ethers": "5",
+    "hardhat": "^2.14.1",
+    "hardhat-gas-reporter": "^1.0.9",
+    "solidity-coverage": "^0.8.2",
+    "typechain": "^8.2.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.1"
+  }
+}
