@@ -1,4 +1,4 @@
-// Get the top delegates for a spesific Snapshot Space.
+#  Get the current top delegates by weight or count
 
 GET http://localhost:3000/api/gnosis.eth/latest/delegates/top?by=weight
 content-type: application/json

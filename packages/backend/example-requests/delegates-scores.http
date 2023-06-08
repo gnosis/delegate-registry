@@ -1,5 +1,5 @@
-// Get the voting power delegated to each delegate (provided in the request body).
-// Returned in the format required by the "API POST strategy" (https://github.com/snapshot-labs/snapshot-strategies/tree/master/src/strategies/api-post)
+// Get the voting power delegated to each delegate provided in the request body.
+// This is the endpoint used by the Snapshot Strategy.
 
 POST http://localhost:3000/api/mydao.eth/snapshot/8979656/strategy-formatted-vote-weights
 content-type: application/json

@@ -1,8 +1,9 @@
 // return global stats for a given snapshot space.
 
 import type { VercelRequest, VercelResponse } from "@vercel/node"
-import { db, getDelegationSnapshot } from "../../../../lib/services/storage/db"
-import { BigNumber, ethers } from "ethers"
+import { db } from "../../../../lib/services/storage/db"
+import { BigNumber } from "ethers"
+const { count, sum } = db.fn
 
 export default async function getSpaceStats(
   request: VercelRequest,
@@ -10,40 +11,50 @@ export default async function getSpaceStats(
 ) {
   const space = request.query.space as string
 
-  // TODO: total number of delegations
-  // TODO: get the number of delegates
-  // TODO: get the number of delegators
-
-  const stats = await db
+  const numberOfDelegationsPromise = db
     .selectFrom("delegation_snapshot")
     .where("context", "=", space)
     .where("main_chain_block_number", "is", null)
-    .select(["from_address", "delegated_amount", "to_address_own_amount"])
-    .execute()
+    .select(count("id").as("numberOfDelegations"))
+    .executeTakeFirst()
 
-  if (stats.length === 0) {
-    console.log("No delegations found for space", space)
-  }
+  const numberOfDelegatesPromise = await db
+    .selectFrom((eb) =>
+      eb
+        .selectFrom("delegation_snapshot")
+        .where("context", "=", space)
+        .where("main_chain_block_number", "is", null)
+        .select("to_address")
+        .distinct()
+        .as("inner"),
+    )
+    .select(count("inner.to_address" as any).as("numberOfDelegates"))
+    .executeTakeFirst()
 
-  // total unique delegations TODO: find select distinct in kinsly
-  const unique = [...new Set(stats.map((item) => item.from_address))]
-  // total delegated vote weight
-  // total non-unique delegations
-  const globalStats = stats.reduce(
-    (acc, stat) => {
-      acc.totalVoteWeight = acc.totalVoteWeight.add(
-        BigNumber.from(stat.delegated_amount),
-      )
-      acc.totalDelegations++
-      return acc
-    },
-    { totalVoteWeight: BigNumber.from(0), totalDelegations: 0 },
-  )
+  const numberOfDelegatorsPromise = await db
+    .selectFrom((eb) =>
+      eb
+        .selectFrom("delegation_snapshot")
+        .where("context", "=", space)
+        .where("main_chain_block_number", "is", null)
+        .select("from_address")
+        .distinct()
+        .as("inner"),
+    )
+    .select(count("inner.from_address" as any).as("numberOfDelegators"))
+    .executeTakeFirst()
+
+  const [numberOfDelegations, numberOfDelegates, numberOfDelegators] =
+    await Promise.all([
+      numberOfDelegationsPromise,
+      numberOfDelegatesPromise,
+      numberOfDelegatorsPromise,
+    ])
 
   response.status(200).json({
     success: "true",
-    totalVoteWeight: globalStats.totalVoteWeight.toString(),
-    totalDelegations: globalStats.totalDelegations,
-    totalUniqueDelegators: unique.length,
+    ...numberOfDelegations,
+    ...numberOfDelegates,
+    ...numberOfDelegators,
   })
 }

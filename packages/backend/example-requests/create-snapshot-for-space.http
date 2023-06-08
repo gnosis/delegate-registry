@@ -1,4 +1,4 @@
-// Recomputes the vote weights for all delegates across all Snapshot Spaces.
+// This is used to create a snapshot of for a space (use a blocknumber from the spase's main chain)
 
 GET http://localhost:3000/api/mydao.eth/snapshot/8979656/create
 

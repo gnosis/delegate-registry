@@ -1,3 +1,4 @@
 // Recomputes the vote weights for all delegates across all Snapshot Spaces.
+// This should run periodically.
 
 GET http://localhost:3000/api/update-all
