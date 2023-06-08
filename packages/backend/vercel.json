@@ -5,11 +5,11 @@
       "includeFiles": "lib/**/*.ts",
       "maxDuration": 60
     },
-    "api/[context]/snapshot/[blocknumber]/create.ts": {
+    "api/[space]/snapshot/[blocknumber]/create.ts": {
       "includeFiles": "lib/**/*.ts",
       "maxDuration": 60
     },
-    "api/[context]/latest/update.ts": {
+    "api/[space]/latest/update.ts": {
       "includeFiles": "lib/**/*.ts",
       "maxDuration": 60
     }

@@ -1,4 +1,4 @@
-// return all of the delegated addresses that a specific delegator address is delegating to and the amount delegated for each delegate per delegator.
+// return infromation amout a delegators delegations.
 
 import type { VercelRequest, VercelResponse } from "@vercel/node"
 import { db, getDelegationSnapshot } from "../../../../lib/services/storage/db"
@@ -8,13 +8,12 @@ export default async function getDelegationSet(
   request: VercelRequest,
   response: VercelResponse,
 ) {
-  const context = request.query.context as string
   const space = request.query.space as string
   const delegatorAddress = ethers.utils.getAddress(
     request.query.delegatorAddress as string,
   )
 
-  const delegates = await db
+  const delegations = await db
     .selectFrom("delegation_snapshot")
     .where("context", "=", space)
     .where("main_chain_block_number", "is", null)
@@ -22,13 +21,13 @@ export default async function getDelegationSet(
     .select(["to_address", "delegated_amount", "to_address_own_amount"])
     .execute()
 
-  if (delegates.length === 0) {
+  if (delegations.length === 0) {
     console.log("No delegates found for delegatorAddress", delegatorAddress)
   }
 
   response.status(200).json({
     success: "true",
-    delegates,
-    numberOfDelegates: delegates.length
+    delegations,
+    numberOfDelegations: delegations.length,
   })
 }

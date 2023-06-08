@@ -10,15 +10,15 @@ export default async function getDelegations(
   request: VercelRequest,
   response: VercelResponse,
 ) {
-  const context = request.query.context as string
+  const space = request.query.space as string
   const delegateAddress = ethers.utils.getAddress(
     request.query.delegateAddress as string,
   )
-  console.log("context", context)
+  console.log("space", space)
   console.log("delegateAddress", delegateAddress)
   const delegators = await db
     .selectFrom("delegation_snapshot")
-    .where("context", "=", context)
+    .where("context", "=", space)
     .where("main_chain_block_number", "is", null)
     .where("to_address", "=", delegateAddress)
     .select(["from_address", "delegated_amount", "to_address_own_amount"])

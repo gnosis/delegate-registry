@@ -8,8 +8,11 @@ export default async function getSpaceStats(
   request: VercelRequest,
   response: VercelResponse,
 ) {
-  const context = request.query.context as string
   const space = request.query.space as string
+
+  // TODO: total number of delegations
+  // TODO: get the number of delegates
+  // TODO: get the number of delegators
 
   const stats = await db
     .selectFrom("delegation_snapshot")
@@ -19,23 +22,28 @@ export default async function getSpaceStats(
     .execute()
 
   if (stats.length === 0) {
-    console.log("No delegations found for space context", space)
+    console.log("No delegations found for space", space)
   }
 
   // total unique delegations TODO: find select distinct in kinsly
-  const unique = [...new Set(stats.map(item => item.from_address))];
+  const unique = [...new Set(stats.map((item) => item.from_address))]
   // total delegated vote weight
   // total non-unique delegations
-  const globalStats = stats.reduce((acc, stat) => {
-      acc.totalVoteWeight = acc.totalVoteWeight.add(BigNumber.from(stat.delegated_amount))
+  const globalStats = stats.reduce(
+    (acc, stat) => {
+      acc.totalVoteWeight = acc.totalVoteWeight.add(
+        BigNumber.from(stat.delegated_amount),
+      )
       acc.totalDelegations++
       return acc
-  }, { totalVoteWeight:BigNumber.from(0), totalDelegations:0 })
+    },
+    { totalVoteWeight: BigNumber.from(0), totalDelegations: 0 },
+  )
 
   response.status(200).json({
     success: "true",
     totalVoteWeight: globalStats.totalVoteWeight.toString(),
     totalDelegations: globalStats.totalDelegations,
-    totalUniqueDelegators: unique.length
+    totalUniqueDelegators: unique.length,
   })
 }

@@ -16,7 +16,7 @@ export default async function updateDelegationSnapshot(
   response: VercelResponse,
 ) {
   await initDb()
-  const space = request.query.context as string
+  const space = request.query.space as string
 
   await createDelegationSnapshot(space)
 

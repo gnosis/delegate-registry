@@ -1,1 +1,1 @@
-curl -v -X GET "http://localhost:3000/api/context/latest/spacestats/allstats?space=gnosis.eth"
+curl -v -X GET "http://localhost:3000/api/gnosis.eth/latest/stats"

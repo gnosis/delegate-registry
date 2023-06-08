@@ -11,7 +11,7 @@ export default async function getDelegations(
   request: VercelRequest,
   response: VercelResponse,
 ) {
-  const context = request.query.context as string
+  const context = request.query.space as string
   const mainChainBlockNumber = Number(request.query.blocknumber as string)
 
   if (await checkIfSnapshotExists(context, mainChainBlockNumber)) {

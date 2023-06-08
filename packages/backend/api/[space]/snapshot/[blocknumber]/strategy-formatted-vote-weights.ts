@@ -15,7 +15,7 @@ export default async function getVoteWeightsForSnapshot(
   request: VercelRequest,
   response: VercelResponse,
 ) {
-  const context = request.query.context as string
+  const context = request.query.space as string
   const mainChainBlockNumber: number | null =
     request.query.blocknumber === "latest"
       ? null
