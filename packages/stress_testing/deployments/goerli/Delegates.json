@@ -1,0 +1,149 @@
+{
+  "address": "0x69Fa3f86732Bd96728dc247d8DE8D8c4EA3Cb726",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "context",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "delegate",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "ratio",
+              "type": "uint256"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct Delegation[]",
+          "name": "previousDelegation",
+          "type": "tuple[]"
+        },
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "delegate",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "ratio",
+              "type": "uint256"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct Delegation[]",
+          "name": "delegation",
+          "type": "tuple[]"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "expirationTimestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "DelegationUpdated",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "context",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "delegate",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "ratio",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct Delegation[]",
+          "name": "delegation",
+          "type": "tuple[]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "expirationTimestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "setDelegation",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x45cbeaaba12f2e025d619e8f952efbef2f55294471cddc6b4a6ebbc315b471da",
+  "receipt": {
+    "to": "0x4e59b44847b379578588920cA78FbF26c0B4956C",
+    "from": "0x7735b940d673344845aC239CdDddE1D73b5d5627",
+    "contractAddress": null,
+    "transactionIndex": 1,
+    "gasUsed": "249824",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x8b7661f1db56997168d537fe8a69787202d8358f4e1a8d09c58a5be3f08ccb52",
+    "transactionHash": "0x45cbeaaba12f2e025d619e8f952efbef2f55294471cddc6b4a6ebbc315b471da",
+    "logs": [],
+    "blockNumber": 9146789,
+    "cumulativeGasUsed": "270824",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "solcInputHash": "588774d5dda786ee08d1cc2ae156840e",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"context\",\"type\":\"string\"},{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"delegate\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"ratio\",\"type\":\"uint256\"}],\"indexed\":false,\"internalType\":\"struct Delegation[]\",\"name\":\"previousDelegation\",\"type\":\"tuple[]\"},{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"delegate\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"ratio\",\"type\":\"uint256\"}],\"indexed\":false,\"internalType\":\"struct Delegation[]\",\"name\":\"delegation\",\"type\":\"tuple[]\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"expirationTimestamp\",\"type\":\"uint256\"}],\"name\":\"DelegationUpdated\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"context\",\"type\":\"string\"},{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"delegate\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"ratio\",\"type\":\"uint256\"}],\"internalType\":\"struct Delegation[]\",\"name\":\"delegation\",\"type\":\"tuple[]\"},{\"internalType\":\"uint256\",\"name\":\"expirationTimestamp\",\"type\":\"uint256\"}],\"name\":\"setDelegation\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"setDelegation(string,(bytes32,uint256)[],uint256)\":{\"details\":\"Sets a delegate for the msg.sender and a specific context.\",\"params\":{\"context\":\"ID of the context in which delegation should be set.\",\"delegation\":\"Array of delegations. Must be sorted in numerical order, from smallest to largets.\",\"expirationTimestamp\":\"Unix timestamp for at which this delegation should expire.\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"setDelegation(string,(bytes32,uint256)[],uint256)\":{\"notice\":\"setDelegation() will overrite the user's previous delegation for the given context.\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/Delegates.sol\":\"Delegates\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":1000},\"remappings\":[]},\"sources\":{\"contracts/Delegates.sol\":{\"content\":\"// SPDX-License-Identifier: LGPL-3.0-only\\npragma solidity ^0.8.17;\\n\\nstruct Delegation {\\n    bytes32 delegate;\\n    uint256 ratio;\\n}\\n\\ncontract Delegates {\\n    event DelegationUpdated(\\n        address indexed account,\\n        string context,\\n        Delegation[] previousDelegation,\\n        Delegation[] delegation,\\n        uint256 expirationTimestamp\\n    );\\n\\n    /// @dev Sets a delegate for the msg.sender and a specific context.\\n    /// @param context ID of the context in which delegation should be set.\\n    /// @param delegation Array of delegations. Must be sorted in numerical order, from smallest to largets.\\n    /// @param expirationTimestamp Unix timestamp for at which this delegation should expire.\\n    /// @notice setDelegation() will overrite the user's previous delegation for the given context.\\n    function setDelegation(\\n        string memory context,\\n        Delegation[] memory delegation,\\n        uint256 expirationTimestamp\\n    ) public {\\n        Delegation[] memory empty;\\n\\n        emit DelegationUpdated(\\n            msg.sender,\\n            context,\\n            empty,\\n            delegation,\\n            expirationTimestamp\\n        );\\n    }\\n}\\n\",\"keccak256\":\"0xaa70b62b41f35b39406359e1d2f0dacfd12807077f7de12089345e2e6b016945\",\"license\":\"LGPL-3.0-only\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b5061038d806100206000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c80631e61206a14610030575b600080fd5b61004361003e3660046101ce565b610045565b005b60603373ffffffffffffffffffffffffffffffffffffffff167fbbfaebc0e35c81daa40cc3d21316def67a6456e2b1c91d5f8ad1de9b721de37b8583868660405161009394939291906102d5565b60405180910390a250505050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b6040805190810167ffffffffffffffff811182821017156100f3576100f36100a1565b60405290565b604051601f8201601f1916810167ffffffffffffffff81118282101715610122576101226100a1565b604052919050565b600082601f83011261013b57600080fd5b8135602067ffffffffffffffff821115610157576101576100a1565b610165818360051b016100f9565b82815260069290921b8401810191818101908684111561018457600080fd5b8286015b848110156101c357604081890312156101a15760008081fd5b6101a96100d0565b813581528482013585820152835291830191604001610188565b509695505050505050565b6000806000606084860312156101e357600080fd5b833567ffffffffffffffff808211156101fb57600080fd5b818601915086601f83011261020f57600080fd5b8135602082821115610223576102236100a1565b610235601f8301601f191682016100f9565b828152898284870101111561024957600080fd5b8282860183830137600092810182019290925290955086013591508082111561027157600080fd5b5061027e8682870161012a565b925050604084013590509250925092565b600081518084526020808501945080840160005b838110156102ca5781518051885283015183880152604090960195908201906001016102a3565b509495945050505050565b608081526000855180608084015260005b8181101561030357602081890181015160a08684010152016102e6565b50600060a08285010152601f19601f8201168301905060a083820301602084015261033160a082018761028f565b90508281036040840152610345818661028f565b9150508260608301529594505050505056fea26469706673582212203fc6e0070491ba3cf16e83ae680b9d295ec0a190e24e97e3ee218b769544c68d64736f6c63430008110033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061002b5760003560e01c80631e61206a14610030575b600080fd5b61004361003e3660046101ce565b610045565b005b60603373ffffffffffffffffffffffffffffffffffffffff167fbbfaebc0e35c81daa40cc3d21316def67a6456e2b1c91d5f8ad1de9b721de37b8583868660405161009394939291906102d5565b60405180910390a250505050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b6040805190810167ffffffffffffffff811182821017156100f3576100f36100a1565b60405290565b604051601f8201601f1916810167ffffffffffffffff81118282101715610122576101226100a1565b604052919050565b600082601f83011261013b57600080fd5b8135602067ffffffffffffffff821115610157576101576100a1565b610165818360051b016100f9565b82815260069290921b8401810191818101908684111561018457600080fd5b8286015b848110156101c357604081890312156101a15760008081fd5b6101a96100d0565b813581528482013585820152835291830191604001610188565b509695505050505050565b6000806000606084860312156101e357600080fd5b833567ffffffffffffffff808211156101fb57600080fd5b818601915086601f83011261020f57600080fd5b8135602082821115610223576102236100a1565b610235601f8301601f191682016100f9565b828152898284870101111561024957600080fd5b8282860183830137600092810182019290925290955086013591508082111561027157600080fd5b5061027e8682870161012a565b925050604084013590509250925092565b600081518084526020808501945080840160005b838110156102ca5781518051885283015183880152604090960195908201906001016102a3565b509495945050505050565b608081526000855180608084015260005b8181101561030357602081890181015160a08684010152016102e6565b50600060a08285010152601f19601f8201168301905060a083820301602084015261033160a082018761028f565b90508281036040840152610345818661028f565b9150508260608301529594505050505056fea26469706673582212203fc6e0070491ba3cf16e83ae680b9d295ec0a190e24e97e3ee218b769544c68d64736f6c63430008110033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "setDelegation(string,(bytes32,uint256)[],uint256)": {
+        "details": "Sets a delegate for the msg.sender and a specific context.",
+        "params": {
+          "context": "ID of the context in which delegation should be set.",
+          "delegation": "Array of delegations. Must be sorted in numerical order, from smallest to largets.",
+          "expirationTimestamp": "Unix timestamp for at which this delegation should expire."
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "setDelegation(string,(bytes32,uint256)[],uint256)": {
+        "notice": "setDelegation() will overrite the user's previous delegation for the given context."
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}
