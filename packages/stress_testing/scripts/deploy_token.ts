@@ -1,8 +1,6 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-
   const Token = await ethers.getContractFactory("Token");
   const token = await Token.deploy();
 
