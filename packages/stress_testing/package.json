@@ -7,7 +7,8 @@
     "build": "hardhat compile",
     "deploy": "hardhat deploy --network",
     "hardhat": "hardhat",
-    "test": "hardhat test"
+    "test": "hardhat test",
+    "load-delegates": "hardhat run scripts/delegate.ts"
   },
   "repository": {
     "type": "git",
