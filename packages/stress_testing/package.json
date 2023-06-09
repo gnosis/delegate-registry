@@ -8,7 +8,8 @@
     "deploy": "hardhat deploy --network",
     "hardhat": "hardhat",
     "test": "hardhat test",
-    "load-delegates": "hardhat run scripts/delegate.ts"
+    "load-delegates": "hardhat run scripts/delegate.ts",
+    "deploy-token": "hardhat run scripts/deploy_token.ts"
   },
   "repository": {
     "type": "git",
