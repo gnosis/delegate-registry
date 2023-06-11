@@ -15,7 +15,6 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     args,
     log: true,
     deterministicDeployment: true,
-    nonce: 127,
     gasPrice: 50000000000
   });
 };
