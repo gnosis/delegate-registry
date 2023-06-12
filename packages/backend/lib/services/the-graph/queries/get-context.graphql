@@ -1,7 +1,7 @@
 query GetContext($contextId: ID!, $chainNames: [String!]!) {
   crossContext(contextId: $contextId, chainNames: $chainNames) {
     chainName
-    delegationSets {
+    delegationSets(first: 1000) {
       fromAccount {
         id
       }

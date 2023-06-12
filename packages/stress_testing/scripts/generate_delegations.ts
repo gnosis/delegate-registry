@@ -6,7 +6,7 @@ async function main() {
   );
   const delegationEventGenerator = await DelegationEventGenerator.deploy(
     "myplay.eth",
-    100,
+    2000,
     2086558524000
   );
 

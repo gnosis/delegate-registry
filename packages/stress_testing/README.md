@@ -10,8 +10,8 @@ Process to stress test:
    - Network: Ethereum Testnet Goerli
    - Token standard: ERC-20
    - Token contract: 0xE666Ad68a6e2897CD06A9ff378ED8b0d71093398
-4. Create delegations with the delegate task. Provide the Snapshot Spaces ENS (mydao.eth). (@nginnever: update once the script is done)
-5. Replace the source address here `packages/subgraph/subgraph.yaml`, with the Delegates contract address. (@nginnever: update once the contract is deployed)
+4. Generate new delegations (in bulk) here: https://goerli.etherscan.io/address/0x5238b5fda42819aaf4d64404d26a4043f861ae8e#writeContract
+5. Replace the source address here `packages/subgraph/subgraph.yaml`, with the Delegates `0x5238b5fda42819aaf4d64404d26a4043f861ae8e`
 6. Deploy a new Subgraph (for testing), the subgraph names should end in the chain name (for instence, gnosis or goerli).
 7. Repeat steps 4 to 6 for adictional networks (this is cross-chain, so we should have delegations on multiple networks).
 8. Update the graphQL enpoint in `packages/backend/.graphclientrc.yml`.
