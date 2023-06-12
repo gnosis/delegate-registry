@@ -34,6 +34,7 @@ for (let i = 0; i < config.numberOfDelegators; i++) {
 		const walletDelegator = new ethers.Wallet(randomAddressDelegator);
 		addresses.delegatlorPK = randomAddressDelegator
 		addresses.delegatorAddress = walletDelegator.address;
+		addresses.delegatorAddressBytes = ethers.BigNumber.from(ethers.utils.randomBytes(32))
 		console.log("Address Delegator: " + walletDelegator.address);
 	} catch (e) {
 		console.log(e)
@@ -56,13 +57,13 @@ async function main () {
 		const balanceDelegator = await token.balanceOf(delegates.delegatorAddress)
 		console.log(balanceDelegator.toString())
 
-		// const test1 = ethers.utils.defaultAbiCoder.encode(
-		// 	[ "bytes32", "uint256" ],
-		// 	[
-		// 		delegates.delegateeAddress,
-		// 		20
-		// 	]
-		// )
+		const singleDelegation = [
+		{
+			  delegate:
+			    delegates.delegatorAddressBytes,
+			  ratio: 6,
+			},
+		]
 
 		const Delegation_1 = {
 			delegate: "0x00",
@@ -80,9 +81,7 @@ async function main () {
 		const delsArray = [Delegation_1, Delegation_2, Delegation_3]
 		console.log("-----------")
 		let num = new ethers.BigNumber.from("18446744073709551615")
-		//const delegate = await delegatesContract.setDelegation(delegates.delegateeAddress, "gnosis.eth", [["0x00", 20]], num)
-		const delegate = await delegatesContract.test(delegates.delegateeAddress, "gnosis.eth", num)
-	}
+		const delegate = await delegatesContract.setDelegation(delegates.delegateeAddress, "gnosis.eth", singleDelegation, num)	}
 }
 
 main()
