@@ -21,6 +21,7 @@ contract Delegates {
     /// @param expirationTimestamp Unix timestamp for at which this delegation should expire.
     /// @notice setDelegation() will overrite the user's previous delegation for the given context.
     function setDelegation(
+        address delegator,
         string memory context,
         Delegation[] memory delegation,
         uint256 expirationTimestamp
@@ -28,11 +29,20 @@ contract Delegates {
         Delegation[] memory empty;
 
         emit DelegationUpdated(
-            msg.sender,
+            delegator,
             context,
             empty,
             delegation,
             expirationTimestamp
         );
+    }
+
+    function test(
+      address delegator,
+      string memory context,
+      //Delegation[] memory delegation,
+      uint256 expirationTimestamp
+    ) public {
+        //bool test = true;
     }
 }
