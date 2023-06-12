@@ -49,7 +49,7 @@ contract DelegationEventGenerator {
 
             for (uint256 j = 0; j < numberOfDelegations; j++) {
                 delegationSet[j] = Delegation({
-                    delegate: bytes32(uint256(j)),
+                    delegate: bytes32(uint256(j + i)),
                     ratio: j + i
                 });
             }
