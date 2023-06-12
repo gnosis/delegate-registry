@@ -4,7 +4,12 @@
   "description": "Delpoy a token, set up a snapshot space and make delegations in masses",
   "main": "index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "hardhat compile",
+    "deploy": "hardhat deploy --network",
+    "hardhat": "hardhat",
+    "test": "hardhat test",
+    "load-delegates": "hardhat run scripts/delegate.ts",
+    "deploy-token": "hardhat run scripts/deploy_token.ts"
   },
   "repository": {
     "type": "git",
@@ -19,21 +24,31 @@
   "devDependencies": {
     "@ethersproject/abi": "^5.7.0",
     "@ethersproject/providers": "^5.7.2",
-    "@nomicfoundation/hardhat-chai-matchers": "1",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
-    "@nomicfoundation/hardhat-toolbox": "^2.0.2",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@nomiclabs/hardhat-etherscan": "^3.1.7",
+    "@nomiclabs/hardhat-waffle": "^2.0.0",
     "@typechain/ethers-v5": "^11.0.0",
     "@typechain/hardhat": "^8.0.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^18.11.18",
     "chai": "^4.3.7",
-    "ethers": "5",
+    "ethers": "^5.7.2",
     "hardhat": "^2.14.1",
-    "hardhat-gas-reporter": "^1.0.9",
+    "hardhat-contract-sizer": "2.1.1",
+    "hardhat-deploy": "0.7.0-beta.38",
+    "hardhat-gas-reporter": "1.0.4",
     "solidity-coverage": "^0.8.2",
-    "typechain": "^8.2.0"
+    "ts-node": "^10.9.1",
+    "typechain": "^8.2.0",
+    "typescript": "^5.1.3",
+    "yargs": "^17.6.0",
+    "@types/yargs": "^17.0.13"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.9.1"
+    "@openzeppelin/contracts": "^4.9.1",
+    "argv": "^0.0.2",
+    "dotenv": "^8.0.0",
+    "yargs": "^16.1.1"
   }
 }

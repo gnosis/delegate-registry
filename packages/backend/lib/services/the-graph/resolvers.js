@@ -28,7 +28,10 @@ module.exports.resolvers = {
             info,
           }).then((contextRes) => {
             // console.log("GraphQl contextRes (in resolver): ", contextRes)
-            if (contextRes.toString().includes("GraphQLError")) {
+            if (
+              contextRes != null &&
+              contextRes.toString().includes("GraphQLError")
+            ) {
               console.log("GraphQLError for: ", {
                 id: args.contextId,
                 contextId: args.contextId,
@@ -64,7 +67,10 @@ module.exports.resolvers = {
             info,
           }).then((contextsRes) => {
             // console.log("GraphQl contextsRes (in resolver): ", contextsRes)
-            if (contextsRes.toString().includes("GraphQLError")) {
+            if (
+              contextsRes != null &&
+              contextsRes.toString().includes("GraphQLError")
+            ) {
               console.log("GraphQLError for: ", {
                 contextId: args.contextId,
                 chainName,
