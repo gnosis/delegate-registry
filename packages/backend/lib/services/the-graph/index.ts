@@ -14,11 +14,13 @@ export const fetchContextFromAllChains = async (
     timestamp == null
       ? await sdk.GetContext({
           // get newest
+          first: 6000,
           contextId: snapshotSpace,
           chainNames: CHAIN_NAMES,
         })
       : await sdk.GetContextAtTimestamp({
           // gets the whats active at the current timestamp
+          first: 6000,
           contextId: snapshotSpace,
           chainNames: CHAIN_NAMES,
           timestamp,

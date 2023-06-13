@@ -21,7 +21,7 @@ additionalResolvers:
   - ./resolvers.js
 
 documents:
-  - './lib/services/the-graph/queries/**/*.graphql'
+  - "./lib/services/the-graph/queries/**/*.graphql"
 
 codegen:
-  contextType: 'MeshContext & { chainName: string, DelegateRegistry: any }'
+  contextType: "MeshContext & { chainName: string, DelegateRegistry: any }"
