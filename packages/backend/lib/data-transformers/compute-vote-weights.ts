@@ -32,12 +32,12 @@ export const computeVoteWeights = (
     trace: Readonly<string[]>,
   ): [DelegateToValue, DelegateToDelegatorToValue, BrokenEdges] => {
     if (trace.includes(delegate)) {
-      console.log("WARNING: Cycle detected in delegation graph!")
+      // console.log("WARNING: Cycle detected in delegation graph!")
       const cycleTrace = [...trace, delegate] as string[]
-      console.log(
-        // obs, we can't really trust the order of keys in an object
-        "Trace:" + cycleTrace.join(" -> "),
-      )
+      // console.log(
+      //   // obs, we can't really trust the order of keys in an object
+      //   "Trace:" + cycleTrace.join(" -> "),
+      // )
 
       const mapIndexed = R.addIndex<string, boolean>(R.map)
       const alreadyHandled = R.includes(
@@ -54,7 +54,7 @@ export const computeVoteWeights = (
       if (!alreadyHandled) {
         throw Error("Cycle detected in delegation graph")
       } else {
-        console.log("Cycle already handled, ignoring")
+        // console.log("Cycle already handled, ignoring")
         // it is safe to return here because if it is visited it is also computed
         // this is where the cycle is cut
         return [
@@ -112,9 +112,9 @@ export const computeVoteWeights = (
             // This is how we break cycles. The first time we encounter a edge creating
             // a cycle we cut it by only adding the delegator's votes (NOT the votes delegated to the
             // delegator).
-            console.log(
-              `Delegation from ${delegator} to ${delegate} only adds delegator's votes (NOT votes delegated to the delegator)`,
-            )
+            // console.log(
+            //   `Delegation from ${delegator} to ${delegate} only adds delegator's votes (NOT votes delegated to the delegator)`,
+            // )
             return [
               {
                 ...accVoteWeights,

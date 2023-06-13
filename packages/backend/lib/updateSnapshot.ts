@@ -74,15 +74,15 @@ export const createDelegationSnapshot = async (
   // const delegatedVoteWeightScaled =
   //   convertDelegatedVoteWeight(delegatedVoteWeight)
 
-  console.log("delegatedVoteWeightByAccount:", delegatedVoteWeightByAccount)
+  // console.log("delegatedVoteWeightByAccount:", delegatedVoteWeightByAccount)
 
   const delegatedVoteWeightByAccountScaled =
     convertDelegatedVoteWeightByAccount(delegatedVoteWeightByAccount)
 
-  console.log(
-    "delegatedVoteWeightByAccountScaled",
-    delegatedVoteWeightByAccountScaled,
-  )
+  // console.log(
+  //   "delegatedVoteWeightByAccountScaled",
+  //   delegatedVoteWeightByAccountScaled,
+  // )
 
   // TODO: optimize this by doing it in one of the previous steps (loops)
   const snapshot: db.DelegationSnapshot[] = Object.entries(
@@ -105,7 +105,7 @@ export const createDelegationSnapshot = async (
     return acc
   }, [] as db.DelegationSnapshot[])
 
-  console.log("snapshot", snapshot)
+  // console.log("snapshot", snapshot)
 
   if (snapshot.length === 0) {
     // TODO: find a way to store empty snapshots so we do not recompute it every time
