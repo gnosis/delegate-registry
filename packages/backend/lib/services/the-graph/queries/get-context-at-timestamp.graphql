@@ -10,6 +10,7 @@ query GetContextAtTimestamp(
   ) {
     chainName
     delegationSets(
+      first: 1000,
       where: {
         expireTimestamp_gt: $timestamp
         creationTimestamp_lt: $timestamp
