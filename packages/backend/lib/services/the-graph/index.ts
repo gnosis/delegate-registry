@@ -15,7 +15,7 @@ export const fetchDelegationSetsFromAllChains = async (
       sdk
         .GetDelegationSets(
           {
-            // first: 5000,
+            first: 10000,
             contextId: snapshotSpace,
           },
           {
@@ -40,6 +40,28 @@ export const fetchContextIdsFromAllChains = async () => {
           },
         )
         .then((data) => data.contexts),
+    ),
+  )
+  return results.flat()
+}
+
+export const fetchOptoutsFromAllChains = async (
+  snapshotSpace: string,
+  timestamp?: number,
+) => {
+  const sdk = getBuiltGraphSDK()
+  const results = await Promise.all(
+    CHAIN_NAMES.map((chainName) =>
+      sdk
+        .GetOptouts(
+          {
+            contextId: snapshotSpace,
+          },
+          {
+            chainName,
+          },
+        )
+        .then((data) => data.optouts),
     ),
   )
   return results.flat()

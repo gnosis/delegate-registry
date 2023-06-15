@@ -28,7 +28,7 @@ export const generateDelegationRatioMap = (
             denominator: delegationSet.denominator,
           },
         }
-      })(delegationSet.delegations)
+      })(delegationSet.delegations ?? [])
       return acc
     },
     {},

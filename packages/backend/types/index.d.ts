@@ -1,4 +1,7 @@
-import { GetDelegationSetsQuery } from "../lib/services/the-graph/.graphclient"
+import {
+  GetDelegationSetsQuery,
+  GetOptoutsQuery,
+} from "../lib/services/the-graph/.graphclient"
 type NonNullable<T> = Exclude<T, null | undefined>
 type Unpacked<T> = T extends (infer U)[] ? U : T
 type OptionalPropertyOf<T extends object> = Exclude<
@@ -11,8 +14,8 @@ type OptionalPropertyOf<T extends object> = Exclude<
 export type DelegationSet = Unpacked<
   NonNullable<GetDelegationSetsQuery["delegationSets"]>
 >
-export type Delegation = NonNullable<DelegationSet["delegations"]>
-// export type Optout = NonNullable<Unpacked<Context["optouts"]>>
+export type Delegation = Unpacked<NonNullable<DelegationSet["delegations"]>>
+export type Optout = Unpacked<NonNullable<GetOptoutsQuery["optouts"]>>
 // export type Context = NonNullable<GetDelegationSetsQuery[""]>
 
 export type Ratio = Readonly<{

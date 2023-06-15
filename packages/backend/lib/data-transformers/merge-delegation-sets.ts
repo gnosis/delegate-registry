@@ -40,12 +40,12 @@ export const mergeDelegationSets = (
  * If a delegate has optouts in multiple arrays we use the newest status and
  * discard others.
  *
- * @param optoutsForEachChain - an array (one for each chain) of arrays of
+ * @param optoutsForAllChains - an array (one for each chain) of arrays of
  * optouts for a specific snapshot space
  * @returns a list of the addresses of delegates that have opted out
  */
 export const mergeDelegationOptouts = (
-  optoutsForEachChain: Optout[][],
+  optoutsForAllChains: Optout[],
 ): string[] =>
   R.compose(
     R.keys,
@@ -65,5 +65,4 @@ export const mergeDelegationOptouts = (
         ),
       {},
     ),
-    R.flatten,
-  )(optoutsForEachChain)
+  )(optoutsForAllChains)

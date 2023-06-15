@@ -15,6 +15,9 @@ additionalTypeDefs: |
   extend type Context {
     chainName: String
   }
+  extend type Optout {
+    chainName: String
+  }
 
 additionalResolvers:
   - ./resolvers.ts

@@ -6,7 +6,7 @@ import {
 import { removeOptouts } from "./data-transformers/remove-optouts"
 import { generateDelegationRatioMap } from "./data-transformers/generate-delegation-ratio-map"
 import R from "ramda"
-import { Context, DelegationSet, Optout } from "../types"
+import { DelegationSet, Optout } from "../types"
 import {
   convertDelegationSetAddressesToAddress,
   convertDelegationSetsDelegateIdsToAddress,
@@ -61,18 +61,22 @@ export const getDelegationRatioMap = async (
   const mergedDelegatorToDelegationSets = mergeDelegationSets(
     delegationSetsForEachChain,
   )
-  // const listOfOptouts = mergeDelegatorOptouts(allOptoutsForEachChain)
+
+  const optouts: Optout[] = await theGraph.fetchOptoutsFromAllChains(
+    snapshotSpace,
+    timestamp,
+  )
+
+  const listOfOptouts = mergeDelegatorOptouts(optouts)
 
   // // 3. remove optout delegators (and recompute dominators, across delegationSets)
-  // const finalDelegatorToDelegationSets = removeOptouts(
-  //   listOfOptouts,
-  //   mergedDelegatorToDelegationSets,
-  // )
-
-  // // 4. generate the delegation ratio map (delegate -> delegator -> ratio)
-  const delegations = generateDelegationRatioMap(
+  const finalDelegatorToDelegationSets = removeOptouts(
+    listOfOptouts,
     mergedDelegatorToDelegationSets,
   )
+
+  // // 4. generate the delegation ratio map (delegate -> delegator -> ratio)
+  const delegations = generateDelegationRatioMap(finalDelegatorToDelegationSets)
 
   return delegations
 }
