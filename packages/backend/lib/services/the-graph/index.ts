@@ -10,21 +10,40 @@ export const fetchDelegationSetsFromAllChains = async (
   console.log("fetchDelegationSetsFromAllChains snapshot space:", snapshotSpace)
 
   const sdk = getBuiltGraphSDK()
-  const results = await Promise.all(
-    CHAIN_NAMES.map((chainName) =>
-      sdk
-        .GetDelegationSets(
-          {
-            first: 10000,
-            contextId: snapshotSpace,
-          },
-          {
-            chainName,
-          },
+  const results =
+    timestamp == null
+      ? await Promise.all(
+          CHAIN_NAMES.map((chainName) =>
+            sdk
+              .GetDelegationSets(
+                {
+                  first: 10000,
+                  contextId: snapshotSpace,
+                },
+                {
+                  chainName,
+                },
+              )
+              .then((data) => data.delegationSets),
+          ),
         )
-        .then((data) => data.delegationSets),
-    ),
-  )
+      : await Promise.all(
+          CHAIN_NAMES.map((chainName) =>
+            sdk
+              .GetDelegationSetsAtTimestamp(
+                {
+                  first: 100000,
+                  contextId: snapshotSpace,
+                  timestamp,
+                },
+                {
+                  chainName,
+                },
+              )
+              .then((data) => data.delegationSets),
+          ),
+        )
+
   return results.flat()
 }
 
@@ -50,19 +69,36 @@ export const fetchOptoutsFromAllChains = async (
   timestamp?: number,
 ) => {
   const sdk = getBuiltGraphSDK()
-  const results = await Promise.all(
-    CHAIN_NAMES.map((chainName) =>
-      sdk
-        .GetOptouts(
-          {
-            contextId: snapshotSpace,
-          },
-          {
-            chainName,
-          },
+  const results =
+    timestamp == null
+      ? await Promise.all(
+          CHAIN_NAMES.map((chainName) =>
+            sdk
+              .GetOptouts(
+                {
+                  contextId: snapshotSpace,
+                },
+                {
+                  chainName,
+                },
+              )
+              .then((data) => data.optouts),
+          ),
         )
-        .then((data) => data.optouts),
-    ),
-  )
+      : await Promise.all(
+          CHAIN_NAMES.map((chainName) =>
+            sdk
+              .GetOptoutsAtTimestamp(
+                {
+                  contextId: snapshotSpace,
+                  timestamp,
+                },
+                {
+                  chainName,
+                },
+              )
+              .then((data) => data.optouts),
+          ),
+        )
   return results.flat()
 }

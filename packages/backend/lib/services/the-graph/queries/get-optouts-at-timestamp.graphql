@@ -1,0 +1,18 @@
+query GetOptoutsAtTimestamp(
+  $contextId: String!
+  $timestamp: BigInt!
+  $first: Int = 100
+  $skip: Int = 0
+) {
+  optouts(
+    first: $first
+    skip: $skip
+    where: { creationTimestamp_lt: $timestamp, inContext: $contextId }
+  ) {
+    account {
+      id
+    }
+    status
+    creationTimestamp
+  }
+}
