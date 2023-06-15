@@ -12,6 +12,7 @@ export default async function updateDelegations(
   request: VercelRequest,
   response: VercelResponse,
 ) {
+  const startTime = Date.now()
   await initDb()
   const spaces = await getSnapshotSpaces()
 
@@ -21,6 +22,10 @@ export default async function updateDelegations(
     "Done! Computing and storing delegated vote weights. For (all) spaces:",
     spaces,
   )
+
+  const fisnsihTime = Date.now()
+  console.log(`Execution time: ${(fisnsihTime - startTime) / 1000} seconds`)
+
   response.status(200).json({
     success: "true",
     info: "Done! Computing and storing delegated vote weights. For all spaces.",

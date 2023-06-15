@@ -11,6 +11,8 @@ export default async function getDelegations(
   request: VercelRequest,
   response: VercelResponse,
 ) {
+  const startTime = Date.now()
+
   const context = request.query.space as string
   const mainChainBlockNumber = Number(request.query.blocknumber as string)
 
@@ -25,6 +27,9 @@ export default async function getDelegations(
       `Done! Computing and storing snapshot of delegated vote weights. For context: ${context} at blocknumber: ${mainChainBlockNumber}`,
     )
   }
+
+  const fisnsihTime = Date.now()
+  console.log(`Execution time: ${(fisnsihTime - startTime) / 1000} seconds`)
 
   response.status(200).json({
     success: "true",

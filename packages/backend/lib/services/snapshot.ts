@@ -40,14 +40,14 @@ export const fetchVoteWeights = async (
       console.log(
         "Also no strategies found for TEST space: ",
         spaceName,
-        " on the snapshot hub.",
+        " on the snapshot TEST hub.",
       )
       return {}
     } else {
       console.log(
         "Found strategies for TEST space: ",
         spaceName,
-        " on the snapshot hub.",
+        " on the snapshot TEST hub.",
       )
     }
   }
