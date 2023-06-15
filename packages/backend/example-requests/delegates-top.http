@@ -1,4 +1,4 @@
 #  Get the current top delegates by weight or count
 
-GET http://localhost:3000/api/myplay.eth/latest/delegates/top?by=count
+GET http://localhost:3000/api/myplay.eth/latest/delegates/top?by=count&limit=10
 content-type: application/json

@@ -43,6 +43,12 @@ export const fetchVoteWeights = async (
         " on the snapshot hub.",
       )
       return {}
+    } else {
+      console.log(
+        "Found strategies for TEST space: ",
+        spaceName,
+        " on the snapshot hub.",
+      )
     }
   }
   return strategies.reduce(async (accPromise, strategy) => {

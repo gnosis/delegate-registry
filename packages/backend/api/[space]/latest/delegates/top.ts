@@ -13,6 +13,8 @@ export default async function getTopDelegates(
   const by: "count" | "weight" =
     request.query.by === "weight" ? "weight" : "count"
 
+  const limit = Number(request.query.limit) || 100
+
   let topDelegates
   if (by === "count") {
     topDelegates = await db
@@ -22,6 +24,7 @@ export default async function getTopDelegates(
       .groupBy("to_address")
       .select(["to_address", count("to_address").as("number_of_delegations")])
       .orderBy("number_of_delegations", "desc")
+      .limit(limit)
       .execute()
   } else if (by === "weight") {
     topDelegates = await db
@@ -31,6 +34,7 @@ export default async function getTopDelegates(
       .groupBy("to_address")
       .select(["to_address", sum("delegated_amount").as("delegated_amount")])
       .orderBy("delegated_amount", "desc")
+      .limit(limit)
       .execute()
   } else {
     throw new Error("Error: invalid 'by' parameter.")

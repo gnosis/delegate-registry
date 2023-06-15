@@ -8,7 +8,7 @@ import { initDb } from "../lib/services/storage/db"
  *
  * Triggered by a cron job
  */
-export default async function getDelegations(
+export default async function updateDelegations(
   request: VercelRequest,
   response: VercelResponse,
 ) {
