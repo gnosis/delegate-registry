@@ -6,7 +6,7 @@ sources:
     transforms:
       - autoPagination:
           # You might want to disable schema validation for faster startup
-          validateSchema: false
+          validateSchema: true
 
 additionalTypeDefs: |
   extend type DelegationSet {
