@@ -61,6 +61,10 @@ const config: HardhatUserConfig = {
       ...sharedNetworkConfig,
       url: `https://goerli.infura.io/v3/${INFURA_KEY}`,
     },
+    xdai: {
+      ...sharedNetworkConfig,
+      url: "https://rpc.gnosischain.com/",
+    },
   },
   namedAccounts: {
     deployer: {

@@ -6,22 +6,21 @@ sources:
     transforms:
       - autoPagination:
           # You might want to disable schema validation for faster startup
-          validateSchema: true
+          validateSchema: false
 
 additionalTypeDefs: |
+  extend type DelegationSet {
+    chainName: String
+  }
   extend type Context {
     chainName: String
   }
-  extend type Query {
-    crossContext(contextId: ID!, chainNames: [String!]!, timestamp: BigInt): [Context!]!
-    crossContexts(chainNames: [String!]!): [Context!]!
-  }
 
 additionalResolvers:
-  - ./resolvers.js
+  - ./resolvers.ts
 
 documents:
   - "./lib/services/the-graph/queries/**/*.graphql"
 
 codegen:
-  contextType: "MeshContext & { chainName: string, DelegateRegistry: any }"
+  contextType: "MeshContext & { chainName: string }"

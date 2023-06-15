@@ -1,6 +1,5 @@
-query GetContextIds($chainNames: [String!]!) {
-  crossContexts(chainNames: $chainNames) {
-    chainName
+query GetContextIds {
+  contexts {
     id
   }
 }

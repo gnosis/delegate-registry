@@ -28,9 +28,9 @@ export const convertDelegationSetAddressesToAddress = (
 })
 
 export const convertDelegationSetsDelegateIdsToAddress = (
-  delegationSets: DelegationSet[][],
-): DelegationSet[][] =>
-  R.map(R.map(convertDelegationSetAddressesToAddress), delegationSets)
+  delegationSets: DelegationSet[],
+): DelegationSet[] =>
+  R.map(convertDelegationSetAddressesToAddress, delegationSets)
 
 /**
  * Convert delegate's id to an address.

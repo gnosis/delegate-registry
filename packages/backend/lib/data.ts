@@ -46,38 +46,33 @@ export const getDelegationRatioMap = async (
   const timestamp = await getTimestampForBlocknumber(snapshotSpace, blocknumber)
 
   // 1. fetch context from all chains
-  const allContexts: Context[] = await theGraph.fetchContextFromAllChains(
-    snapshotSpace,
-    timestamp,
-  )
-  const delegationSetsForEachChain: DelegationSet[][] =
-    convertDelegationSetsDelegateIdsToAddress(
-      // optimization option: this can be done when writing to the database, we just have to always convert to lowercased addresses (instead of the checksumable address version)
-      R.map<Context, DelegationSet[]>(
-        R.propOr([] as DelegationSet[], "delegationSets"),
-        allContexts,
-      ),
-    )
+  const allDelegationSets: DelegationSet[] =
+    await theGraph.fetchDelegationSetsFromAllChains(snapshotSpace, timestamp)
 
-  const allOptoutsForEachChain: Optout[][] = R.map<Context, Optout[]>(
-    R.propOr([] as Optout[], "optouts"),
-    allContexts,
-  )
+  const delegationSetsForEachChain: DelegationSet[] =
+    convertDelegationSetsDelegateIdsToAddress(allDelegationSets)
 
-  // 2. merge delegationSets and optouts
+  // const allOptoutsForEachChain: Optout[][] = R.map<Context, Optout[]>(
+  //   R.propOr([] as Optout[], "optouts"),
+  //   allContexts,
+  // )
+
+  // // 2. merge delegationSets and optouts
   const mergedDelegatorToDelegationSets = mergeDelegationSets(
     delegationSetsForEachChain,
   )
-  const listOfOptouts = mergeDelegatorOptouts(allOptoutsForEachChain)
+  // const listOfOptouts = mergeDelegatorOptouts(allOptoutsForEachChain)
 
-  // 3. remove optout delegators (and recompute dominators, across delegationSets)
-  const finalDelegatorToDelegationSets = removeOptouts(
-    listOfOptouts,
+  // // 3. remove optout delegators (and recompute dominators, across delegationSets)
+  // const finalDelegatorToDelegationSets = removeOptouts(
+  //   listOfOptouts,
+  //   mergedDelegatorToDelegationSets,
+  // )
+
+  // // 4. generate the delegation ratio map (delegate -> delegator -> ratio)
+  const delegations = generateDelegationRatioMap(
     mergedDelegatorToDelegationSets,
   )
-
-  // 4. generate the delegation ratio map (delegate -> delegator -> ratio)
-  const delegations = generateDelegationRatioMap(finalDelegatorToDelegationSets)
 
   return delegations
 }
