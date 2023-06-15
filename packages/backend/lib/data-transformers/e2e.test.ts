@@ -183,13 +183,13 @@ describe("the whole data transformation pipeline", () => {
   it("going going trough all the data transformers the expected output should be created", () => {
     const delegationSets = mergeDelegationSets(
       convertDelegationSetsDelegateIdsToAddress([
-        delegationSets1,
-        delegationSets2,
-        delegationSets3,
+        ...delegationSets1,
+        ...delegationSets2,
+        ...delegationSets3,
       ]),
     )
     const optouts = mergeDelegationOptouts(
-      convertOptoutsDelegateIdsToAddress([optout1, optout2, optout3]),
+      convertOptoutsDelegateIdsToAddress([...optout1, ...optout2, ...optout3]),
     )
     const optoutsRemovedDelegationSets = removeOptouts(optouts, delegationSets)
 

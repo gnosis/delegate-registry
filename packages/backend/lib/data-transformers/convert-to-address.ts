@@ -47,5 +47,5 @@ export const convertOptoutDelegateIdToAddress = (optout: Optout): Optout => ({
 })
 
 export const convertOptoutsDelegateIdsToAddress = (
-  optouts: Optout[][],
-): Optout[][] => R.map(R.map(convertOptoutDelegateIdToAddress), optouts)
+  optouts: Optout[],
+): Optout[] => R.map(convertOptoutDelegateIdToAddress, optouts)

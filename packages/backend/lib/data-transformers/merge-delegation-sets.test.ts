@@ -135,9 +135,9 @@ describe("merge-delegation-sets", () => {
   describe("mergeDelegationSets", () => {
     it("should return correct (delegator -> vote weight) map when merging example sets 1, 2 and 3", () => {
       const mergedDelegationSets = mergeDelegationSets([
-        delegationSets1,
-        delegationSets2,
-        delegationSets3,
+        ...delegationSets1,
+        ...delegationSets2,
+        ...delegationSets3,
       ])
 
       expect(R.keys(mergedDelegationSets).length).equal(
@@ -146,17 +146,17 @@ describe("merge-delegation-sets", () => {
       )
       expect(
         mergedDelegationSets["0xd028d504316fec029cfa36bdc3a8f053f6e5a6e4"]
-          .delegations.length,
+          .delegations?.length,
       ).equal(0)
     })
     it("should return correct (delegator -> vote weight) map when merging example sets 1 and 2", () => {
       const mergedDelegationSets = mergeDelegationSets([
-        delegationSets1,
-        delegationSets2,
+        ...delegationSets1,
+        ...delegationSets2,
       ])
 
       expect(mergedDelegationSets).deep.equal(
-        mergeDelegationSets([delegationSets2]),
+        mergeDelegationSets(delegationSets2),
         "the returning delegation set should be the same as the second delegation set (the delegation set in the `delegationSets1` is replaced in the `delegationSets1` set)",
       )
     })
@@ -199,14 +199,18 @@ describe("merge-delegation-sets", () => {
     ]
 
     it("should return the expected merged set of optouts", () => {
-      const mergedOptouts = mergeDelegationOptouts([optout1, optout2, optout3])
+      const mergedOptouts = mergeDelegationOptouts([
+        ...optout1,
+        ...optout2,
+        ...optout3,
+      ])
 
       expect(mergedOptouts.length).equal(2)
       expect(mergedOptouts).to.contain(optout3[1].account.id)
       expect(mergedOptouts).to.contain(optout3[0].account.id)
     })
     it("should return only one and the correct optout when two different optout set arrays, with only the same optout is provided", () => {
-      const mergedOptouts = mergeDelegationOptouts([optout1, optout2])
+      const mergedOptouts = mergeDelegationOptouts([...optout1, ...optout2])
 
       expect(mergedOptouts.length).equal(1)
       expect(mergedOptouts).to.contain(optout3[0].account.id)
