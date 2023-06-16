@@ -1,0 +1,9 @@
+query GetOptouts($contextId: String!, $first: Int = 100, $skip: Int = 0) {
+  optouts(first: $first, skip: $skip, where: { inContext: $contextId }) {
+    account {
+      id
+    }
+    status
+    creationTimestamp
+  }
+}

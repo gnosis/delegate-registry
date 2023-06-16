@@ -15,3 +15,8 @@ Process to stress test:
 6. Deploy a new Subgraph (for testing), the subgraph names should end in the chain name (for instence, gnosis or goerli).
 7. Repeat steps 4 to 6 for adictional networks (this is cross-chain, so we should have delegations on multiple networks).
 8. Update the graphQL enpoint in `packages/backend/.graphclientrc.yml`.
+
+Stres-test Delegation contracts
+
+Gnosis Chain: 0x3AFB6345EbFE3f27495567721E708B4964eb4F86
+Goerli: 0x5238b5Fda42819AAF4D64404D26a4043f861Ae8E

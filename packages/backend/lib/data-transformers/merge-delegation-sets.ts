@@ -8,12 +8,12 @@ import { DelegateToValue, DelegationSet, Optout } from "../../types"
  * If a delegator has delegation sets in multiple arrays we use the newest and
  * discard others.
  *
- * @param delegationSetsForEachChain - An array (one for each chain) of arrays
+ * @param delegationSetsForAllChain - An array (one for each chain) of arrays
  * of delegation sets for a specific snapshot space
  * @returns all delegation sets merged
  */
 export const mergeDelegationSets = (
-  delegationSetsForEachChain: DelegationSet[][],
+  delegationSetsForAllChain: DelegationSet[],
 ): DelegateToValue<DelegationSet> =>
   R.compose(
     R.reduce<DelegationSet, DelegateToValue<DelegationSet>>(
@@ -30,8 +30,7 @@ export const mergeDelegationSets = (
         ),
       {},
     ),
-    R.flatten,
-  )(delegationSetsForEachChain)
+  )(delegationSetsForAllChain)
 
 /**
  * Merges multiple arrays of optouts into one array, and returns
@@ -41,12 +40,12 @@ export const mergeDelegationSets = (
  * If a delegate has optouts in multiple arrays we use the newest status and
  * discard others.
  *
- * @param optoutsForEachChain - an array (one for each chain) of arrays of
+ * @param optoutsForAllChains - an array (one for each chain) of arrays of
  * optouts for a specific snapshot space
  * @returns a list of the addresses of delegates that have opted out
  */
 export const mergeDelegationOptouts = (
-  optoutsForEachChain: Optout[][],
+  optoutsForAllChains: Optout[],
 ): string[] =>
   R.compose(
     R.keys,
@@ -66,5 +65,4 @@ export const mergeDelegationOptouts = (
         ),
       {},
     ),
-    R.flatten,
-  )(optoutsForEachChain)
+  )(optoutsForAllChains)

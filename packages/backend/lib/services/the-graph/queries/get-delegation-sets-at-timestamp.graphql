@@ -1,0 +1,29 @@
+query GetDelegationSetsAtTimestamp(
+  $contextId: String!
+  $timestamp: BigInt!
+  $first: Int = 100
+  $skip: Int = 0
+) {
+  delegationSets(
+    first: $first
+    skip: $skip
+    where: {
+      expireTimestamp_gt: $timestamp
+      creationTimestamp_lt: $timestamp
+      inContext: $contextId
+    }
+  ) {
+    fromAccount {
+      id
+    }
+    delegations {
+      toAccount {
+        id
+      }
+      numerator
+    }
+    expireTimestamp
+    denominator
+    creationTimestamp
+  }
+}

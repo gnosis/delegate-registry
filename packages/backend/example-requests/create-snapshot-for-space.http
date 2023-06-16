@@ -1,6 +1,6 @@
 // This is used to create a snapshot of for a space (use a blocknumber from the spase's main chain)
 
-GET http://localhost:3000/api/myplay.eth/snapshot/17484140/create
+GET http://localhost:3000/api/myplay.eth/snapshot/17484143/create
 
 // 8500949 - has one delegation set on goerli in gnosis.eth
 // 8979655 - has more

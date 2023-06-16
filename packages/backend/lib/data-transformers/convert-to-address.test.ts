@@ -40,21 +40,29 @@ describe("convert-to-address.test", () => {
         ...R.omit(["account"], updatedDelegationSet),
         delegations: R.map(
           R.omit(["delegate", "account"]),
-          updatedDelegationSet.delegations,
+          updatedDelegationSet.delegations ?? [],
         ),
       }).to.deep.equal({
         ...R.omit(["account"], delegationSet),
         delegations: R.map(
           R.omit(["delegate", "account"]),
-          delegationSet.delegations,
+          delegationSet.delegations ?? [],
         ),
       })
+
+      if (updatedDelegationSet.delegations == null) {
+        throw new Error("delegation set delegations should not be null")
+      }
+
+      if (delegationSet?.delegations == null) {
+        throw new Error("delegation set should not be null")
+      }
 
       expect(updatedDelegationSet.delegations[0].toAccount.id).to.equal(
         getAddress(delegationSet.delegations[0].toAccount.id),
       )
 
-      expect(updatedDelegationSet.delegations[1].toAccount.id).to.equal(
+      expect((updatedDelegationSet.delegations ?? [])[1].toAccount.id).to.equal(
         getAddress(delegationSet.delegations[1].toAccount.id),
       )
 

@@ -27,13 +27,13 @@ export const removeOptouts = (
           //   "delegationSet: ",
           //   JSON.stringify(delegationSet, null, "  "),
           // )
-          const optoutDelegation = delegationSet.delegations.find(
+          const optoutDelegation = delegationSet.delegations?.find(
             (delegate) => delegate.toAccount.id === optoutDelegate,
           )
           // console.log("optoutDelegate: ", optoutDelegate)
           // console.log("optoutDelegation: ", optoutDelegation)
           if (optoutDelegation != null) {
-            const delegations = delegationSet.delegations.filter(
+            const delegations = delegationSet.delegations?.filter(
               (delegate) => delegate.toAccount.id !== optoutDelegate,
             )
             if (!R.isEmpty(delegations)) {

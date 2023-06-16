@@ -70,8 +70,8 @@ describe("remove-optouts", () => {
       )
 
       expect(
-        delegatorToDelegationSet["0x6cc5b30Cd0A93C1F85C7868f5F2620AB8c458190"]
-          .delegations[0].numerator,
+        (delegatorToDelegationSet["0x6cc5b30Cd0A93C1F85C7868f5F2620AB8c458190"]
+          .delegations ?? [])[0].numerator,
       ).to.equal(
         delegatorToDelegationSet["0x6cc5b30Cd0A93C1F85C7868f5F2620AB8c458190"]
           .denominator,

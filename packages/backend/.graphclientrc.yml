@@ -9,19 +9,21 @@ sources:
           validateSchema: true
 
 additionalTypeDefs: |
+  extend type DelegationSet {
+    chainName: String
+  }
   extend type Context {
     chainName: String
   }
-  extend type Query {
-    crossContext(contextId: ID!, chainNames: [String!]!, timestamp: BigInt): [Context!]!
-    crossContexts(chainNames: [String!]!): [Context!]!
+  extend type Optout {
+    chainName: String
   }
 
 additionalResolvers:
-  - ./resolvers.js
+  - ./resolvers.ts
 
 documents:
   - "./lib/services/the-graph/queries/**/*.graphql"
 
 codegen:
-  contextType: "MeshContext & { chainName: string, DelegateRegistry: any }"
+  contextType: "MeshContext & { chainName: string }"
