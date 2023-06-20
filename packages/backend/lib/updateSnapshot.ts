@@ -11,7 +11,6 @@ export const createDelegationSnapshot = async (
 ) => {
   if (blocknumber == null) {
     console.log("Updating the latest snapshot for the following space:", space)
-    await db.deleteLatestSnapshot(space) // should only have one latest snapshot (last snapshot has blocknumber = null)
   } else {
     console.log(
       "Creating a snapshot for the following space:",
@@ -108,11 +107,16 @@ export const createDelegationSnapshot = async (
   // console.log("snapshot", snapshot)
 
   if (snapshot.length === 0) {
-    // TODO: find a way to store empty snapshots so we do not recompute it every time
     if (blocknumber != null) {
-      await db.addSnapshotToTheExcisingSnapshotTable(space, blocknumber)
+      await db.addSnapshotToTheExcisingSnapshotTable(space, blocknumber) // even if the snapshot is empety we store it to avoid re-computing it
     }
     return
   }
+
+  if (blocknumber != null) {
+    // we delete the latest snapshot for this space before we write the new one
+    await db.deleteLatestSnapshot(space) // should only have one latest snapshot (last snapshot has blocknumber = null)
+  }
+
   return await db.storeSnapshot(snapshot)
 }
