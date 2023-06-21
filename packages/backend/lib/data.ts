@@ -49,8 +49,8 @@ export const getDelegationRatioMap = async (
   const allDelegationSets: DelegationSet[] =
     await theGraph.fetchDelegationSetsFromAllChains(snapshotSpace, timestamp)
 
-  const delegationSetsForEachChain: DelegationSet[] =
-    convertDelegationSetsDelegateIdsToAddress(allDelegationSets)
+  // const delegationSetsForEachChain: DelegationSet[] =
+  //   convertDelegationSetsDelegateIdsToAddress(allDelegationSets)
 
   // const allOptoutsForEachChain: Optout[][] = R.map<Context, Optout[]>(
   //   R.propOr([] as Optout[], "optouts"),
@@ -58,9 +58,7 @@ export const getDelegationRatioMap = async (
   // )
 
   // // 2. merge delegationSets and optouts
-  const mergedDelegatorToDelegationSets = mergeDelegationSets(
-    delegationSetsForEachChain,
-  )
+  const mergedDelegatorToDelegationSets = mergeDelegationSets(allDelegationSets)
 
   const optouts: Optout[] = await theGraph.fetchOptoutsFromAllChains(
     snapshotSpace,

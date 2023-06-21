@@ -15,21 +15,19 @@ import { DelegateToValue, DelegationSet, Optout } from "../../types"
 export const mergeDelegationSets = (
   delegationSetsForAllChain: DelegationSet[],
 ): DelegateToValue<DelegationSet> =>
-  R.compose(
-    R.reduce<DelegationSet, DelegateToValue<DelegationSet>>(
-      (sets, set) =>
-        // if the account is already in the (delegation)sets, we keep the one
-        // with the highest `delegationUpdated`
-        R.mergeWith(
-          (set1: DelegationSet, set2: DelegationSet) =>
-            set1.creationTimestamp > set2.creationTimestamp ? set1 : set2,
-          sets,
-          {
-            [set.fromAccount.id]: set,
-          },
-        ),
-      {},
-    ),
+  R.reduce<DelegationSet, DelegateToValue<DelegationSet>>(
+    (sets, set) =>
+      // if the account is already in the (delegation)sets, we keep the one
+      // with the highest `delegationUpdated`
+      R.mergeWith(
+        (set1: DelegationSet, set2: DelegationSet) =>
+          set1.creationTimestamp > set2.creationTimestamp ? set1 : set2,
+        sets,
+        {
+          [set.fromAccount.id]: set,
+        },
+      ),
+    {},
   )(delegationSetsForAllChain)
 
 /**
