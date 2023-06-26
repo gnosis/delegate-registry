@@ -1,7 +1,6 @@
-import R from "ramda"
 import { DelegateToDelegatorToValue, DelegateToValue, Ratio } from "../../types"
 
-type BrokenEdges = { [from: string]: string }
+type BrokenEdges = { [from: string]: string } // From -> To
 type Visited = { [representative: string]: boolean }
 
 /**
@@ -39,17 +38,13 @@ export const computeVoteWeights = (
       //   "Trace:" + cycleTrace.join(" -> "),
       // )
 
-      const mapIndexed = R.addIndex<string, boolean>(R.map)
-      const alreadyHandled = R.includes(
-        true,
-        mapIndexed(
+      const alreadyHandled =
+        cycleTrace.find(
           (from, index) =>
             brokenEdges[from] != null &&
             index + 1 < cycleTrace.length &&
             brokenEdges[from] === cycleTrace[index + 1],
-          cycleTrace,
-        ),
-      )
+        ) != null
 
       if (!alreadyHandled) {
         throw Error("Cycle detected in delegation graph")
@@ -69,8 +64,7 @@ export const computeVoteWeights = (
       // we still needs to go over every edge to detect cycles :/
 
       // will throw if cycle detected
-      R.map((delegator) => {
-        // if this member has delegated votes
+      Object.keys(delegationRatios[delegate]).map((delegator) => {
         if (delegationRatios[delegator] != null) {
           computeDelegatedVoteWeight(
             delegator,
@@ -80,7 +74,7 @@ export const computeVoteWeights = (
             [...trace, delegate],
           )
         }
-      }, R.keys(delegationRatios[delegate]) as string[])
+      })
 
       return [
         topLevelAccVoteWeights,
@@ -89,7 +83,7 @@ export const computeVoteWeights = (
       ]
     }
     // Depth first
-    return R.reduce(
+    return Object.keys(delegationRatios[delegate]).reduce(
       ([accVoteWeights, accVoteWeightsByAccount, brokenEdges], delegator) => {
         // for each address delegated from to this delegate (`to`)
         const { numerator, denominator } = delegationRatios[delegate][delegator]
@@ -155,15 +149,10 @@ export const computeVoteWeights = (
         ]
       },
       [topLevelAccVoteWeights, topLevelAccVoteWeightsByAccount, brokenEdges],
-      R.keys(delegationRatios[delegate]) as string[],
     )
   }
 
-  const resultingVoteWeights = R.reduce<
-    string,
-    [DelegateToValue, DelegateToDelegatorToValue, BrokenEdges]
-  >(
-    // for each delegate
+  const resultingVoteWeights = Object.keys(delegationRatios).reduce(
     (
       [delegateToVoteWeight, delegateToDelegatorToVoteWeight, brokenEdges],
       delegate,
@@ -185,7 +174,6 @@ export const computeVoteWeights = (
       ]
     },
     [{}, {}, {}],
-    R.keys(delegationRatios) as string[],
   )
 
   return resultingVoteWeights as [
