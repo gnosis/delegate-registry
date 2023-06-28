@@ -132,6 +132,7 @@ const getDelegationSnapshot = async (
     .execute()
 
 const { sum, min } = db.fn
+// must filter out accounts that delegat further
 const getVoteWeightSnapshot = async (
   context: string,
   main_chain_block_number: number | null,
@@ -140,11 +141,22 @@ const getVoteWeightSnapshot = async (
     .selectFrom("delegation_snapshot")
     .where("context", "=", context)
     .where("main_chain_block_number", "=", main_chain_block_number)
+    .where("to_address", "not in", (qb) =>
+      // select all accounts that have delegated to other accounts
+      qb
+        .selectFrom("delegation_snapshot")
+        .select("from_address")
+        .where("context", "=", context)
+        .where("main_chain_block_number", "=", main_chain_block_number),
+    )
     .select("to_address")
     .select(sum("delegated_amount").as("delegated_amount"))
     .select(sum("to_address_own_amount").as("to_address_own_amount"))
     .groupBy("to_address")
     .execute()
+
+// select all to_accounts that have delegated to other accounts
+// select to_Address where to_address in (select from_address from delegation_snapshot where context = 'mainnet' and main_chain_block_number = 1234)
 
 export {
   db,
