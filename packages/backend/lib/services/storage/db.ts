@@ -131,27 +131,51 @@ const getDelegationSnapshot = async (
     ])
     .execute()
 
-const { sum, min } = db.fn
-// must filter out accounts that delegat further
+const { sum } = db.fn
+
+/*
+    Returns the vote weight snapshot for the given context and main_chain_block_number.
+    The vote weight snapshot is the sum of all vote weights delegated to each account.
+    Accounts that have delegated to other accounts has delegated_to_count > 0.
+*/
 const getVoteWeightSnapshot = async (
   context: string,
   main_chain_block_number: number | null,
 ) =>
   db
     .selectFrom("delegation_snapshot")
+    .leftJoin(
+      (eb) =>
+        eb
+          .selectFrom("delegation_snapshot")
+          .select("from_address")
+          .where("context", "=", context)
+          .where("main_chain_block_number", "=", main_chain_block_number)
+          .as("delegators"),
+      (join) =>
+        join.onRef(
+          "delegators.from_address",
+          "=",
+          "delegation_snapshot.to_address",
+        ),
+    )
     .where("context", "=", context)
     .where("main_chain_block_number", "=", main_chain_block_number)
-    .where("to_address", "not in", (qb) =>
-      // select all accounts that have delegated to other accounts
-      qb
-        .selectFrom("delegation_snapshot")
-        .select("from_address")
-        .where("context", "=", context)
-        .where("main_chain_block_number", "=", main_chain_block_number),
-    )
+    // .where("to_address", "not in", (qb) =>
+    //   // select all accounts that have delegated to other accounts
+    //   qb
+    //     .selectFrom("delegation_snapshot")
+    //     .select("from_address")
+    //     .where("context", "=", context)
+    //     .where("main_chain_block_number", "=", main_chain_block_number),
+    // )
     .select("to_address")
     .select(sum("delegated_amount").as("delegated_amount"))
     .select(sum("to_address_own_amount").as("to_address_own_amount"))
+    // .select("delegators.from_address")
+    .select((eb) =>
+      eb.fn.count("delegators.from_address").as("delegated_to_count"),
+    )
     .groupBy("to_address")
     .execute()
 

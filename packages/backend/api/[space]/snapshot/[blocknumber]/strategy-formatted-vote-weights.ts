@@ -5,7 +5,6 @@ import type { VercelRequest, VercelResponse } from "@vercel/node"
 import { createDelegationSnapshot } from "../../../../lib/updateSnapshot"
 import {
   checkIfSnapshotExists,
-  getDelegationSnapshot,
   getVoteWeightSnapshot,
 } from "../../../../lib/services/storage/db"
 import * as R from "ramda"
@@ -35,6 +34,7 @@ export default async function getVoteWeightsForSnapshot(
     }
   }
 
+  // All addresses that have delegated or are delegated to are present in the snapshot
   const voteWeights = await getVoteWeightSnapshot(context, mainChainBlockNumber)
   console.log({ voteWeights })
 
@@ -44,14 +44,16 @@ export default async function getVoteWeightsForSnapshot(
     addresses,
   )
 
+  // Addresses that are not returned, have not delegated or and are not delegated to
+  // Addresses that are delegating has a vote weight of 0
   response
     .status(200)
     .json(
       relevantVoteWeights.map((record) => [
         record.to_address,
-        BigNumber.from(record.delegated_amount)
-          .add(BigNumber.from(record.to_address_own_amount))
-          .toString(),
+        record.delegated_to_count !== "0"
+          ? "0"
+          : BigNumber.from(record.delegated_amount).toString(),
       ]),
     )
 }
