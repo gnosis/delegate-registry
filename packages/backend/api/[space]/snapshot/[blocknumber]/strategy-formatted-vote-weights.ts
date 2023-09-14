@@ -9,6 +9,7 @@ import {
 } from "../../../../lib/services/storage/db"
 import * as R from "ramda"
 import { BigNumber } from "ethers"
+import { SnapshotStrategy } from "../../../../lib/services/snapshot"
 
 export default async function getVoteWeightsForSnapshot(
   request: VercelRequest,
@@ -21,22 +22,24 @@ export default async function getVoteWeightsForSnapshot(
       : Number(request.query.blocknumber)
 
   const addresses = request.body.addresses as string[]
+  const strategies = request.body.strategies as SnapshotStrategy[]
 
   console.log({
     context,
     mainChainBlockNumber,
     addresses,
+    strategies,
   })
 
   if (mainChainBlockNumber != null) {
     if (!(await checkIfSnapshotExists(context, mainChainBlockNumber))) {
-      await createDelegationSnapshot(context, mainChainBlockNumber)
+      await createDelegationSnapshot(context, mainChainBlockNumber, strategies)
     }
   }
 
   // All addresses that have delegated or are delegated to are present in the snapshot
   const voteWeights = await getVoteWeightSnapshot(context, mainChainBlockNumber)
-  console.log({ voteWeights })
+  // console.log({ voteWeights })
 
   const relevantVoteWeights = R.innerJoin(
     (record, address) => record.to_address === address,

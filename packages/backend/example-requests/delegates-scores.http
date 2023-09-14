@@ -1,7 +1,7 @@
 // Get the voting power delegated to each delegate provided in the request body.
 // This is the endpoint used by the Snapshot Strategy.
 
-POST http://localhost:3000/api/myplay.eth/snapshot/17462996/strategy-formatted-vote-weights
+POST http://localhost:3000/api/myplay.eth/snapshot/17463998/strategy-formatted-vote-weights
 content-type: application/json
 
 {
@@ -16,5 +16,17 @@ content-type: application/json
 			"0x0000000000000000000000000000000000000032",
 			"0x0000000000000000000000000000000000000052",
 			"0x1000000000000000000000000000000000000052"
-		]
+		],
+    "strategies": [
+        {
+            "name": "erc20-balance-of",
+            "params": {
+                "symbol": "ST",
+                "address": "0xE666Ad68a6e2897CD06A9ff378ED8b0d71093398",
+                "network": "5",
+                "decimals": 18
+            },
+            "network": "5"
+        }
+    ]
 }

@@ -2,7 +2,7 @@ import snapshot from "@snapshot-labs/snapshot.js"
 import * as R from "ramda"
 import fetch from "node-fetch"
 
-type SnapshotStrategy = {
+export type SnapshotStrategy = {
   name: string
   params: Record<string, string>
   network: string
@@ -26,8 +26,11 @@ export const fetchVoteWeights = async (
   spaceName: string,
   addresses: string[],
   blockNumber?: number,
+  strategies?: SnapshotStrategy[],
 ): Promise<Record<string, number>> => {
-  let strategies = await fetchStrategies(spaceName)
+  if (strategies == null) {
+    strategies = await fetchStrategies(spaceName)
+  }
   if (strategies.length === 0) {
     console.log(
       "No strategies found for space: ",
@@ -87,13 +90,9 @@ const fetchStrategies = async (
       spaceName,
       testSpace,
     ).then((_) => _.strategies)
-    return strategies.filter(
-      (strategy) =>
-        !(
-          strategy.name === "api-post" &&
-          strategy.params?.api?.includes("/api/delegates/scores")
-        ),
-    )
+    return (strategies.find(
+      (strategy) => strategy.name === "delegate-registry-v2",
+    )?.params.strategies ?? []) as SnapshotStrategy[]
   } catch (error) {
     if (error instanceof Error) {
       console.log(

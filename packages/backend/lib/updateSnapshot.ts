@@ -1,15 +1,26 @@
 import R from "ramda"
 import { computeVoteWeights } from "./data-transformers/compute-vote-weights"
 import { getDelegationRatioMap } from "./data"
-import { fetchVoteWeights } from "./services/snapshot"
+import { SnapshotStrategy, fetchVoteWeights } from "./services/snapshot"
 import { convertDelegatedVoteWeightByAccount } from "./data-transformers/scale-and-remove-empty"
 import * as db from "./services/storage/db"
 
 export const createDelegationSnapshot = async (
   space: string,
   blocknumber?: number,
+  snapshotStrategies?: SnapshotStrategy[],
 ) => {
   const startTime = Date.now()
+
+  if (
+    (blocknumber != null && snapshotStrategies == null) ||
+    (blocknumber == null && snapshotStrategies != null)
+  ) {
+    throw new Error(
+      "If creating a snapshot for a specific blocknumber, snapshotStrategies must be provided. If creating the latest snapshot, snapshotStrategies must NOT be provided.",
+    )
+  }
+
   if (blocknumber == null) {
     console.log("Updating the latest snapshot for the following space:", space)
   } else {
@@ -26,7 +37,7 @@ export const createDelegationSnapshot = async (
   const delegations = await getDelegationRatioMap(space, blocknumber)
   if (delegations == null) {
     console.log(`[${space}] Done: no delegations found.`)
-    if (blocknumber != null) {
+    if (blocknumber != null && snapshotStrategies != null) {
       await db.addSnapshotToTheExcisingSnapshotTable(space, blocknumber)
     }
     return
@@ -63,6 +74,7 @@ export const createDelegationSnapshot = async (
     space,
     accountsRequiringVoteWeight,
     blocknumber,
+    snapshotStrategies,
   )
 
   const fetchVoteWeightsExecutionDoneTime = Date.now()
@@ -157,11 +169,9 @@ export const createDelegationSnapshot = async (
     } seconds`,
   )
 
-  // console.log("snapshot", snapshot)
-
   if (snapshot.length === 0) {
-    if (blocknumber != null) {
-      await db.addSnapshotToTheExcisingSnapshotTable(space, blocknumber) // even if the snapshot is empety we store it to avoid re-computing it
+    if (blocknumber != null && snapshotStrategies != null) {
+      await db.addSnapshotToTheExcisingSnapshotTable(space, blocknumber) // even if the snapshot is empty we store it to avoid re-computing it
     }
     return
   }
