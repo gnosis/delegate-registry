@@ -7,11 +7,6 @@ import { removeOptouts } from "./data-transformers/remove-optouts"
 import { generateDelegationRatioMap } from "./data-transformers/generate-delegation-ratio-map"
 import R from "ramda"
 import { DelegationSet, Optout } from "../types"
-import {
-  convertDelegationSetAddressesToAddress,
-  convertDelegationSetsDelegateIdsToAddress,
-  convertOptoutsDelegateIdsToAddress,
-} from "./data-transformers/convert-to-address"
 import { fetchSnapshotSpaceSettings } from "./services/snapshot"
 import { ethers } from "ethers"
 
@@ -44,10 +39,18 @@ export const getDelegationRatioMap = async (
   blocknumber?: number,
 ) => {
   const timestamp = await getTimestampForBlocknumber(snapshotSpace, blocknumber)
+  const startTime = Date.now()
 
   // 1. fetch context from all chains
   const allDelegationSets: DelegationSet[] =
     await theGraph.fetchDelegationSetsFromAllChains(snapshotSpace, timestamp)
+
+  const fetchDelegationSetsFromAllChainsExecutionDoneTime = Date.now()
+  console.log(
+    `fetchDelegationSetsFromAllChains execution time: ${
+      (fetchDelegationSetsFromAllChainsExecutionDoneTime - startTime) / 1000
+    } seconds`,
+  )
 
   // const delegationSetsForEachChain: DelegationSet[] =
   //   convertDelegationSetsDelegateIdsToAddress(allDelegationSets)
@@ -59,22 +62,62 @@ export const getDelegationRatioMap = async (
 
   // // 2. merge delegationSets and optouts
   const mergedDelegatorToDelegationSets = mergeDelegationSets(allDelegationSets)
+  const mergedDelegatorToDelegationSetsExecutionDoneTime = Date.now()
+  console.log(
+    `mergedDelegatorToDelegationSets execution time: ${
+      (mergedDelegatorToDelegationSetsExecutionDoneTime -
+        fetchDelegationSetsFromAllChainsExecutionDoneTime) /
+      1000
+    } seconds`,
+  )
 
   const optouts: Optout[] = await theGraph.fetchOptoutsFromAllChains(
     snapshotSpace,
     timestamp,
   )
+  const fetchOptoutsFromAllChainsExecutionDoneTime = Date.now()
+  console.log(
+    `fetchOptoutsFromAllChains execution time: ${
+      (fetchOptoutsFromAllChainsExecutionDoneTime -
+        mergedDelegatorToDelegationSetsExecutionDoneTime) /
+      1000
+    } seconds`,
+  )
 
   const listOfOptouts = mergeDelegatorOptouts(optouts)
+  const mergeDelegatorOptoutsExecutionDoneTime = Date.now()
+  console.log(
+    `mergeDelegatorOptouts execution time: ${
+      (mergeDelegatorOptoutsExecutionDoneTime -
+        fetchOptoutsFromAllChainsExecutionDoneTime) /
+      1000
+    } seconds`,
+  )
 
   // // 3. remove optout delegators (and recompute dominators, across delegationSets)
   const finalDelegatorToDelegationSets = removeOptouts(
     listOfOptouts,
     mergedDelegatorToDelegationSets,
   )
+  const removeOptoutsExecutionDoneTime = Date.now()
+  console.log(
+    `removeOptouts execution time: ${
+      (removeOptoutsExecutionDoneTime -
+        mergeDelegatorOptoutsExecutionDoneTime) /
+      1000
+    } seconds`,
+  )
 
   // // 4. generate the delegation ratio map (delegate -> delegator -> ratio)
   const delegations = generateDelegationRatioMap(finalDelegatorToDelegationSets)
+  const generateDelegationRatioMapExecutionDoneTime = Date.now()
+  console.log(
+    `generateDelegationRatioMapExecutionDoneTime execution time: ${
+      (generateDelegationRatioMapExecutionDoneTime -
+        removeOptoutsExecutionDoneTime) /
+      1000
+    } seconds`,
+  )
 
   return delegations
 }

@@ -9,6 +9,7 @@ export const createDelegationSnapshot = async (
   space: string,
   blocknumber?: number,
 ) => {
+  const startTime = Date.now()
   if (blocknumber == null) {
     console.log("Updating the latest snapshot for the following space:", space)
   } else {
@@ -30,6 +31,12 @@ export const createDelegationSnapshot = async (
     }
     return
   }
+  const getDelegationRatioMapExecutionDoneTime = Date.now()
+  console.log(
+    `getDelegationRatioMapExecutionDoneTime execution time: ${
+      (getDelegationRatioMapExecutionDoneTime - startTime) / 1000
+    } seconds`,
+  )
 
   const accountsRequiringVoteWeight = R.uniq(
     R.flatten(
@@ -42,10 +49,29 @@ export const createDelegationSnapshot = async (
   console.log(
     `[${space}] 2. Getting vote weights for ${accountsRequiringVoteWeight.length} unique delegating addresses.`,
   )
+
+  const computeAccountsRequiringVoteWeightExecutionDoneTime = Date.now()
+  console.log(
+    `computeAccountsRequiringVoteWeightExecutionDoneTime execution time: ${
+      (computeAccountsRequiringVoteWeightExecutionDoneTime -
+        getDelegationRatioMapExecutionDoneTime) /
+      1000
+    } seconds`,
+  )
+
   const voteWeights = await fetchVoteWeights(
     space,
     accountsRequiringVoteWeight,
     blocknumber,
+  )
+
+  const fetchVoteWeightsExecutionDoneTime = Date.now()
+  console.log(
+    `fetchVoteWeightsExecutionDoneTime execution time: ${
+      (fetchVoteWeightsExecutionDoneTime -
+        computeAccountsRequiringVoteWeightExecutionDoneTime) /
+      1000
+    } seconds`,
   )
 
   if (R.keys(voteWeights)?.length === 0) {
@@ -64,10 +90,19 @@ export const createDelegationSnapshot = async (
   const [delegatedVoteWeight, delegatedVoteWeightByAccount] =
     computeVoteWeights(delegations, voteWeights)
 
+  const computeVoteWeightsExecutionDoneTime = Date.now()
+  console.log(
+    `computeVoteWeights execution time: ${
+      (computeVoteWeightsExecutionDoneTime -
+        fetchVoteWeightsExecutionDoneTime) /
+      1000
+    } seconds`,
+  )
+
   console.log(
     `[${space}] 4. Storing delegated vote weight for ${
-      Object.keys(delegatedVoteWeight).length
-    } delegates.`,
+      Object.keys(delegatedVoteWeightByAccount).length
+    } delegators.`,
   )
 
   // const delegatedVoteWeightScaled =
@@ -77,6 +112,15 @@ export const createDelegationSnapshot = async (
 
   const delegatedVoteWeightByAccountScaled =
     convertDelegatedVoteWeightByAccount(delegatedVoteWeightByAccount)
+
+  const convertDelegatedVoteWeightByAccountExecutionDoneTime = Date.now()
+  console.log(
+    `convertDelegatedVoteWeightByAccount execution time: ${
+      (convertDelegatedVoteWeightByAccountExecutionDoneTime -
+        computeVoteWeightsExecutionDoneTime) /
+      1000
+    } seconds`,
+  )
 
   // console.log(
   //   "delegatedVoteWeightByAccountScaled",
@@ -104,6 +148,15 @@ export const createDelegationSnapshot = async (
     return acc
   }, [] as db.DelegationSnapshot[])
 
+  const createDbWriteObjectsExecutionDoneTime = Date.now()
+  console.log(
+    `createDbWriteObjects execution time: ${
+      (createDbWriteObjectsExecutionDoneTime -
+        convertDelegatedVoteWeightByAccountExecutionDoneTime) /
+      1000
+    } seconds`,
+  )
+
   // console.log("snapshot", snapshot)
 
   if (snapshot.length === 0) {
@@ -118,5 +171,16 @@ export const createDelegationSnapshot = async (
     await db.deleteLatestSnapshot(space) // should only have one latest snapshot (last snapshot has blocknumber = null)
   }
 
-  return await db.storeSnapshot(snapshot)
+  const res = await db.storeSnapshot(snapshot)
+
+  const dbStoreSnapshotExecutionDoneTime = Date.now()
+  console.log(
+    `dbStoreSnapshot execution time: ${
+      (dbStoreSnapshotExecutionDoneTime -
+        createDbWriteObjectsExecutionDoneTime) /
+      1000
+    } seconds`,
+  )
+
+  return res
 }
