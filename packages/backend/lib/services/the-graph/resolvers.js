@@ -1,6 +1,4 @@
-import { Resolvers } from "./.graphclient"
-
-export const resolvers: Resolvers = {
+export const resolvers = {
   DelegationSet: {
     chainName: (root, args, context, info) => context.chainName || "gorli", // The value we provide in the config
   },
