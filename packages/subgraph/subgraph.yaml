@@ -6,9 +6,9 @@ dataSources:
     name: DelegateRegistry
     network: goerli
     source:
-      address: "0x5238b5Fda42819AAF4D64404D26a4043f861Ae8E"
+      address: "0xDE1e8A7E184Babd9F0E3af18f40634e9Ed6F0905"
       abi: DelegateRegistry
-      startBlock: 9165314
+      startBlock: 8490383
 
     mapping:
       kind: ethereum/events
