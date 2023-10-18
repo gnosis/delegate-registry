@@ -47,16 +47,24 @@ export default async function getVoteWeightsForSnapshot(
     addresses,
   )
 
+  const missingAddresses = R.difference(
+    addresses,
+    relevantVoteWeights.map((record) => record.to_address),
+  )
+
+  // console.log("Missing addresses", missingAddresses)
+
   // Addresses that are not returned, have not delegated or and are not delegated to
   // Addresses that are delegating has a vote weight of 0
   response
     .status(200)
-    .json(
-      relevantVoteWeights.map((record) => [
+    .json([
+      ...relevantVoteWeights.map((record) => [
         record.to_address,
         record.delegated_to_count !== "0"
           ? "0"
           : BigNumber.from(record.delegated_amount).toString(),
       ]),
-    )
+      ...missingAddresses.map((address) => [address, "0"]),
+    ])
 }
