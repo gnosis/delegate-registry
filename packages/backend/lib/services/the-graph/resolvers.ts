@@ -1,6 +1,6 @@
-// import { Resolvers } from "./.graphclient"
+import { Resolvers } from "./.graphclient"
 
-module.exports.resolvers = {
+export const resolvers: Resolvers = {
   DelegationSet: {
     chainName: (root, args, context, info) => context.chainName || "gorli", // The value we provide in the config
   },

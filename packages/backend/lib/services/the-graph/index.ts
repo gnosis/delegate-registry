@@ -61,6 +61,9 @@ export const fetchContextIdsFromAllChains = async () => {
         .then((data) => data.contexts),
     ),
   )
+  console.log("CHAIN_NAMES:", CHAIN_NAMES)
+  console.log("fetchContextIdsFromAllChains results:", results)
+
   return results.flat()
 }
 

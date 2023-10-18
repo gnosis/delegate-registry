@@ -1,4 +1,4 @@
-module.exports.resolvers = {
+export const resolvers = {
   DelegationSet: {
     chainName: (root, args, context, info) => context.chainName || "gorli", // The value we provide in the config
   },
