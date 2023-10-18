@@ -1,4 +1,5 @@
 // Recomputes the vote weights for all delegates across all Snapshot Spaces.
 // This should run periodically.
 
-GET delegate-registry-backend.vercel.app/api/update-all
+GET http://localhost:3000/api/update-all
+# GET delegate-registry-backend.vercel.app/api/update-all
