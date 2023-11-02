@@ -5,9 +5,13 @@ import {
 } from "./data-transformers/merge-delegation-sets"
 import { removeOptouts } from "./data-transformers/remove-optouts"
 import { generateDelegationRatioMap } from "./data-transformers/generate-delegation-ratio-map"
-import R from "ramda"
+import R, { times } from "ramda"
 import { DelegationSet, Optout } from "../types"
-import { fetchSnapshotSpaceSettings } from "./services/snapshot"
+import {
+  DelegateRegistryStrategyParams,
+  fetchSnapshotSpaceSettings,
+  getV1DelegatesBySpace,
+} from "./services/snapshot"
 import { ethers } from "ethers"
 
 /**
@@ -31,23 +35,39 @@ export const getSnapshotSpaces = async () => {
  * 3. Remove optout delegators (and recompute dominators, across delegationSets).
  * 4. Creates the delegation ratio map (delegate -> delegator -> ratio).
  *
- * @param snapshotSpace - The snapshot space (context id) to fetch delegations for
+ * @param spaceName - The snapshot space (context id) to fetch delegations for
  * @returns Map of (delegate -> delegator -> ratio)
  */
 export const getDelegationRatioMap = async (
-  snapshotSpace: string,
+  spaceName: string,
+  snapshotSettingsIn: DelegateRegistryStrategyParams,
   blocknumber?: number,
 ) => {
-  const timestamp = await getTimestampForBlocknumber(snapshotSpace, blocknumber)
+  const timestamp = await getTimestampForBlocknumber(
+    snapshotSettingsIn.mainChainId,
+    spaceName,
+    blocknumber,
+  )
   const startTime = Date.now()
 
   // 1. fetch context from all chains
-  const allDelegationSets: DelegationSet[] =
-    await theGraph.fetchDelegationSetsFromAllChains(snapshotSpace, timestamp)
+  const allV2DelegationSets: DelegationSet[] =
+    await theGraph.fetchDelegationSetsFromAllChains(spaceName, timestamp)
 
+  const v1Networks = snapshotSettingsIn.delegationV1VChainIds?.map((num: any) =>
+    Number(num),
+  )
+  console.log(`[${spaceName}] v1Networks: ${v1Networks}`)
+
+  const allV1Delegations: DelegationSet[] =
+    v1Networks == null
+      ? []
+      : await getV1Delegations(spaceName, v1Networks, timestamp)
+  console.log(`[${spaceName}] allV1Delegations: ${allV1Delegations.length}`)
+  console.log(`[${spaceName}] allV2Delegation: ${allV2DelegationSets.length}`)
   const fetchDelegationSetsFromAllChainsExecutionDoneTime = Date.now()
   console.log(
-    `fetchDelegationSetsFromAllChains execution time: ${
+    `[${spaceName}] fetchDelegationSetsFromAllChains execution time: ${
       (fetchDelegationSetsFromAllChainsExecutionDoneTime - startTime) / 1000
     } seconds`,
   )
@@ -61,10 +81,17 @@ export const getDelegationRatioMap = async (
   // )
 
   // // 2. merge delegationSets and optouts
-  const mergedDelegatorToDelegationSets = mergeDelegationSets(allDelegationSets)
+  const mergedDelegatorToDelegationSets = mergeDelegationSets(
+    allV2DelegationSets.concat(allV1Delegations),
+  )
+  console.log(
+    `[${spaceName}] mergedDelegatorToDelegationSets size:`,
+    Object.keys(mergedDelegatorToDelegationSets).length,
+  )
+
   const mergedDelegatorToDelegationSetsExecutionDoneTime = Date.now()
   console.log(
-    `mergedDelegatorToDelegationSets execution time: ${
+    `[${spaceName}] mergedDelegatorToDelegationSets execution time: ${
       (mergedDelegatorToDelegationSetsExecutionDoneTime -
         fetchDelegationSetsFromAllChainsExecutionDoneTime) /
       1000
@@ -72,12 +99,12 @@ export const getDelegationRatioMap = async (
   )
 
   const optouts: Optout[] = await theGraph.fetchOptoutsFromAllChains(
-    snapshotSpace,
+    spaceName,
     timestamp,
   )
   const fetchOptoutsFromAllChainsExecutionDoneTime = Date.now()
   console.log(
-    `fetchOptoutsFromAllChains execution time: ${
+    `[${spaceName}] fetchOptoutsFromAllChains execution time: ${
       (fetchOptoutsFromAllChainsExecutionDoneTime -
         mergedDelegatorToDelegationSetsExecutionDoneTime) /
       1000
@@ -87,7 +114,7 @@ export const getDelegationRatioMap = async (
   const listOfOptouts = mergeDelegatorOptouts(optouts)
   const mergeDelegatorOptoutsExecutionDoneTime = Date.now()
   console.log(
-    `mergeDelegatorOptouts execution time: ${
+    `[${spaceName}] mergeDelegatorOptouts execution time: ${
       (mergeDelegatorOptoutsExecutionDoneTime -
         fetchOptoutsFromAllChainsExecutionDoneTime) /
       1000
@@ -101,7 +128,7 @@ export const getDelegationRatioMap = async (
   )
   const removeOptoutsExecutionDoneTime = Date.now()
   console.log(
-    `removeOptouts execution time: ${
+    `[${spaceName}] removeOptouts execution time: ${
       (removeOptoutsExecutionDoneTime -
         mergeDelegatorOptoutsExecutionDoneTime) /
       1000
@@ -112,7 +139,7 @@ export const getDelegationRatioMap = async (
   const delegations = generateDelegationRatioMap(finalDelegatorToDelegationSets)
   const generateDelegationRatioMapExecutionDoneTime = Date.now()
   console.log(
-    `generateDelegationRatioMapExecutionDoneTime execution time: ${
+    `[${spaceName}] generateDelegationRatioMapExecutionDoneTime execution time: ${
       (generateDelegationRatioMapExecutionDoneTime -
         removeOptoutsExecutionDoneTime) /
       1000
@@ -123,6 +150,7 @@ export const getDelegationRatioMap = async (
 }
 
 const getTimestampForBlocknumber = async (
+  mainChainId: number,
   snapshotSpace: string,
   blocknumber?: number,
 ): Promise<number | undefined> => {
@@ -131,28 +159,62 @@ const getTimestampForBlocknumber = async (
     return
   }
 
-  let mainChainId = "1"
-
-  try {
-    const useTestHub = false
-    mainChainId = (await fetchSnapshotSpaceSettings(snapshotSpace, useTestHub))
-      .network
-  } catch (e) {
-    // TODO: WARNING: If no snapshot space if found, this tries to get strategies from the Snapshot test hub.
-    console.log(
-      `[${snapshotSpace}] No snapshot space found on the SNapshot hub. Will try to get it from the Snapshot test Hub.`,
-    )
-    const useTestHub = true
-    mainChainId = (await fetchSnapshotSpaceSettings(snapshotSpace, useTestHub))
-      .network
-  }
   console.log(`[${snapshotSpace}] Main chain chainId: ${mainChainId}`)
   const ethersProvider = new ethers.providers.InfuraProvider(
     Number(mainChainId),
   )
   const block = await ethersProvider.getBlock(blocknumber)
+
   console.log(
     `[${snapshotSpace}] Timestamp of block number ${blocknumber} is: ${block.timestamp}`,
   )
   return block.timestamp
+}
+
+const getV1Delegations = async (
+  spaceName: string,
+  v1Networks: number[],
+  timestamp?: number,
+): Promise<DelegationSet[]> => {
+  const allV1Delegations = [] as DelegationSet[]
+
+  for (const v1Network of v1Networks) {
+    const v1Delegations = await fetchDelegationSetsFromV1(
+      spaceName,
+      v1Network,
+      timestamp,
+    )
+    allV1Delegations.push(...v1Delegations)
+  }
+  return allV1Delegations
+}
+
+export const fetchDelegationSetsFromV1 = async (
+  spaceName: string,
+  chainId: number, // chain id
+  timestamp?: number,
+): Promise<DelegationSet[]> => {
+  console.log(
+    `[${spaceName}] fetchDelegationSetsFromV1 snapshot space: ${spaceName}, network: ${chainId}, blocknumber: ${timestamp}`,
+  )
+  const delegations: { delegator: string; space: string; delegate: string }[] =
+    await getV1DelegatesBySpace(spaceName, chainId.toString(), timestamp)
+  console.log(
+    `[${spaceName}] Got ${delegations.length} delegations from V1. This includes global delegations and delegations specific to space: ${spaceName} on chainId: ${chainId}`,
+  )
+  // const filtered = delegations.filter((d) => d.space === spaceName) // if we want to ignore global delegations and only use space specific delegations
+  const delegationSets: DelegationSet[] = delegations.map((d) => ({
+    fromAccount: { id: d.delegator },
+    denominator: "1",
+    creationTimestamp: "0", // This makes ny delegations on V2 replace V1 delegations
+    delegations: [
+      {
+        toAccount: {
+          id: d.delegate,
+        },
+        numerator: "1",
+      },
+    ],
+  }))
+  return delegationSets
 }

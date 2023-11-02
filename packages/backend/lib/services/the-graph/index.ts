@@ -1,13 +1,16 @@
+import { DelegationSet } from "../../../types"
+import snapshot from "@snapshot-labs/snapshot.js"
 import { getBuiltGraphSDK } from "./.graphclient"
+import { fetchSnapshotSpaceSettings, getV1DelegatesBySpace } from "../snapshot"
 
 // TODO: move to env variable and document that the subgraphs have to end in these names
-const CHAIN_NAMES = ["gnosis", "mainnet", "goerli"]
+const CHAIN_NAMES = ["gnosis", "mainnet"]
 
 export const fetchDelegationSetsFromAllChains = async (
-  snapshotSpace: string,
+  spaceName: string,
   timestamp?: number,
-) => {
-  console.log("fetchDelegationSetsFromAllChains snapshot space:", snapshotSpace)
+): Promise<DelegationSet[]> => {
+  console.log(`[${spaceName}] fetchDelegationSetsFromAllChains snapshot space`)
 
   const sdk = getBuiltGraphSDK()
   const results =
@@ -18,7 +21,7 @@ export const fetchDelegationSetsFromAllChains = async (
               .GetDelegationSets(
                 {
                   first: 10000,
-                  contextId: snapshotSpace,
+                  contextId: spaceName,
                 },
                 {
                   chainName,
@@ -33,7 +36,7 @@ export const fetchDelegationSetsFromAllChains = async (
               .GetDelegationSetsAtTimestamp(
                 {
                   first: 100000,
-                  contextId: snapshotSpace,
+                  contextId: spaceName,
                   timestamp,
                 },
                 {

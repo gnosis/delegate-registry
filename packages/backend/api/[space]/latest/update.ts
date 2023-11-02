@@ -16,14 +16,21 @@ export default async function updateDelegationSnapshot(
   response: VercelResponse,
 ) {
   await initDb()
-  const space = request.query.space as string
+  const spaceName = request.query.space as string
 
-  await createDelegationSnapshot(space)
+  console.log({ spaceName })
+
+  console.log(
+    "Computing and storing delegated vote weights for space:",
+    spaceName,
+  )
+
+  await createDelegationSnapshot({ spaceName })
 
   console.log("Done! Computing and storing delegated vote weights.")
   response.status(200).json({
     success: "true",
     info: "Done! Computing and storing delegated vote weights.",
-    space,
+    space: spaceName,
   })
 }

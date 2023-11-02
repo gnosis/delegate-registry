@@ -16,7 +16,9 @@ export default async function updateDelegations(
   await initDb()
   const spaces = await getSnapshotSpaces()
 
-  await Promise.all(spaces.map((space) => createDelegationSnapshot(space)))
+  await Promise.all(
+    spaces.map((spaceName) => createDelegationSnapshot({ spaceName })),
+  )
 
   console.log(
     "Done! Computing and storing delegated vote weights. For (all) spaces:",
