@@ -1,5 +1,7 @@
-import { sql, Generated } from "kysely"
+import { sql, Generated, Insertable } from "kysely"
 import { createKysely } from "@vercel/postgres-kysely"
+import { DelegateRegistryStrategyParams } from "../snapshot"
+import { createHash } from "crypto"
 
 type PromiseType<T extends Promise<any>> = T extends Promise<infer U>
   ? U
@@ -20,9 +22,11 @@ interface DelegationSnapshotTable {
 }
 
 interface ExcisingSnapshots {
-  id: Generated<number> // primary key
+  hash: string // primary key
   context: string
   main_chain_block_number: number
+  delegation_v1_chain_ids: string | null
+  main_chain_id: number
 }
 
 // Keys of this interface are table names.
@@ -37,9 +41,11 @@ const createExcisingSnapshotsTable = async () => {
   await db.schema
     .createTable("excising_snapshots")
     .ifNotExists()
-    .addColumn("id", "serial", (cb) => cb.primaryKey())
+    .addColumn("hash", "varchar(64)", (cb) => cb.primaryKey())
     .addColumn("context", "text", (col) => col.notNull())
     .addColumn("main_chain_block_number", "bigint", (col) => col.notNull())
+    .addColumn("delegation_v1_chain_ids", "text")
+    .addColumn("main_chain_id", "bigint", (col) => col.notNull())
     .execute()
 }
 
@@ -52,8 +58,8 @@ const createDelegationSnapshotTable = async () => {
     .addColumn("main_chain_block_number", "bigint")
     .addColumn("from_address", "text", (col) => col.notNull())
     .addColumn("to_address", "text", (col) => col.notNull())
-    .addColumn("delegated_amount", "numeric(40)" as any, (col) => col.notNull()) // numeric(35
-    .addColumn("to_address_own_amount", "numeric(40)" as any, (col) =>
+    .addColumn("delegated_amount", "numeric(78)" as any, (col) => col.notNull())
+    .addColumn("to_address_own_amount", "numeric(78)" as any, (col) =>
       col.notNull(),
     )
     .execute()
@@ -64,46 +70,76 @@ const initDb = async () => {
   await createDelegationSnapshotTable()
 }
 
-const addSnapshotToTheExcisingSnapshotTable = async (
-  context: string,
-  main_chain_block_number: number,
+const snapshotHash = (
+  mainChainBlocknumber: number,
+  spaceName: string,
+  strategyPrams: DelegateRegistryStrategyParams,
 ) =>
-  db
-    .insertInto("excising_snapshots")
-    .values({ context, main_chain_block_number })
-    .execute()
+  createHash("sha1")
+    .update(
+      `${mainChainBlocknumber}-${spaceName}-${JSON.stringify(strategyPrams)}`,
+    )
+    .digest("hex")
+
+export type NewExistingSnapshot = Insertable<ExcisingSnapshots>
+const addSnapshotToTheExcisingSnapshotTable = async (
+  main_chain_block_number: number,
+  context: string,
+  strategyPrams: DelegateRegistryStrategyParams,
+) => {
+  const values: NewExistingSnapshot = {
+    hash: snapshotHash(main_chain_block_number, context, strategyPrams),
+    context,
+    main_chain_block_number,
+    main_chain_id: strategyPrams.mainChainId,
+    ...(strategyPrams.delegationV1VChainIds != null
+      ? {
+          delegation_v1_chain_ids: JSON.stringify(
+            strategyPrams.delegationV1VChainIds,
+          ),
+        }
+      : {}),
+  }
+
+  console.log("addSnapshotToTheExcisingSnapshotTable values:", values)
+  return db.insertInto("excising_snapshots").values(values).execute()
+}
 
 const checkIfSnapshotExists = async (
-  context: string,
   main_chain_block_number: number,
+  context: string,
+  strategyPrams: DelegateRegistryStrategyParams,
 ) => {
   const res = await db
     .selectFrom("excising_snapshots")
-    .where("context", "=", context)
-    .where("main_chain_block_number", "=", main_chain_block_number)
+    .where(
+      "hash",
+      "=",
+      snapshotHash(main_chain_block_number, context, strategyPrams),
+    )
     .execute()
 
   return res.length > 0 ? true : false
 }
 
-const storeSnapshot = async (delegationSnapshot: DelegationSnapshot[]) => {
+const storeSnapshot = async (
+  delegationSnapshot: DelegationSnapshot[],
+  strategyPrams: DelegateRegistryStrategyParams,
+) => {
   const context = delegationSnapshot[0].context
   const main_chain_block_number = delegationSnapshot[0]?.main_chain_block_number
-  const parallelDbWrites: Promise<any>[] = []
+  await db
+    .insertInto("delegation_snapshot")
+    .values(delegationSnapshot)
+    .execute()
   if (main_chain_block_number != null) {
-    if (!(await checkIfSnapshotExists(context, main_chain_block_number))) {
-      console.warn(
-        "This snapshot is not stored in the `excising_snapshots`. We store it here automatically. But if this is not fixed empty snapshots will be recomputed on every request.",
-      )
-      parallelDbWrites.push(
-        addSnapshotToTheExcisingSnapshotTable(context, main_chain_block_number),
-      )
-    }
+    console.warn("We store the snapshot in the `existing_snapshots` table.")
+    await addSnapshotToTheExcisingSnapshotTable(
+      main_chain_block_number,
+      context,
+      strategyPrams,
+    )
   }
-  parallelDbWrites.push(
-    db.insertInto("delegation_snapshot").values(delegationSnapshot).execute(),
-  )
-  await Promise.all(parallelDbWrites)
 }
 
 const deleteLatestSnapshot = async (context: string) =>

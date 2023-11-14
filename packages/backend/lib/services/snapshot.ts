@@ -1,6 +1,13 @@
 import snapshot from "@snapshot-labs/snapshot.js"
 import * as R from "ramda"
-import fetch from "node-fetch"
+// import fetch from "node-fetch"
+
+export type DelegateRegistryStrategyParams = {
+  strategies: SnapshotStrategy[]
+  backendUrl: string
+  mainChainId: number
+  delegationV1VChainIds?: number[]
+}
 
 export type SnapshotStrategy = {
   name: string
@@ -53,6 +60,9 @@ export const fetchVoteWeights = async (
         " on the snapshot TEST hub.",
       )
     }
+  }
+  if (strategies == null) {
+    throw new Error("No strategies found for space: " + spaceName)
   }
   return strategies.reduce(async (accPromise, strategy) => {
     const acc = await accPromise
@@ -113,11 +123,15 @@ const fetchStrategies = async (
 export const fetchSnapshotSpaceSettings = async (
   spaceName: string,
   testSpace: boolean,
-): Promise<{ strategies: SnapshotStrategy[]; network: string }> => {
+): Promise<DelegateRegistryStrategyParams> => {
+  console.log("fetchSnapshotSpaceSettings", spaceName)
+  console.log("testSpace", testSpace)
   const res = await fetch(`${getHubUrl(testSpace)}/api/spaces/${spaceName}`, {})
   if (res.ok) {
     try {
-      return res.json()
+      const resJson = await res.json()
+      // console.log("resJson", resJson)
+      return resJson
     } catch (error) {
       throw Error(
         `The response from the Snapshot Hub was not valid JSON. Most likely the space does not exist for ${spaceName}.`,
@@ -133,3 +147,49 @@ const getHubUrl = (testSpace: boolean = false) =>
 
 const scoresAsObject = (scores: Array<Record<string, number>>) =>
   scores.reduce((acc, scoreObj) => ({ ...acc, ...scoreObj }), {})
+
+export async function getV1DelegatesBySpace(
+  space: string,
+  network: string,
+  timestamp?: number,
+) {
+  const subgraphUrl = snapshot.utils.SNAPSHOT_SUBGRAPH_URL[network]
+  if (!subgraphUrl) {
+    return Promise.reject(
+      `Delegation subgraph not available for network ${network}`,
+    )
+  }
+  const spaceIn = ["", space]
+  if (space.includes(".eth")) spaceIn.push(space.replace(".eth", ""))
+
+  const PAGE_SIZE = 1000
+  let result = []
+  let page = 0
+  const params: any = {
+    delegations: {
+      __args: {
+        where: {
+          space_in: spaceIn, // TODO: add timestamp
+          ...(timestamp != null ? { timestamp_lt: timestamp } : {}),
+        },
+        first: PAGE_SIZE,
+        skip: 0,
+      },
+      delegator: true,
+      space: true,
+      delegate: true,
+    },
+  }
+
+  while (true) {
+    params.delegations.__args.skip = page * PAGE_SIZE
+
+    const pageResult = await snapshot.utils.subgraphRequest(subgraphUrl, params)
+    const pageDelegations = pageResult.delegations || []
+    result = result.concat(pageDelegations)
+    page++
+    if (pageDelegations.length < PAGE_SIZE) break
+  }
+
+  return result
+}
