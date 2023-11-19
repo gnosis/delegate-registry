@@ -9,7 +9,7 @@
       "includeFiles": "lib/**/*.ts",
       "maxDuration": 60
     },
-    "api/[space]/snapshot/[blocknumber]/strategy-formatted-vote-weights": {
+    "api/[space]/snapshot/[blocknumber]/strategy-formatted-vote-weights.ts": {
       "includeFiles": "lib/**/*.ts",
       "maxDuration": 60
     }
