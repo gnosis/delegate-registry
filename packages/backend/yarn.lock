@@ -1693,12 +1693,12 @@
     "@jridgewell/resolve-uri" "3.1.0"
     "@jridgewell/sourcemap-codec" "1.4.14"
 
-"@neondatabase/serverless@0.4.3":
-  version "0.4.3"
-  resolved "https://registry.yarnpkg.com/@neondatabase/serverless/-/serverless-0.4.3.tgz#e664d351c9c5a372b0adc839368e99f1d08d3f05"
-  integrity sha512-U8tpuF5f0R5WRsciR7iaJ5S2h54DWa6Z6CEW+J4KgwyvRN3q3qDz0MibdfFXU0WqnRoi/9RSf/2XN4TfeaOCbQ==
+"@neondatabase/serverless@0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@neondatabase/serverless/-/serverless-0.6.0.tgz#efe001f571e85af79c8042601ec694f96ca8fb17"
+  integrity sha512-qXxBRYN0m2v8kVQBfMxbzNGn2xFAhTXFibzQlE++NfJ56Shz3m7+MyBBtXDlEH+3Wfa6lToDXf1MElocY4sJ3w==
   dependencies:
-    "@types/pg" "^8.6.6"
+    "@types/pg" "8.6.6"
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
@@ -1846,7 +1846,7 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.18.33.tgz#8c29a0036771569662e4635790ffa9e057db379b"
   integrity sha512-qelS/Ra6sacc4loe/3MSjXNL1dNQ/GjxNHVzuChwMfmk7HuycRLVQN2qNY3XahK+fZc5E2szqQSKUyAF0E+2bg==
 
-"@types/pg@^8.6.6":
+"@types/pg@8.6.6":
   version "8.6.6"
   resolved "https://registry.yarnpkg.com/@types/pg/-/pg-8.6.6.tgz#21cdf873a3e345a6e78f394677e3b3b1b543cb80"
   integrity sha512-O2xNmXebtwVekJDD+02udOncjVcMZQuTEQEMpKJ0ZRf5E7/9JJX3izhKUcUifBkyKpljyUM6BTgy2trmviKlpw==
@@ -1901,22 +1901,22 @@
     typescript "4.9.5"
     ws "8.13.0"
 
-"@vercel/postgres-kysely@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@vercel/postgres-kysely/-/postgres-kysely-0.3.0.tgz#25e537306533c1177a06cb701c29e7d688cccc51"
-  integrity sha512-HN/DEZTnb9jje8jHD2YwH/zl1MgvU2CuTb8J+NDFcg4WUNFQjHAl7KxWXcvO+/QKuhdesvpR9GHy35NbtHdr2w==
+"@vercel/postgres-kysely@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@vercel/postgres-kysely/-/postgres-kysely-0.6.0.tgz#07a7c5ee5dddf634fd8ab8140d3f4182fcf4f04e"
+  integrity sha512-R5iSb7aM0XDztcOXfBaBBgdIHLtn0auFCXXJA6gq0GCWSZyBTv4OawsIWxix4lSjqql/MKmze7zvAVP21UkxMg==
   dependencies:
-    "@vercel/postgres" "0.3.0"
+    "@vercel/postgres" "0.5.1"
 
-"@vercel/postgres@0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@vercel/postgres/-/postgres-0.3.0.tgz#f2395ce7a3f27ecf33a03b8daadd5583d7949064"
-  integrity sha512-cOC+x6qMnN54B4y0Fh0DV5LJQp2M7puIKbehQBMutY/8/zpzh+oKaQmnZb2QHn489MGOQKyRLJLgHa2P8M085Q==
+"@vercel/postgres@0.5.1":
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/@vercel/postgres/-/postgres-0.5.1.tgz#af986133f5ec53b4839561fc3cc2a5fb1867868d"
+  integrity sha512-JKl8QOBIDnifhkxAhIKtY0A5Tb8oWBf2nzZhm0OH7Ffjsl0hGVnDL2w1/FCfpX8xna3JAWM034NGuhZfTFdmiw==
   dependencies:
-    "@neondatabase/serverless" "0.4.3"
-    bufferutil "4.0.7"
+    "@neondatabase/serverless" "0.6.0"
+    bufferutil "4.0.8"
     utf-8-validate "6.0.3"
-    ws "8.13.0"
+    ws "8.14.2"
 
 "@vercel/static-config@2.0.17":
   version "2.0.17"
@@ -2252,10 +2252,10 @@ bser@2.1.1:
   dependencies:
     node-int64 "^0.4.0"
 
-bufferutil@4.0.7:
-  version "4.0.7"
-  resolved "https://registry.yarnpkg.com/bufferutil/-/bufferutil-4.0.7.tgz#60c0d19ba2c992dd8273d3f73772ffc894c153ad"
-  integrity sha512-kukuqc39WOHtdxtw4UScxF/WVnMFVSQVKhtx3AjZJzhd0RGZZldcrfSEbVsWWe6KNH253574cq5F+wpv0G9pJw==
+bufferutil@4.0.8:
+  version "4.0.8"
+  resolved "https://registry.yarnpkg.com/bufferutil/-/bufferutil-4.0.8.tgz#1de6a71092d65d7766c4d8a522b261a6e787e8ea"
+  integrity sha512-4T53u4PdgsXqKaIctwF8ifXlRTTmEPJ8iEPWFdGZvcf7sbwYo6FKFEX9eNNAnzFZ7EzJAQ3CJeOtCRA4rDp7Pw==
   dependencies:
     node-gyp-build "^4.3.0"
 
@@ -4549,6 +4549,11 @@ ws@8.13.0, ws@^8.13.0:
   version "8.13.0"
   resolved "https://registry.yarnpkg.com/ws/-/ws-8.13.0.tgz#9a9fb92f93cf41512a0735c8f4dd09b8a1211cd0"
   integrity sha512-x9vcZYTrFPC7aSIbj7sRCYo7L/Xb8Iy+pW0ng0wt2vCJv7M9HOMy0UoN3rr+IFC7hb7vXoqS+P9ktyLLLhO+LA==
+
+ws@8.14.2:
+  version "8.14.2"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-8.14.2.tgz#6c249a806eb2db7a20d26d51e7709eab7b2e6c7f"
+  integrity sha512-wEBG1ftX4jcglPxgFCMJmZ2PLtSbJ2Peg6TmpJFTbe9GZYOQCDPdMYu/Tm0/bGZkw8paZnJY45J4K2PZrLYq8g==
 
 ws@^8.12.0:
   version "8.12.0"
