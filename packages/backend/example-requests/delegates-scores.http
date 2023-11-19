@@ -1,7 +1,7 @@
 // Get the voting power delegated to each delegate provided in the request body.
 // This is the endpoint used by the Snapshot Strategy.
 
-POST http://localhost:3000/api/gnosis.eth/snapshot/18478898/strategy-formatted-vote-weights
+POST http://localhost:3000/api/yam.eth/snapshot/18478898/strategy-formatted-vote-weights
 content-type: application/json
 
 {
@@ -20,16 +20,32 @@ content-type: application/json
   ],
   "spaceParams": {
     "strategies": [
-      {
-        "name": "erc20-balance-of",
-        "params": {
-          "symbol": "ST",
-          "address": "0xE666Ad68a6e2897CD06A9ff378ED8b0d71093398",
-          "network": "5",
-          "decimals": 18
-        },
-        "network": "5"
-      }
+          {
+            "name": "erc20-balance-of",
+            "params": {
+              "symbol": "ST",
+              "address": "0xE666Ad68a6e2897CD06A9ff378ED8b0d71093398",
+              "network": "5",
+              "decimals": 18
+            },
+            "network": "5"
+          },
+          {
+            "name": "erc20-balance-of",
+            "params": {
+              "address": "0x6b175474e89094c44da98b954eedeac495271d0f",
+              "symbol": "DAI",
+              "decimals": 18
+            }
+          },
+          {
+            "name": "gno",
+            "params": {
+              "symbol": "GNO",
+              "decimals": 18,
+              "SUBGRAPH_URL": "https://api.thegraph.com/subgraphs/id/QmduKVUHCPjR5tmNEgooXHBMGKqDJWrUPdp6dEMeJM6Kqa"
+            }
+          }
     ],
     "mainChainId": 1,
     "delegationV1VChainIds": [1, 100]
