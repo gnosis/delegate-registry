@@ -25,8 +25,8 @@ export default async function updateDelegations(
     spaces,
   )
 
-  const fisnsihTime = Date.now()
-  console.log(`Execution time: ${(fisnsihTime - startTime) / 1000} seconds`)
+  const finishTime = Date.now()
+  console.log(`Execution time: ${(finishTime - startTime) / 1000} seconds`)
 
   response.status(200).json({
     success: "true",

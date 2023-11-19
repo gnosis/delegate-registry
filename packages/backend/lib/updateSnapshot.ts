@@ -105,7 +105,7 @@ export const createDelegationSnapshot = async ({
 
   const computeAccountsRequiringVoteWeightExecutionDoneTime = Date.now()
   console.log(
-    `[${spaceName}]computeAccountsRequiringVoteWeightExecutionDoneTime execution time: ${
+    `[${spaceName}] computeAccountsRequiringVoteWeightExecutionDoneTime execution time: ${
       (computeAccountsRequiringVoteWeightExecutionDoneTime -
         getDelegationRatioMapExecutionDoneTime) /
       1000
