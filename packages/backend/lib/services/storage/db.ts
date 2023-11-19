@@ -186,7 +186,11 @@ const getVoteWeightSnapshot = async (
           .selectFrom("delegation_snapshot")
           .select("from_address")
           .where("context", "=", context)
-          .where("main_chain_block_number", "=", main_chain_block_number)
+          .where(
+            "main_chain_block_number",
+            main_chain_block_number == null ? "is" : "=",
+            main_chain_block_number == null ? null : main_chain_block_number,
+          )
           .as("delegators"),
       (join) =>
         join.onRef(
@@ -196,7 +200,11 @@ const getVoteWeightSnapshot = async (
         ),
     )
     .where("context", "=", context)
-    .where("main_chain_block_number", "=", main_chain_block_number)
+    .where(
+      "main_chain_block_number",
+      main_chain_block_number == null ? "is" : "=",
+      main_chain_block_number == null ? null : main_chain_block_number,
+    )
     // .where("to_address", "not in", (qb) =>
     //   // select all accounts that have delegated to other accounts
     //   qb

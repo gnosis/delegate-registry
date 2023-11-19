@@ -29,12 +29,9 @@ export const createDelegationSnapshot = async ({
 
   console.log("startTime:", startTime)
 
-  if (
-    (!isUpdateOfLatest && delegateRegistryParamsIn == null) ||
-    (isUpdateOfLatest && delegateRegistryParamsIn != null)
-  ) {
+  if (!isUpdateOfLatest && delegateRegistryParamsIn == null) {
     throw new Error(
-      "If creating a snapshot for a specific blocknumber, snapshotStrategies must be provided. If creating the latest snapshot, snapshotStrategies must NOT be provided.",
+      "If creating a snapshot for a specific blocknumber, snapshotStrategies must be provided.",
     )
   }
 
@@ -180,10 +177,10 @@ export const createDelegationSnapshot = async ({
     } seconds`,
   )
 
-  // console.log(
-  //   "delegatedVoteWeightByAccountScaled",
-  //   delegatedVoteWeightByAccountScaled,
-  // )
+  console.log(
+    "delegatedVoteWeightByAccountScaled",
+    delegatedVoteWeightByAccountScaled,
+  )
 
   // TODO: optimize this by doing it in one of the previous steps (loops)
   const snapshot: db.DelegationSnapshot[] = Object.entries(

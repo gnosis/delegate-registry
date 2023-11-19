@@ -79,7 +79,18 @@ export const fetchVoteWeights = async (
         ? scores
         : R.mergeWith(R.add, acc, scores)
     } catch (error) {
-      console.log("error", error)
+      console.log(
+        `[${spaceName}] Error when getting scores from snapshot (using snapshot.js). Error`,
+        error,
+      )
+      console.log("Failing call: await snapshot.utils.getScores(", {
+        spaceName,
+        strategies: [strategy],
+        network: strategy.network,
+        addresses,
+        blockNumber,
+      })
+
       return acc
     }
   }, {} as Promise<Record<string, number>>)
