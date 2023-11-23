@@ -54,20 +54,19 @@ export default async function getVoteWeightsForSnapshot(
     }
   }
 
+  console.log("context", context)
+  console.log("mainChainBlocknumber", mainChainBlocknumber)
   // All addresses that have delegated or are delegated to are present in the snapshot
   const voteWeights = await getVoteWeightSnapshot(context, mainChainBlocknumber)
-  // console.log({ voteWeights })
+  console.log({ voteWeights })
 
   const relevantVoteWeights = R.innerJoin(
-    (record, address) => record.to_address === address,
+    (record: any, address) => record.to_address === address,
     voteWeights,
     addresses,
   )
 
-  const missingAddresses = R.difference(
-    addresses,
-    relevantVoteWeights.map((record) => record.to_address),
-  )
+  console.log({ relevantVoteWeights })
 
   // console.log("Missing addresses", missingAddresses)
 
@@ -83,6 +82,5 @@ export default async function getVoteWeightsForSnapshot(
           ? "0"
           : BigNumber.from(record.delegated_amount).toString(),
       ]),
-      ...missingAddresses.map((address) => [address, "0"]),
     ])
 }

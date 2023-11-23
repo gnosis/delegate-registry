@@ -1,7 +1,6 @@
 // retun top delegates for a given snapshot space.
-import * as R from "ramda"
 import type { VercelRequest, VercelResponse } from "@vercel/node"
-import { db, getDelegationSnapshot } from "../../../../lib/services/storage/db"
+import { db } from "../../../../lib/services/storage/db"
 
 const { count, sum } = db.fn
 
