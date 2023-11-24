@@ -21,6 +21,20 @@ Therefore A's and B's voting power must be set to 0.
 
 ## Endpoints for retrieving information about the current (latest) delegation graph
 
+For any of this endpoints to return any data, the latest delegation graph must be created via:
+
+`api/update-all`: will build the delegation graph for the latest block and save it in the database (will replace any earlier saved, latest graph), for all spaces that has any v2 delegations. Should be called regularly. This is set up to be called automatically via a Vercel cronjob.
+
+`api/[space]/latest/update`: can be used to trigger an update for the latest delegation graph for a specific space.
+
+`api/[space]/latest/stats`: used to retrieve information about the latest delegation graph for a space.
+
+`api/[space]/latest/delegates/[delegateAddress]`: used to fetch information about a specific delegate.
+
+`api/[space]/latest/delegates/top`: used to fetch the top delegates by delegated vote weight or number of delegations.
+
+`api/[space]/latest/delegators/[delegatorAddress]`: fetch information about who a delegate is delegating to.
+
 ## How to set up and start
 
 ```
