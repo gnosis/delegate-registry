@@ -7,11 +7,15 @@ import { ethers } from "ethers"
 const { getAddress } = ethers.utils
 
 const delegatorToDelegationSets: { [frmAccount: string]: DelegationSet } = {
-  "0x67A16655c1c46f8822726e989751817c49f29054": {
-    fromAccount: { id: "0x67A16655c1c46f8822726e989751817c49f29054" },
+  [getAddress("0x67A16655c1c46f8822726e989751817c49f29054")]: {
+    fromAccount: {
+      id: getAddress("0x67A16655c1c46f8822726e989751817c49f29054"),
+    },
     delegations: [
       {
-        toAccount: { id: "0x6cc5b30Cd0A93C1F85C7868f5F2620AB8c458190" },
+        toAccount: {
+          id: getAddress("0x6cc5b30Cd0A93C1F85C7868f5F2620AB8c458190"),
+        },
         numerator: 40,
       },
     ],
@@ -19,15 +23,21 @@ const delegatorToDelegationSets: { [frmAccount: string]: DelegationSet } = {
     denominator: 40,
     creationTimestamp: 1676539572,
   },
-  "0x6cc5b30Cd0A93C1F85C7868f5F2620AB8c458190": {
-    fromAccount: { id: "0x6cc5b30Cd0A93C1F85C7868f5F2620AB8c458190" },
+  [getAddress("0x6cc5b30Cd0A93C1F85C7868f5F2620AB8c458190")]: {
+    fromAccount: {
+      id: getAddress("0x6cc5b30Cd0A93C1F85C7868f5F2620AB8c458190"),
+    },
     delegations: [
       {
-        toAccount: { id: "0x7ef021f62E3E7975FBC21d3202C5A1F19D53bB47" },
+        toAccount: {
+          id: getAddress("0x7ef021f62E3E7975FBC21d3202C5A1F19D53bB47"),
+        },
         numerator: 4,
       },
       {
-        toAccount: { id: "0xDE1e8A7E184Babd9F0E3af18f40634e9Ed6F0905" },
+        toAccount: {
+          id: getAddress("0xDE1e8A7E184Babd9F0E3af18f40634e9Ed6F0905"),
+        },
         numerator: 13,
       },
     ],
@@ -35,15 +45,21 @@ const delegatorToDelegationSets: { [frmAccount: string]: DelegationSet } = {
     denominator: 17,
     creationTimestamp: 1676539116,
   },
-  "0x53bcFaEd43441C7bB6149563eC11f756739C9f6A": {
-    fromAccount: { id: "0x53bcFaEd43441C7bB6149563eC11f756739C9f6A" },
+  [getAddress("0x53bcFaEd43441C7bB6149563eC11f756739C9f6A")]: {
+    fromAccount: {
+      id: getAddress("0x53bcFaEd43441C7bB6149563eC11f756739C9f6A"),
+    },
     delegations: [
       {
-        toAccount: { id: "0xd714Dd60e22BbB1cbAFD0e40dE5Cfa7bBDD3F3C8" },
+        toAccount: {
+          id: getAddress("0xd714Dd60e22BbB1cbAFD0e40dE5Cfa7bBDD3F3C8"),
+        },
         numerator: 3,
       },
       {
-        toAccount: { id: "0xDE1e8A7E184Babd9F0E3af18f40634e9Ed6F0905" },
+        toAccount: {
+          id: getAddress("0xDE1e8A7E184Babd9F0E3af18f40634e9Ed6F0905"),
+        },
         numerator: 6,
       },
     ],
@@ -70,11 +86,13 @@ describe("remove-optouts", () => {
       )
 
       expect(
-        (delegatorToDelegationSet["0x6cc5b30Cd0A93C1F85C7868f5F2620AB8c458190"]
-          .delegations ?? [])[0].numerator,
+        (delegatorToDelegationSet[
+          getAddress("0x6cc5b30Cd0A93C1F85C7868f5F2620AB8c458190")
+        ].delegations ?? [])[0].numerator,
       ).to.equal(
-        delegatorToDelegationSet["0x6cc5b30Cd0A93C1F85C7868f5F2620AB8c458190"]
-          .denominator,
+        delegatorToDelegationSet[
+          getAddress("0x6cc5b30Cd0A93C1F85C7868f5F2620AB8c458190")
+        ].denominator,
         "This delegator should have all their vote weight delegated to the delegate that is left, when the other delegate has opted out",
       )
     })
@@ -91,14 +109,16 @@ describe("remove-optouts", () => {
       console.log(
         JSON.stringify(
           delegatorToDelegationSet[
-            "0x53bcFaEd43441C7bB6149563eC11f756739C9f6A"
+            getAddress("0x53bcFaEd43441C7bB6149563eC11f756739C9f6A")
           ],
         ),
       )
       console.log("delegatorToDelegationSet: ", delegatorToDelegationSet)
 
       expect(
-        delegatorToDelegationSet["0x53bcFaEd43441C7bB6149563eC11f756739C9f6A"],
+        delegatorToDelegationSet[
+          getAddress("0x53bcFaEd43441C7bB6149563eC11f756739C9f6A")
+        ],
       ).to.be.undefined
     })
   })

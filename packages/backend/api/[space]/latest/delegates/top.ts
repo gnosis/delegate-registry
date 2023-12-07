@@ -43,8 +43,6 @@ export default async function getTopDelegates(
     console.log("No delegations found for space context", space)
   }
 
-  console.log(topDelegates)
-
   response.status(200).json({
     success: "true",
     topDelegates,

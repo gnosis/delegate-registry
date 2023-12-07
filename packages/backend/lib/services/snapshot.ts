@@ -1,4 +1,5 @@
 import snapshot from "@snapshot-labs/snapshot.js"
+import { getAddress } from "ethers/lib/utils"
 import * as R from "ramda"
 // import fetch from "node-fetch"
 
@@ -9,6 +10,12 @@ export type DelegateRegistryStrategyParams = {
   delegationV1VChainIds?: number[]
 }
 
+export type Space = {
+  name: string
+  network: string
+  strategies: SnapshotStrategy[]
+}
+
 export type SnapshotStrategy = {
   name: string
   params: Record<string, string>
@@ -17,6 +24,7 @@ export type SnapshotStrategy = {
 
 const SNAPSHOT_HUB = "https://hub.snapshot.org"
 const SNAPSHOT_HUB_GOERLI = "https://testnet.snapshot.org"
+const MAXIMUM_ADDRESSES_PER_REQUEST = 500
 
 /**
  * Fetches the and returns the vote weights for each address in a given space.
@@ -38,6 +46,7 @@ export const fetchVoteWeights = async (
   if (strategies == null) {
     strategies = await fetchStrategies(spaceName)
   }
+  // console.log("strategies", strategies)
   if (strategies.length === 0) {
     console.log(
       "No strategies found for space: ",
@@ -64,36 +73,78 @@ export const fetchVoteWeights = async (
   if (strategies == null) {
     throw new Error("No strategies found for space: " + spaceName)
   }
-  return strategies.reduce(async (accPromise, strategy) => {
-    const acc = await accPromise
-    try {
-      const rawScores = await snapshot.utils.getScores(
-        spaceName,
-        [strategy],
-        strategy.network,
-        addresses,
-        blockNumber,
-      )
-      const scores = scoresAsObject(rawScores)
-      return Object.keys(acc).length === 0
-        ? scores
-        : R.mergeWith(R.add, acc, scores)
-    } catch (error) {
-      console.log(
-        `[${spaceName}] Error when getting scores from snapshot (using snapshot.js). Error`,
-        error,
-      )
-      console.log("Failing call: await snapshot.utils.getScores(", {
-        spaceName,
-        strategies: [strategy],
-        network: strategy.network,
-        addresses,
-        blockNumber,
-      })
 
-      return acc
+  const promises: Promise<[Record<string, number>][]>[] = []
+
+  console.log(`[${spaceName}] Getting scores for ${addresses.length} addresses`)
+
+  for (let i = 0; i < addresses.length; i += MAXIMUM_ADDRESSES_PER_REQUEST) {
+    const addressesChunk = addresses.slice(i, i + MAXIMUM_ADDRESSES_PER_REQUEST)
+    console.log(
+      `[${spaceName}] Getting scores for addresses ${i} to ${
+        i + MAXIMUM_ADDRESSES_PER_REQUEST
+      } of ${addresses.length} addresses`,
+    )
+    promises.push(
+      ...strategies.map((strategy) => {
+        console.log(
+          `[${spaceName}] Getting scores for strategy: ${strategy.name} on network: ${strategy.network}`,
+        )
+        return snapshot.utils.getScores(
+          spaceName,
+          [strategy],
+          strategy.network,
+          addressesChunk,
+          blockNumber,
+        )
+      }),
+    )
+  }
+
+  const scoresChunks = await Promise.all(promises)
+
+  console.log(`[${spaceName}] Got scores for chunk. Merging...`)
+  // Merge scoresChunks into mergedScores
+  const mergedScores = scoresChunks.reduce((acc, [scores]) => {
+    for (const [rawAddress, score] of Object.entries(scores)) {
+      const address = getAddress(rawAddress)
+      acc[address] = (acc[address] ?? 0) + score
     }
-  }, {} as Promise<Record<string, number>>)
+    return acc
+  }, {})
+
+  return mergedScores
+
+  // return strategies.reduce(async (accPromise, strategy) => {
+  //   const acc = await accPromise
+  //   try {
+  //     const rawScores = await snapshot.utils.getScores(
+  //       spaceName,
+  //       [strategy],
+  //       strategy.network,
+  //       addresses,
+  //       blockNumber,
+  //     )
+  //     const scores = scoresAsObject(rawScores)
+  //     return Object.keys(acc).length === 0
+  //       ? scores
+  //       : R.mergeWith(R.add, acc, scores)
+  //   } catch (error) {
+  //     console.log(
+  //       `[${spaceName}] Error when getting scores from snapshot (using snapshot.js). Error`,
+  //       error,
+  //     )
+  //     console.log("Failing call: await snapshot.utils.getScores(", {
+  //       spaceName,
+  //       strategies: [strategy],
+  //       network: strategy.network,
+  //       addresses,
+  //       blockNumber,
+  //     })
+
+  //     return acc
+  //   }
+  // }, {} as Promise<Record<string, number>>)
 }
 
 /**
@@ -134,7 +185,7 @@ const fetchStrategies = async (
 export const fetchSnapshotSpaceSettings = async (
   spaceName: string,
   testSpace: boolean,
-): Promise<DelegateRegistryStrategyParams> => {
+): Promise<Space> => {
   console.log("fetchSnapshotSpaceSettings", spaceName)
   console.log("testSpace", testSpace)
   const res = await fetch(`${getHubUrl(testSpace)}/api/spaces/${spaceName}`, {})

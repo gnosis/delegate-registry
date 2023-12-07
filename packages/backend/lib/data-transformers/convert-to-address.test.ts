@@ -11,18 +11,18 @@ import { getAddress } from "ethers/lib/utils"
 describe("convert-to-address.test", () => {
   const delegationSet: DelegationSet = {
     fromAccount: {
-      id: getAddress("0xD028d504316FEc029CFa36bdc3A8f053F6E5a6e4"),
+      id: "0xD028d504316FEc029CFa36bdc3A8f053F6E5a6e4",
     },
     delegations: [
       {
         toAccount: {
-          id: getAddress("0x6cc5b30Cd0A93C1F85C7868f5F2620AB8c458190"),
+          id: "0x6cc5b30Cd0A93C1F85C7868f5F2620AB8c458190",
         },
         numerator: "400",
       },
       {
         toAccount: {
-          id: getAddress("0xd714Dd60e22BbB1cbAFD0e40dE5Cfa7bBDD3F3C8"),
+          id: "0xd714Dd60e22BbB1cbAFD0e40dE5Cfa7bBDD3F3C8",
         },
         numerator: "500",
       },

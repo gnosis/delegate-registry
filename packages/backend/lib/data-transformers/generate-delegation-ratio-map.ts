@@ -6,6 +6,7 @@ import {
   DelegationSet,
   Ratio,
 } from "../../types"
+import { getAddress } from "ethers/lib/utils"
 
 /**
  * Transforms a (fromAccount -> delegation set) map into a (toAccount -> fromAccount -> ratio) map.
@@ -21,9 +22,9 @@ export const generateDelegationRatioMap = (
   R.reduce<DelegationSet, DelegateToDelegatorToValue<Ratio>>(
     (acc, delegationSet) => {
       R.forEach<Delegation>((delegation) => {
-        acc[delegation.toAccount.id] = {
-          ...acc[delegation.toAccount.id],
-          [delegationSet.fromAccount.id]: {
+        acc[getAddress(delegation.toAccount.id)] = {
+          ...acc[getAddress(delegation.toAccount.id)],
+          [getAddress(delegationSet.fromAccount.id)]: {
             numerator: delegation.numerator,
             denominator: delegationSet.denominator,
           },

@@ -3,7 +3,6 @@ import { computeVoteWeights } from "./data-transformers/compute-vote-weights"
 import { getDelegationRatioMap } from "./data"
 import {
   DelegateRegistryStrategyParams,
-  SnapshotStrategy,
   fetchSnapshotSpaceSettings,
   fetchVoteWeights,
 } from "./services/snapshot"
@@ -35,15 +34,22 @@ export const createDelegationSnapshot = async ({
     )
   }
 
-  const spaceSettings =
-    delegateRegistryParamsIn ??
-    (await fetchSnapshotSpaceSettings(spaceName, useSnapshotTestHub))
-  console.log(`[${spaceName}] spaceSettings:`, spaceSettings)
+  console.log("delegateRegistryParamsIn:", delegateRegistryParamsIn)
 
-  if (spaceSettings == null) {
-    throw new Error(
+  const delegateRegistryParams: DelegateRegistryStrategyParams | undefined =
+    delegateRegistryParamsIn ??
+    ((
+      await fetchSnapshotSpaceSettings(spaceName, useSnapshotTestHub)
+    ).strategies.find((strategy) => strategy.name === "delegate-registry-v2")
+      ?.params?.params as unknown as DelegateRegistryStrategyParams | undefined)
+
+  console.log(`[${spaceName}] delegateRegistryParams:`, delegateRegistryParams)
+
+  if (delegateRegistryParams == null) {
+    console.log(
       "No delegate registry strategy v2 found for space: " + spaceName,
     )
+    return
   }
 
   if (isUpdateOfLatest) {
@@ -61,13 +67,13 @@ export const createDelegationSnapshot = async ({
 
   const delegations = await getDelegationRatioMap(
     spaceName,
-    spaceSettings,
+    delegateRegistryParams,
     mainChainBlocknumber,
   )
   console.log(
-    `[${spaceName}] Total number of delegations: ${
+    `[${spaceName}] Total number of delegates: ${
       Object.keys(delegations).length
-    })`,
+    }`,
   )
 
   if (delegations == null) {
@@ -76,7 +82,7 @@ export const createDelegationSnapshot = async ({
       await db.addSnapshotToTheExcisingSnapshotTable(
         mainChainBlocknumber,
         spaceName,
-        spaceSettings,
+        delegateRegistryParams,
       )
     }
     return
@@ -113,7 +119,7 @@ export const createDelegationSnapshot = async ({
     spaceName,
     accountsRequiringVoteWeight,
     mainChainBlocknumber,
-    spaceSettings.strategies,
+    delegateRegistryParams.strategies,
   )
 
   const fetchVoteWeightsExecutionDoneTime = Date.now()
@@ -131,7 +137,7 @@ export const createDelegationSnapshot = async ({
       await db.addSnapshotToTheExcisingSnapshotTable(
         mainChainBlocknumber,
         spaceName,
-        spaceSettings,
+        delegateRegistryParams,
       )
     }
     return
@@ -142,6 +148,7 @@ export const createDelegationSnapshot = async ({
       R.keys(voteWeights).length
     } delegating addresses with non-zero vote weight.`,
   )
+
   const [delegatedVoteWeight, delegatedVoteWeightByAccount] =
     computeVoteWeights(delegations, voteWeights)
 
@@ -159,11 +166,13 @@ export const createDelegationSnapshot = async ({
       Object.keys(delegatedVoteWeightByAccount).length
     } delegators.`,
   )
-
   // const delegatedVoteWeightScaled =
   //   convertDelegatedVoteWeight(delegatedVoteWeight)
 
   // console.log("delegatedVoteWeightByAccount:", delegatedVoteWeightByAccount)
+
+  console.log("delegatedVoteWeight:")
+  console.log(delegatedVoteWeight)
 
   const delegatedVoteWeightByAccountScaled =
     convertDelegatedVoteWeightByAccount(delegatedVoteWeightByAccount)
@@ -175,11 +184,6 @@ export const createDelegationSnapshot = async ({
         computeVoteWeightsExecutionDoneTime) /
       1000
     } seconds`,
-  )
-
-  console.log(
-    "delegatedVoteWeightByAccountScaled",
-    delegatedVoteWeightByAccountScaled,
   )
 
   // TODO: optimize this by doing it in one of the previous steps (loops)
@@ -211,13 +215,18 @@ export const createDelegationSnapshot = async ({
       1000
     } seconds`,
   )
+  console.log(`[${spaceName}] Snapshot to be written to the DB:`)
+  console.log(snapshot)
 
   if (snapshot.length === 0) {
-    if (mainChainBlocknumber != null && spaceSettings.strategies != null) {
+    if (
+      mainChainBlocknumber != null &&
+      delegateRegistryParams.strategies != null
+    ) {
       await db.addSnapshotToTheExcisingSnapshotTable(
         mainChainBlocknumber,
         spaceName,
-        spaceSettings,
+        delegateRegistryParams,
       ) // even if the snapshot is empty we store it to avoid re-computing it
     }
     return
@@ -228,7 +237,7 @@ export const createDelegationSnapshot = async ({
     await db.deleteLatestSnapshot(spaceName) // should only have one latest snapshot (last snapshot has blocknumber = null)
   }
 
-  const res = await db.storeSnapshot(snapshot, spaceSettings)
+  const res = await db.storeSnapshot(snapshot, delegateRegistryParams)
 
   const dbStoreSnapshotExecutionDoneTime = Date.now()
   console.log(
