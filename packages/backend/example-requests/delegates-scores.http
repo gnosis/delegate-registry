@@ -1,13 +1,13 @@
 // Get the voting power delegated to each delegate provided in the request body.
 // This is the endpoint used by the Snapshot Strategy.
 
-POST http://localhost:3000/api/yam.eth/snapshot/18478898/strategy-formatted-vote-weights
+POST http://localhost:3000/api/gnosisdaotest.eth/snapshot/18478898/strategy-formatted-vote-weights
 content-type: application/json
 
 {
   "addresses": [
     "0xde1e6a7ed0ad3f61d531a8a78e83ccddbd6e0c49",
-    "0x0000000000000000000000000000000000000001",
+    "0x86C62a0DD8690fa2Ba6e3E3D9A18D021dBd2565A",
     "0x0000000000000000000000000000000000000002",
     "0x0000000000000000000000000000000000000003",
     "0x0000000000000000000000000000000000000004",
@@ -36,14 +36,6 @@ content-type: application/json
               "address": "0x6b175474e89094c44da98b954eedeac495271d0f",
               "symbol": "DAI",
               "decimals": 18
-            }
-          },
-          {
-            "name": "gno",
-            "params": {
-              "symbol": "GNO",
-              "decimals": 18,
-              "SUBGRAPH_URL": "https://api.thegraph.com/subgraphs/id/QmduKVUHCPjR5tmNEgooXHBMGKqDJWrUPdp6dEMeJM6Kqa"
             }
           }
     ],
