@@ -11,11 +11,13 @@ import * as R from "ramda"
 import { BigNumber } from "ethers"
 import { DelegateRegistryStrategyParams } from "../../../../lib/services/snapshot"
 import { initDb } from "../../../../lib/services/storage/db"
+import { handleCors } from "../../../../lib/corsHandler"
 
 export default async function getVoteWeightsForSnapshot(
   request: VercelRequest,
   response: VercelResponse,
 ) {
+  if (handleCors(request, response)) return
   await initDb()
   const context = request.query.space as string
   const mainChainBlocknumber: number | null =

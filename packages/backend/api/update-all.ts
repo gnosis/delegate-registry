@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node"
 import { createDelegationSnapshot } from "../lib/updateSnapshot"
 import { getSnapshotSpaces } from "../lib/data"
 import { initDb } from "../lib/services/storage/db"
+import { handleCors } from "../lib/corsHandler"
 
 /**
  * Recomputes the vote weights for all delegations, and stores the results.
@@ -12,6 +13,7 @@ export default async function updateDelegations(
   request: VercelRequest,
   response: VercelResponse,
 ) {
+  if (handleCors(request, response)) return
   const startTime = Date.now()
   await initDb()
   const spaces = await getSnapshotSpaces()

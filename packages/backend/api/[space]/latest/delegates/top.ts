@@ -1,6 +1,7 @@
 // retun top delegates for a given snapshot space.
 import type { VercelRequest, VercelResponse } from "@vercel/node"
 import { db } from "../../../../lib/services/storage/db"
+import { handleCors } from "../../../../lib/corsHandler"
 
 const { count, sum } = db.fn
 
@@ -8,11 +9,14 @@ export default async function getTopDelegates(
   request: VercelRequest,
   response: VercelResponse,
 ) {
+  if (handleCors(request, response)) return
+
   const space = request.query.space as string
   const by: "count" | "weight" =
     request.query.by === "weight" ? "weight" : "count"
 
   const limit = Number(request.query.limit) || 100
+  const offset = Number(request.query.offset) || 0
 
   let topDelegates
   if (by === "count") {
@@ -24,6 +28,7 @@ export default async function getTopDelegates(
       .select(["to_address", count("to_address").as("number_of_delegations")])
       .orderBy("number_of_delegations", "desc")
       .limit(limit)
+      .offset(offset)
       .execute()
   } else if (by === "weight") {
     topDelegates = await db

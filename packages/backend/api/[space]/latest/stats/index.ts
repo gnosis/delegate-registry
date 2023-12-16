@@ -3,12 +3,14 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node"
 import { db } from "../../../../lib/services/storage/db"
 import { BigNumber } from "ethers"
+import { handleCors } from "../../../../lib/corsHandler"
 const { count, sum } = db.fn
 
 export default async function getSpaceStats(
   request: VercelRequest,
   response: VercelResponse,
 ) {
+  if (handleCors(request, response)) return
   const space = request.query.space as string
 
   const numberOfDelegationsPromise = db

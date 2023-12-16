@@ -3,11 +3,13 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node"
 import { db, getDelegationSnapshot } from "../../../../lib/services/storage/db"
 import { BigNumber, ethers } from "ethers"
+import { handleCors } from "../../../../lib/corsHandler"
 
 export default async function getDelegationSet(
   request: VercelRequest,
   response: VercelResponse,
 ) {
+  if (handleCors(request, response)) return
   const space = request.query.space as string
   const delegatorAddress = ethers.utils.getAddress(
     request.query.delegatorAddress as string,
