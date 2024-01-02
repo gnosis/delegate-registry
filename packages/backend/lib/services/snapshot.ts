@@ -79,24 +79,50 @@ export const fetchVoteWeights = async (
   console.log(`[${spaceName}] Getting scores for ${addresses.length} addresses`)
 
   for (let i = 0; i < addresses.length; i += MAXIMUM_ADDRESSES_PER_REQUEST) {
-    const addressesChunk = addresses.slice(i, i + MAXIMUM_ADDRESSES_PER_REQUEST)
+    const chunkStart = i
+    const chunkEnd = Math.min(
+      i + MAXIMUM_ADDRESSES_PER_REQUEST,
+      addresses.length,
+    )
+    const addressesChunk = addresses.slice(chunkStart, chunkEnd)
     console.log(
-      `[${spaceName}] Getting scores for addresses ${i} to ${
-        i + MAXIMUM_ADDRESSES_PER_REQUEST
-      } of ${addresses.length} addresses`,
+      `[${spaceName}] Getting scores for addresses ${chunkStart} to ${chunkEnd} of ${addresses.length} addresses`,
     )
     promises.push(
       ...strategies.map((strategy) => {
         console.log(
           `[${spaceName}] Getting scores for strategy: ${strategy.name} on network: ${strategy.network}`,
         )
-        return snapshot.utils.getScores(
-          spaceName,
-          [strategy],
-          strategy.network,
-          addressesChunk,
-          blockNumber,
-        )
+        return snapshot.utils
+          .getScores(
+            spaceName,
+            [strategy],
+            strategy.network,
+            addressesChunk,
+            blockNumber,
+          )
+          .catch((error) => {
+            console.log(
+              `[${spaceName}] Error on: Getting scores for addresses ${chunkStart} to ${chunkEnd} of ${addresses.length} addresses. Error:`,
+              error,
+            )
+            console.log("Failing call: await snapshot.utils.getScores(", {
+              spaceName,
+              strategies: [strategy],
+              network: strategy.network,
+              addresses:
+                "[" +
+                addressesChunk[0] +
+                "... (" +
+                addressesChunk.length +
+                " addresses)]",
+              blockNumber,
+            })
+            console.log(
+              "This could be due to rate limiting from the Snapshot API.",
+            )
+            throw error
+          })
       }),
     )
   }

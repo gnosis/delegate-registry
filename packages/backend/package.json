@@ -13,7 +13,7 @@
     "test": "mocha --require ts-node/register lib/**/*.test.ts"
   },
   "dependencies": {
-    "@snapshot-labs/snapshot.js": "^0.8.1",
+    "@snapshot-labs/snapshot.js": "^0.9.9",
     "@vercel/node": "^2.14.2",
     "@vercel/postgres-kysely": "^0.6.0",
     "ethers": "^5.7.2",
